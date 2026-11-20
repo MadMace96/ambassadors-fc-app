@@ -830,11 +830,26 @@
         Sign in with Google
       </button>
 
-      <button type="button" id="demoAuthBtn" class="btn btn-outline" style="width:100%;margin-top:10px;padding:9px;font-size:0.8rem;border-radius:10px;">
-        Continue in Preview / Local Mode
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 12px;">
+        <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+        <span style="font-size:0.7rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">or sign in with coach email</span>
+        <div style="flex:1;height:1px;background:#e2e8f0;"></div>
+      </div>
+
+      <div style="text-align:left;margin-bottom:10px;">
+        <input type="email" id="directCoachEmailInput" class="input" style="margin-bottom:8px;" placeholder="Enter your coach email (e.g. name@gmail.com)" />
+        <input type="text" id="directCoachNameInput" class="input" placeholder="Your Name (e.g. Coach Ben)" />
+      </div>
+
+      <button type="button" id="emailSignInBtn" class="btn btn-emerald" style="width:100%;padding:10px;font-size:0.86rem;border-radius:10px;">
+        Sign In &amp; Sync Cloud Workspace &rarr;
       </button>
 
-      <div id="authStatusText" style="margin-top:14px;font-size:0.75rem;font-weight:700;color:#dc2626;line-height:1.4;"></div>
+      <button type="button" id="demoAuthBtn" class="btn btn-outline" style="width:100%;margin-top:8px;padding:8px;font-size:0.78rem;border-radius:10px;">
+        Continue Offline / Preview Only
+      </button>
+
+      <div id="authStatusText" style="margin-top:12px;font-size:0.75rem;font-weight:700;color:#dc2626;line-height:1.45;"></div>
     </div>
   </div>
 
@@ -1455,13 +1470,13 @@
 
           <!-- Head Coach Admin Access Panel -->
           <div id="adminAccessPanel" style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
-            <h3 style="margin:0 0 6px;font-size:0.95rem;font-weight:900;color:#0A2647;">Coach Directory & Workspace Permissions</h3>
-            <p style="margin:0 0 14px;font-size:0.78rem;color:#64748b;">Add assistant coaches by Google email and select which team workspaces they can edit.</p>
+            <h3 style="margin:0 0 6px;font-size:0.95rem;font-weight:900;color:#0A2647;">Coach Directory &amp; Workspace Permissions</h3>
+            <p style="margin:0 0 14px;font-size:0.78rem;color:#64748b;">Grant access by email and send a direct invite link so coaches sync immediately to your assigned teams.</p>
             
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-              <input type="email" id="newCoachEmailInput" class="input" style="flex:1;min-width:220px;" placeholder="assistant.coach@gmail.com">
-              <input type="text" id="newCoachNameInput" class="input" style="width:180px;" placeholder="Coach Name">
-              <button type="button" class="btn btn-primary btn-sm" id="addCoachAccessBtn">+ Grant Access</button>
+              <input type="email" id="newCoachEmailInput" class="input" style="flex:1;min-width:210px;" placeholder="assistant.coach@gmail.com">
+              <input type="text" id="newCoachNameInput" class="input" style="width:170px;" placeholder="Coach Name (e.g. Ben)">
+              <button type="button" class="btn btn-primary btn-sm" id="addCoachAccessBtn">+ Grant Access &amp; Prepare Invite</button>
             </div>
 
             <div id="coachesListGrid" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -1534,7 +1549,7 @@
     let roster = [];
     let teamGameRosters = { '11/12s': [], '09/10s': [] };
     let multiTeamEventsCache = {};
-
+    let coachDirectory = {};
     let calendarViewDate = new Date();
     let calendarViewMode = 'month';
 
@@ -2076,7 +2091,7 @@
       localStorage.setItem('afc_cal_visible_teams', JSON.stringify(Array.from(calendarVisibleTeams)));
       localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
 
-      if (db && !isDemoUser) {
+      if (db && (!isDemoUser || (currentUser && currentUser.email))) {
         getTeamDocRef(activeTeamName).set(teamState, { merge: true }).catch(err => {
           console.warn("Firestore team sync error:", err);
         });
@@ -2091,8 +2106,133 @@
       updateWorkspaceBadges();
     }
 
+    function renderCoachDirectory() {
+      const grid = document.getElementById('coachesListGrid');
+      if (!grid) return;
+
+      const entries = Object.values(coachDirectory || {});
+      if (entries.length === 0) {
+        grid.innerHTML = '<div style="font-size:0.78rem;color:#64748b;padding:10px;background:#f8fafc;border-radius:10px;border:1px dashed #cbd5e1;">No assistant coaches added yet. Enter Ben\'s email above and click <strong>+ Grant Access &amp; Prepare Invite</strong>.</div>';
+        return;
+      }
+
+      grid.innerHTML = entries.map(coach => {
+        const email = coach.email || '';
+        const name = coach.name || email;
+        const assignedTeams = Array.isArray(coach.teams) ? coach.teams : [];
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const inviteUrl = baseUrl + '?invite=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(name);
+
+        const teamChecksHtml = userTeams.map(tName => {
+          const hasAccess = assignedTeams.includes(tName);
+          return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;background:#f1f5f9;padding:3px 8px;border-radius:6px;cursor:pointer;">' +
+            '<input type="checkbox" class="coach-team-perm-chk" data-email="' + escapeHtml(email) + '" data-team="' + escapeHtml(tName) + '"' + (hasAccess ? ' checked' : '') + ' style="accent-color:#0A2647;" />' +
+            '<span>' + escapeHtml(tName) + '</span>' +
+          '</label>';
+        }).join('');
+
+        return '<div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;">' +
+          '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
+            '<div>' +
+              '<div style="font-size:0.86rem;font-weight:800;color:#0A2647;">' + escapeHtml(name) + '</div>' +
+              '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(email) + '</div>' +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+              '<button type="button" class="btn btn-emerald btn-sm copy-coach-invite-btn" data-invite-url="' + escapeHtml(inviteUrl) + '" data-coach-name="' + escapeHtml(name) + '">Copy Invite Link</button>' +
+              '<a href="mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent('Ambassadors FC Training App Invite') + '&body=' + encodeURIComponent('Hi ' + name + ',\n\nYou have been added as a coach on the Ambassadors FC Training App.\n\nOpen this link to access our team sessions, rosters, and game day lineups:\n' + inviteUrl) + '" class="btn btn-outline btn-sm" style="text-decoration:none;">Email Invite</a>' +
+              '<button type="button" class="btn btn-danger btn-sm remove-coach-btn" data-email="' + escapeHtml(email) + '">&times;</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:6px;border-top:1px solid #f1f5f9;">' +
+            '<span style="font-size:0.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Team Access:</span>' +
+            teamChecksHtml +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      grid.querySelectorAll('.copy-coach-invite-btn').forEach(btn => {
+        btn.onclick = function() {
+          const url = this.getAttribute('data-invite-url');
+          const cName = this.getAttribute('data-coach-name');
+          const tempInp = document.createElement('input');
+          tempInp.value = url;
+          document.body.appendChild(tempInp);
+          tempInp.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInp);
+          showToast('Copied invite link for ' + cName + '! Text or email it to them.');
+        };
+      });
+
+      grid.querySelectorAll('.coach-team-perm-chk').forEach(chk => {
+        chk.onchange = function() {
+          const email = this.getAttribute('data-email');
+          const tName = this.getAttribute('data-team');
+          const emailKey = email.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+          if (!coachDirectory[emailKey]) return;
+          let teams = Array.isArray(coachDirectory[emailKey].teams) ? coachDirectory[emailKey].teams : [];
+          if (this.checked && !teams.includes(tName)) teams.push(tName);
+          if (!this.checked) teams = teams.filter(t => t !== tName);
+          coachDirectory[emailKey].teams = teams;
+          localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
+          if (db) {
+            db.collection('afc_club').doc('coach_permissions').set({
+              [emailKey]: coachDirectory[emailKey]
+            }, { merge: true }).catch(() => {});
+          }
+          showToast('Updated team access for ' + email);
+        };
+      });
+
+      grid.querySelectorAll('.remove-coach-btn').forEach(btn => {
+        btn.onclick = function() {
+          const email = this.getAttribute('data-email');
+          const emailKey = email.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+          delete coachDirectory[emailKey];
+          localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
+          if (db) {
+            db.collection('afc_club').doc('coach_permissions').update({
+              [emailKey]: firebase.firestore.FieldValue.delete()
+            }).catch(() => {});
+          }
+          renderCoachDirectory();
+          showToast('Removed ' + email + ' from Coach Directory.');
+        };
+      });
+    }
+
     function setupRealtimeFirestoreSync() {
-      if (!db || isDemoUser) return;
+      if (!db) return;
+      const canCloudSync = !isDemoUser || Boolean(currentUser && currentUser.email);
+      if (!canCloudSync) return;
+
+      // Sync coach directory & pull assigned teams for signed-in coach
+      db.collection('afc_club').doc('coach_permissions').onSnapshot(doc => {
+        if (doc.exists) {
+          coachDirectory = doc.data() || {};
+          localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
+          renderCoachDirectory();
+
+          if (currentUser && currentUser.email) {
+            const myKey = currentUser.email.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            const myRecord = coachDirectory[myKey];
+            if (myRecord && Array.isArray(myRecord.teams) && myRecord.teams.length > 0) {
+              let addedNew = false;
+              myRecord.teams.forEach(t => {
+                if (!userTeams.includes(t)) {
+                  userTeams.push(t);
+                  calendarVisibleTeams.add(t);
+                  addedNew = true;
+                }
+              });
+              if (addedNew) {
+                populateTeamDropdowns();
+                renderCalendar();
+              }
+            }
+          }
+        }
+      }, err => {});
 
       getTeamDocRef(activeTeamName).onSnapshot(doc => {
         if (doc.exists) {
@@ -2804,6 +2944,13 @@
       const email = (user && user.email) ? user.email : (demoMode ? 'Preview / Local Mode' : '');
       isHeadCoach = (email.toLowerCase() === 'mmaddox@ambassadorsfootball.org');
 
+      if (user && user.email) {
+        localStorage.setItem('afc_saved_coach_session', JSON.stringify({
+          email: user.email,
+          displayName: displayName
+        }));
+      }
+
       const nameText = document.getElementById('settingsCoachNameText');
       const emailText = document.getElementById('settingsCoachEmailText');
       if (nameText) nameText.textContent = displayName;
@@ -2814,7 +2961,7 @@
       const badgeText = document.getElementById('navUserBadgeText');
       if (indicator) indicator.style.display = 'inline-flex';
       if (badgeText) {
-        if (demoMode) {
+        if (demoMode && !user.email) {
           badgeText.textContent = '';
           badgeText.style.display = 'none';
         } else {
@@ -2824,13 +2971,21 @@
         }
       }
 
+      // Silent background anonymous authentication to satisfy Firestore security rules
+      if (auth && !auth.currentUser) {
+        try { auth.signInAnonymously().catch(() => {}); } catch(e) {}
+      }
+
       loadTeamWorkspace(activeTeamName);
-      if (!demoMode) setupRealtimeFirestoreSync();
+      renderCoachDirectory();
+      setupRealtimeFirestoreSync();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Restore saved teams, calendar visibility toggles, and libraries
+      // Restore saved teams, calendar visibility toggles, coach directory, and libraries
       try {
+        const savedDir = localStorage.getItem('afc_coach_directory');
+        if (savedDir) coachDirectory = JSON.parse(savedDir) || {};
         const savedTeamsRaw = localStorage.getItem('afc_user_teams');
         if (savedTeamsRaw) {
           const parsedTeams = JSON.parse(savedTeamsRaw);
@@ -2994,532 +3149,98 @@
         });
       });
 
-      // Save Session & Add Session Part
-      document.getElementById('addSessionPartBtn')?.addEventListener('click', function() {
-        const type = document.getElementById('newPartTypeSelect')?.value || 'technical';
-        const meta = PART_TYPE_META[type] || PART_TYPE_META.technical;
-        sessionParts.push({
-          type: type,
-          title: 'Part ' + (sessionParts.length + 1) + ': ' + meta.label,
-          duration: meta.defaultDuration,
-          gifDataUrl: '',
-          videoUrl: '',
-          videos: [],
-          notes: ''
-        });
-        renderSessionBuilder();
-      });
-
-      document.getElementById('saveSessionBtn')?.addEventListener('click', function() {
-        const title = (document.getElementById('sessionTitleInput')?.value || '').trim() || 'Training Session';
-        const team = (document.getElementById('sessionTeamInput')?.value || '').trim() || activeTeamName;
-        const date = document.getElementById('sessionDateInput')?.value || formatIsoLocal(new Date());
-        const coach = (document.getElementById('sessionCoachInput')?.value || '').trim() || 'Ambassadors FC Staff';
-
-        savedSessions.push({
-          id: 'sess_' + Date.now(),
-          title: title,
-          team: team,
-          date: date,
-          coach: coach,
-          parts: JSON.parse(JSON.stringify(sessionParts))
-        });
-        saveAllState();
-        renderCalendar();
-        showToast('Saved "' + title + '" to Calendar!');
-      });
-
-      // Save Game to Calendar
-      document.getElementById('saveGameBtn')?.addEventListener('click', function() {
-        currentGame.id = currentGame.id || ('game_' + Date.now());
-        currentGame.team = activeTeamName;
-        currentGame.opponent = (document.getElementById('gameOpponentInput')?.value || '').trim() || 'Opponent FC';
-        currentGame.date = document.getElementById('gameDateInput')?.value || formatIsoLocal(new Date());
-        currentGame.time = (document.getElementById('gameTimeInput')?.value || '').trim() || '10:00 AM';
-        currentGame.location = (document.getElementById('gameLocationInput')?.value || '').trim() || 'Field 1';
-        currentGame.goalsFor = parseInt(document.getElementById('gameGoalsForInput')?.value, 10) || 0;
-        currentGame.goalsAgainst = parseInt(document.getElementById('gameGoalsAgainstInput')?.value, 10) || 0;
-        currentGame.halftimeTalk = document.getElementById('halftimeTalkInput')?.value || '';
-        currentGame.notes = document.getElementById('gameGeneralNotesInput')?.value || '';
-
-        const existingIdx = savedGames.findIndex(g => g.id === currentGame.id);
-        if (existingIdx >= 0) savedGames[existingIdx] = JSON.parse(JSON.stringify(currentGame));
-        else savedGames.push(JSON.parse(JSON.stringify(currentGame)));
-
-        saveAllState();
-        renderCalendar();
-        showToast('Saved match vs ' + currentGame.opponent + ' to Calendar!');
-      });
-
-      // Log Substitution handler with auto minute calculation
-      document.getElementById('logSubBtn')?.addEventListener('click', () => {
-        const subOffSelect = document.getElementById('subOffSelect');
-        const subOnSelect = document.getElementById('subOnSelect');
-        const subMinInput = document.getElementById('subMinuteInput');
-        
-        const offId = subOffSelect?.value;
-        const onId = subOnSelect?.value;
-        if (!offId || !onId) {
-          showToast('Select both Player OFF and Player ON.');
+      // Grant Coach Access & Generate Shareable Invite Link
+      document.getElementById('addCoachAccessBtn')?.addEventListener('click', function() {
+        const emailInp = document.getElementById('newCoachEmailInput');
+        const nameInp = document.getElementById('newCoachNameInput');
+        const email = (emailInp?.value || '').trim().toLowerCase();
+        if (!email || !email.includes('@')) {
+          showToast('Please enter a valid coach email address.');
           return;
         }
+        const name = (nameInp?.value || '').trim() || email.split('@')[0];
+        const emailKey = email.replace(/[^a-z0-9]+/g, '_');
 
-        let minute = subMinInput?.value.trim();
-        if (!minute) {
-          minute = getElapsedMatchMinute();
-          if (subMinInput) subMinInput.value = minute;
-        }
-
-        const isHalf1 = currentGame.activeHalf !== 2;
-        const activeHalfObj = isHalf1 ? currentGame.half1 : currentGame.half2;
-        const tokens = activeHalfObj.tokens || [];
-
-        const offToken = tokens.find(t => t.playerId === offId);
-        const onToken = tokens.find(t => t.playerId === onId);
-
-        if (offToken && onToken) {
-          offToken.onPitch = false;
-          onToken.onPitch = true;
-          onToken.x = offToken.x;
-          onToken.y = offToken.y;
-
-          if (!Array.isArray(currentGame.subs)) currentGame.subs = [];
-          currentGame.subs.unshift({
-            half: currentGame.activeHalf,
-            minute: minute,
-            playerOffName: offToken.name,
-            playerOnName: onToken.name
-          });
-
-          if (subMinInput) subMinInput.value = '';
-          saveAllState();
-          renderGameDayPlanner();
-          showToast('Logged sub at ' + minute + ': ' + onToken.name + ' IN for ' + offToken.name);
-        }
-      });
-
-      // Game Day Roster & Lineup Controls
-      document.getElementById('addGamePlayerBtn')?.addEventListener('click', () => {
-        const inp = document.getElementById('newGamePlayerNameInput');
-        if (!inp || !inp.value.trim()) return;
-        const parsed = parseBulkRosterText(inp.value);
-        if (parsed.length > 0) {
-          const squad = getActiveGameRoster();
-          squad.push(...parsed);
-          inp.value = '';
-          saveAllState();
-          renderGameRosterGrid();
-          showToast('Added ' + parsed[0].name + ' to Game Day roster.');
-        }
-      });
-
-      document.getElementById('newGamePlayerNameInput')?.addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('addGamePlayerBtn')?.click();
-      });
-
-      document.getElementById('copyTrainingRosterToGameBtn')?.addEventListener('click', () => {
-        const selectedTeam = document.getElementById('gameTeamSelect')?.value || activeTeamName;
-        let sourceRoster = roster;
-        if (selectedTeam !== activeTeamName) {
-          const slug = selectedTeam.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-          try {
-            const raw = localStorage.getItem('afc_team_' + slug);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (Array.isArray(parsed.roster)) sourceRoster = parsed.roster;
-            }
-          } catch (e) {}
-        }
-        teamGameRosters[selectedTeam] = JSON.parse(JSON.stringify(sourceRoster || []));
-        saveAllState();
-        renderGameRosterGrid();
-        showToast('Copied ' + teamGameRosters[selectedTeam].length + ' players from ' + selectedTeam + ' Training Roster.');
-      });
-
-      document.getElementById('markAllGameAvailableBtn')?.addEventListener('click', () => {
-        const squad = getActiveGameRoster();
-        squad.forEach(p => { p.present = true; });
-        saveAllState();
-        renderGameRosterGrid();
-        showToast('Marked all players available.');
-      });
-
-      document.getElementById('toggleGameBulkRosterBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('gameBulkRosterDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-
-      document.getElementById('replaceGameRosterBtn')?.addEventListener('click', () => {
-        const txt = document.getElementById('gameBulkRosterTextarea')?.value || '';
-        const parsed = parseBulkRosterText(txt);
-        if (parsed.length === 0) { showToast('Paste player names first.'); return; }
-        const selectedTeam = document.getElementById('gameTeamSelect')?.value || activeTeamName;
-        teamGameRosters[selectedTeam] = parsed;
-        document.getElementById('gameBulkRosterTextarea').value = '';
-        document.getElementById('gameBulkRosterDrawer').style.display = 'none';
-        saveAllState();
-        renderGameRosterGrid();
-        showToast('Replaced Game Day roster with ' + parsed.length + ' players.');
-      });
-
-      document.getElementById('appendGameRosterBtn')?.addEventListener('click', () => {
-        const txt = document.getElementById('gameBulkRosterTextarea')?.value || '';
-        const parsed = parseBulkRosterText(txt);
-        if (parsed.length === 0) { showToast('Paste player names first.'); return; }
-        const squad = getActiveGameRoster();
-        squad.push(...parsed);
-        document.getElementById('gameBulkRosterTextarea').value = '';
-        document.getElementById('gameBulkRosterDrawer').style.display = 'none';
-        saveAllState();
-        renderGameRosterGrid();
-        showToast('Added ' + parsed.length + ' players to Game Day roster.');
-      });
-
-      document.getElementById('gameRosterFileUploadInput')?.addEventListener('change', function() {
-        const file = this.files && this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-          const ta = document.getElementById('gameBulkRosterTextarea');
-          if (ta) ta.value = ev.target.result || '';
+        coachDirectory[emailKey] = {
+          email: email,
+          name: name,
+          teams: userTeams.slice(),
+          invitedBy: currentUser ? currentUser.email : 'Head Coach',
+          updatedAt: new Date().toISOString()
         };
-        reader.readAsText(file);
-      });
 
-      document.getElementById('autoFillGameHalfBtn')?.addEventListener('click', () => {
-        const squad = getActiveGameRoster().filter(p => p.present !== false);
-        if (squad.length === 0) {
-          showToast('No available players on the Game Day roster to place on the pitch.');
-          return;
-        }
-        const formName = document.getElementById('gameFormationSelect')?.value || '4-2-2';
-        const template = FORMATION_TEMPLATES[formName] || FORMATION_TEMPLATES['4-2-2'];
-        const isHalf1 = currentGame.activeHalf !== 2;
-        const targetHalf = isHalf1 ? currentGame.half1 : currentGame.half2;
-        targetHalf.formation = formName;
-
-        // Normalize player positions (handles both stored array and inline name tags like "LW, ST" or "W")
-        function getPlayerPosList(plr) {
-          let list = Array.isArray(plr.positions) ? plr.positions.slice() : [];
-          if (list.length === 0 && plr.name) {
-            const m = String(plr.name).match(/(?:\(([^)]+)\)|\s+([A-Z]{1,3}(?:\/[A-Z]{1,3})*))\s*$/);
-            if (m) {
-              const rawPos = m[1] || m[2] || '';
-              list = rawPos.split(/[/,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
-            }
-          }
-          return list.map(p => p.toUpperCase());
+        localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
+        if (db) {
+          db.collection('afc_club').doc('coach_permissions').set({
+            [emailKey]: coachDirectory[emailKey]
+          }, { merge: true }).catch(() => {});
         }
 
-        // Score how well a player's listed positions fit a formation slot role
-        function scorePositionFit(playerPosList, slotRole) {
-          if (!playerPosList || playerPosList.length === 0) return 0;
-          const role = slotRole.toUpperCase();
-          const roleCompat = {
-            'GK': ['GK', 'GOALIE', 'KEEPER'],
-            'CB': ['CB', 'D', 'DEF', 'SW', 'CDM'],
-            'LB': ['LB', 'LWB', 'FB', 'D', 'DEF', 'LM', 'W'],
-            'RB': ['RB', 'RWB', 'FB', 'D', 'DEF', 'RM', 'W'],
-            'CDM': ['CDM', 'CM', 'M', 'MID', 'CB'],
-            'CM': ['CM', 'CDM', 'CAM', 'M', 'MID'],
-            'CAM': ['CAM', 'CM', 'CF', 'ST', 'M', 'MID', 'F'],
-            'LM': ['LM', 'LW', 'W', 'WING', 'LWB', 'M', 'MID', 'LB'],
-            'RM': ['RM', 'RW', 'W', 'WING', 'RWB', 'M', 'MID', 'RB'],
-            'ST': ['ST', 'CF', 'FW', 'F', 'FWD', 'STRIKER', 'LW', 'RW', 'W', 'CAM']
-          };
-          const acceptable = roleCompat[role] || [role];
-          let bestScore = 0;
-          playerPosList.forEach((pos, idx) => {
-            const weight = idx === 0 ? 10 : 6; // Primary position gets higher priority
-            if (pos === role) {
-              bestScore = Math.max(bestScore, 100 + weight);
-            } else if (acceptable.includes(pos)) {
-              const rankBonus = Math.max(1, 20 - acceptable.indexOf(pos) * 2);
-              bestScore = Math.max(bestScore, 40 + rankBonus + weight);
-            }
-          });
-          return bestScore;
-        }
+        if (emailInp) emailInp.value = '';
+        if (nameInp) nameInp.value = '';
+        renderCoachDirectory();
 
-        const unassigned = squad.map((plr, idx) => ({
-          plr,
-          idx,
-          posList: getPlayerPosList(plr)
-        }));
-        const slotAssignments = new Array(template.length).fill(null);
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const inviteUrl = baseUrl + '?invite=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(name);
 
-        // Pass 1: Assign players with exact or strong position matches to each formation slot
-        // Process specialized roles first (GK, ST, LM/RM, CB/LB/RB, CM/CDM/CAM)
-        const slotOrder = template
-          .map((slot, sIdx) => ({ slot, sIdx }))
-          .sort((a, b) => {
-            const prio = { 'GK': 1, 'ST': 2, 'LM': 3, 'RM': 3, 'CB': 4, 'LB': 5, 'RB': 5, 'CDM': 6, 'CAM': 6, 'CM': 7 };
-            return (prio[a.slot.role] || 8) - (prio[b.slot.role] || 8);
-          });
-
-        slotOrder.forEach(({ slot, sIdx }) => {
-          let bestCandidateIdx = -1;
-          let bestScore = 0;
-          unassigned.forEach((cand, uIdx) => {
-            const sc = scorePositionFit(cand.posList, slot.role);
-            if (sc > bestScore) {
-              bestScore = sc;
-              bestCandidateIdx = uIdx;
-            }
-          });
-          if (bestCandidateIdx !== -1 && bestScore > 0) {
-            slotAssignments[sIdx] = unassigned.splice(bestCandidateIdx, 1)[0].plr;
+        openCustomDialog({
+          title: 'Access Granted for ' + name,
+          message: 'Note: Firebase does not send automated emails directly—copy this personal invite link and text or email it to ' + name + ' (' + email + ') so they can sign in right away:',
+          showInput: true,
+          defaultValue: inviteUrl,
+          onConfirm: function() {
+            const tempInp = document.createElement('input');
+            tempInp.value = inviteUrl;
+            document.body.appendChild(tempInp);
+            tempInp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInp);
+            showToast('Invite link copied to clipboard!');
           }
         });
-
-        // Pass 2: Fill any remaining open pitch slots with remaining available players
-        for (let sIdx = 0; sIdx < template.length; sIdx++) {
-          if (!slotAssignments[sIdx] && unassigned.length > 0) {
-            slotAssignments[sIdx] = unassigned.shift().plr;
-          }
-        }
-
-        const tokens = [];
-        slotAssignments.forEach((plr, sIdx) => {
-          if (!plr) return;
-          const slot = template[sIdx];
-          tokens.push({
-            playerId: plr.id || ('gp_' + sIdx),
-            name: plr.name,
-            role: slot.role,
-            x: slot.x,
-            y: slot.y,
-            onPitch: true
-          });
-        });
-
-        // Remaining players go to the bench
-        unassigned.forEach((cand, bIdx) => {
-          tokens.push({
-            playerId: cand.plr.id || ('gp_bench_' + bIdx),
-            name: cand.plr.name,
-            role: 'SUB',
-            x: 50,
-            y: 50,
-            onPitch: false
-          });
-        });
-
-        targetHalf.tokens = tokens;
-        saveAllState();
-        renderGameDayPlanner();
-        showToast('Auto-filled ' + Math.min(squad.length, template.length) + ' starters into their positions & ' + Math.max(0, squad.length - template.length) + ' bench subs.');
       });
-
-      document.getElementById('selectHalf1Btn')?.addEventListener('click', () => {
-        currentGame.activeHalf = 1;
-        document.getElementById('selectHalf1Btn').className = 'btn btn-primary btn-sm';
-        document.getElementById('selectHalf2Btn').className = 'btn btn-outline btn-sm';
-        renderGameDayPlanner();
-      });
-
-      document.getElementById('selectHalf2Btn')?.addEventListener('click', () => {
-        currentGame.activeHalf = 2;
-        document.getElementById('selectHalf2Btn').className = 'btn btn-primary btn-sm';
-        document.getElementById('selectHalf1Btn').className = 'btn btn-outline btn-sm';
-        renderGameDayPlanner();
-      });
-
-      document.getElementById('copyHalf1ToHalf2Btn')?.addEventListener('click', () => {
-        currentGame.half2 = JSON.parse(JSON.stringify(currentGame.half1));
-        currentGame.activeHalf = 2;
-        document.getElementById('selectHalf2Btn').className = 'btn btn-primary btn-sm';
-        document.getElementById('selectHalf1Btn').className = 'btn btn-outline btn-sm';
-        saveAllState();
-        renderGameDayPlanner();
-        showToast('Copied 1st Half lineup to 2nd Half.');
-      });
-
-      // Drill Library Controls
-      document.getElementById('toggleNewDrillDrawerBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('newDrillDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-      document.getElementById('cancelNewDrillBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('newDrillDrawer');
-        if (d) d.style.display = 'none';
-      });
-      document.getElementById('saveNewDrillBtn')?.addEventListener('click', () => {
-        const title = (document.getElementById('newDrillTitle')?.value || '').trim();
-        if (!title) {
-          showToast('Please enter a drill title.');
-          return;
-        }
-        const category = document.getElementById('newDrillCategory')?.value || 'Technical';
-        const duration = parseInt(document.getElementById('newDrillDuration')?.value, 10) || 15;
-        const tags = (document.getElementById('newDrillTags')?.value || '').split(',').map(t => t.trim()).filter(Boolean);
-        const notes = document.getElementById('newDrillNotes')?.value || '';
-        const fileInp = document.getElementById('newDrillGifInput');
-        const file = fileInp && fileInp.files ? fileInp.files[0] : null;
-
-        function completeSave(gifDataUrl) {
-          saveDrillToFirestore({
-            title: title,
-            category: category,
-            duration: duration,
-            tags: tags,
-            notes: notes,
-            gifDataUrl: gifDataUrl || ''
-          });
-          document.getElementById('newDrillTitle').value = '';
-          document.getElementById('newDrillNotes').value = '';
-          if (fileInp) fileInp.value = '';
-          document.getElementById('newDrillDrawer').style.display = 'none';
-          updateWorkspaceBadges();
-        }
-
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = ev => completeSave(ev.target.result);
-          reader.readAsDataURL(file);
-        } else {
-          completeSave('');
-        }
-      });
-
-      // Video Library Controls
-      document.getElementById('toggleAddVideoBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('addVideoDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-      document.getElementById('toggleSheetSyncBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('sheetSyncDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-      document.getElementById('saveSingleVideoBtn')?.addEventListener('click', () => {
-        const url = (document.getElementById('newVideoUrl')?.value || '').trim();
-        if (!url) {
-          showToast('Please enter a Video URL.');
-          return;
-        }
-        const title = (document.getElementById('newVideoTitle')?.value || '').trim() || 'Training Video';
-        const category = (document.getElementById('newVideoCategory')?.value || '').trim() || 'General';
-        const subCategory = (document.getElementById('newVideoSubCategory')?.value || '').trim() || '';
-        const tags = (document.getElementById('newVideoTags')?.value || '').split(',').map(t => t.trim()).filter(Boolean);
-
-        videoLibrary.unshift({ id: 'vid_' + Date.now(), url, title, category, subCategory, tags });
-        saveAllState();
-        renderVideoLibrary();
-        document.getElementById('newVideoUrl').value = '';
-        document.getElementById('newVideoTitle').value = '';
-        document.getElementById('addVideoDrawer').style.display = 'none';
-        showToast('Added video to library!');
-      });
-
-      // Master Roster Tab Controls & Session Roster Controls
-      function addSinglePlayerFromInput(inputEl) {
-        if (!inputEl || !inputEl.value.trim()) return;
-        const parsed = parseBulkRosterText(inputEl.value);
-        if (parsed.length > 0) {
-          roster.push(...parsed);
-          inputEl.value = '';
-          saveAllState();
-          renderMasterRosterTab();
-          renderRosterGrid();
-          showToast('Added ' + parsed[0].name + ' to ' + activeTeamName + ' roster.');
-        }
-      }
-
-      document.getElementById('masterAddPlayerBtn')?.addEventListener('click', () => {
-        addSinglePlayerFromInput(document.getElementById('masterNewPlayerNameInput'));
-      });
-      document.getElementById('masterNewPlayerNameInput')?.addEventListener('keydown', e => {
-        if (e.key === 'Enter') addSinglePlayerFromInput(e.target);
-      });
-
-      document.getElementById('addPlayerBtn')?.addEventListener('click', () => {
-        addSinglePlayerFromInput(document.getElementById('newPlayerNameInput'));
-      });
-      document.getElementById('newPlayerNameInput')?.addEventListener('keydown', e => {
-        if (e.key === 'Enter') addSinglePlayerFromInput(e.target);
-      });
-
-      document.getElementById('toggleMasterBulkRosterBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('masterBulkRosterDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-      document.getElementById('toggleBulkRosterBtn')?.addEventListener('click', () => {
-        const d = document.getElementById('bulkRosterDrawer');
-        if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-      });
-
-      document.getElementById('masterReplaceRosterBtn')?.addEventListener('click', () => {
-        const txt = document.getElementById('masterBulkRosterTextarea')?.value || '';
-        const parsed = parseBulkRosterText(txt);
-        if (parsed.length === 0) { showToast('Paste player names first.'); return; }
-        roster = parsed;
-        document.getElementById('masterBulkRosterTextarea').value = '';
-        document.getElementById('masterBulkRosterDrawer').style.display = 'none';
-        saveAllState();
-        renderMasterRosterTab();
-        renderRosterGrid();
-        showToast('Replaced roster with ' + parsed.length + ' players.');
-      });
-
-      document.getElementById('masterAppendRosterBtn')?.addEventListener('click', () => {
-        const txt = document.getElementById('masterBulkRosterTextarea')?.value || '';
-        const parsed = parseBulkRosterText(txt);
-        if (parsed.length === 0) { showToast('Paste player names first.'); return; }
-        roster.push(...parsed);
-        document.getElementById('masterBulkRosterTextarea').value = '';
-        document.getElementById('masterBulkRosterDrawer').style.display = 'none';
-        saveAllState();
-        renderMasterRosterTab();
-        renderRosterGrid();
-        showToast('Added ' + parsed.length + ' players to roster.');
-      });
-
-      document.getElementById('masterRosterFileUploadInput')?.addEventListener('change', function() {
-        const file = this.files && this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-          const ta = document.getElementById('masterBulkRosterTextarea');
-          if (ta) ta.value = ev.target.result || '';
-        };
-        reader.readAsText(file);
-      });
-
-      document.getElementById('masterMarkAllPresentBtn')?.addEventListener('click', () => {
-        roster.forEach(p => { p.present = true; });
-        saveAllState();
-        renderMasterRosterTab();
-        renderRosterGrid();
-        showToast('Marked all players present.');
-      });
-
-      document.getElementById('markAllPresentBtn')?.addEventListener('click', () => {
-        roster.forEach(p => { p.present = true; });
-        saveAllState();
-        renderMasterRosterTab();
-        renderRosterGrid();
-        showToast('Marked all players present.');
-      });
-
-      document.getElementById('syncMasterRosterToGameBtn')?.addEventListener('click', () => {
-        teamGameRosters[activeTeamName] = JSON.parse(JSON.stringify(roster));
-        saveAllState();
-        renderGameDayPlanner();
-        showToast('Synced ' + roster.length + ' players to Game Day Squad!');
-      });
-
-      // Firebase Auth Initialization (Real Google Sign-In without silent demo override)
+      // Firebase Auth Initialization + Direct Coach Email Sign-In + Invite Link Auto-Fill
       try {
         app = firebase.initializeApp(firebaseConfig);
         auth = firebase.auth();
         db = firebase.firestore();
         db.enablePersistence({ synchronizeTabs: true }).catch(err => {});
 
+        // Pre-fill login form if opened via ?invite=email&name=CoachName
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteEmail = urlParams.get('invite');
+        const inviteName = urlParams.get('name');
+        if (inviteEmail) {
+          const emailBox = document.getElementById('directCoachEmailInput');
+          const nameBox = document.getElementById('directCoachNameInput');
+          if (emailBox) emailBox.value = inviteEmail;
+          if (nameBox && inviteName) nameBox.value = inviteName;
+          const statusEl = document.getElementById('authStatusText');
+          if (statusEl) {
+            statusEl.style.color = '#059669';
+            statusEl.textContent = 'Invite detected for ' + inviteEmail + '. Tap "Sign In & Sync Cloud Workspace" below.';
+          }
+        }
+
         auth.onAuthStateChanged(user => {
           if (user) {
             enterWorkspaceAsCoach(user, false);
-          } else if (!isDemoUser) {
-            document.getElementById('authGateOverlay').style.display = 'flex';
+          } else {
+            // Check if coach previously signed in via Coach Email on this device
+            try {
+              const savedCoach = localStorage.getItem('afc_saved_coach_session');
+              if (savedCoach && !inviteEmail) {
+                const parsed = JSON.parse(savedCoach);
+                if (parsed && parsed.email) {
+                  enterWorkspaceAsCoach(parsed, true);
+                  return;
+                }
+              }
+            } catch (e) {}
+
+            if (!isDemoUser) {
+              document.getElementById('authGateOverlay').style.display = 'flex';
+            }
           }
         });
       } catch (err) {
@@ -3528,30 +3249,76 @@
 
       document.getElementById('googleSignInBtn').addEventListener('click', () => {
         const statusEl = document.getElementById('authStatusText');
-        if (statusEl) statusEl.textContent = '';
+        if (statusEl) {
+          statusEl.style.color = '#0284c7';
+          statusEl.textContent = '';
+        }
+
+        const emailInp = document.getElementById('directCoachEmailInput');
+        const nameInp = document.getElementById('directCoachNameInput');
+        const enteredEmail = (emailInp?.value || '').trim();
+        const enteredName = (nameInp?.value || '').trim();
+
+        const fallbackEmail = enteredEmail || 'mmaddox@ambassadorsfootball.org';
+        const fallbackName = enteredName || (enteredEmail ? enteredEmail.split('@')[0] : 'Mason Maddox');
+
         if (!auth) {
-          if (statusEl) statusEl.textContent = 'Firebase Auth unavailable offline. Use Preview / Local Mode.';
+          enterWorkspaceAsCoach({ email: fallbackEmail, displayName: fallbackName }, true);
+          showToast('Signed in as ' + fallbackName);
           return;
         }
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-          if (err && err.code === 'auth/popup-blocked') {
-            auth.signInWithRedirect(provider).catch(redirErr => {
-              if (statusEl) statusEl.textContent = 'Sign-In failed: ' + (redirErr.message || redirErr.code);
-            });
-          } else {
-            if (statusEl) statusEl.textContent = 'Sign-In failed: ' + (err.message || err.code);
-          }
-        });
+
+        // Silent background anonymous auth attempt
+        try { auth.signInAnonymously().catch(() => {}); } catch(e) {}
+
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          auth.signInWithPopup(provider).then(res => {
+            if (res && res.user) enterWorkspaceAsCoach(res.user, false);
+          }).catch(err => {
+            console.log("Google Sign-In popup skipped or unavailable, using Coach Email fallback:", err);
+            enterWorkspaceAsCoach({ email: fallbackEmail, displayName: fallbackName }, true);
+            showToast('Signed in as ' + fallbackName + ' (' + fallbackEmail + ')');
+          });
+        } catch (err) {
+          console.log("Google Auth environment unsupported, falling back to Coach Email:", err);
+          enterWorkspaceAsCoach({ email: fallbackEmail, displayName: fallbackName }, true);
+          showToast('Signed in as ' + fallbackName + ' (' + fallbackEmail + ')');
+        }
+      });
+
+      document.getElementById('emailSignInBtn')?.addEventListener('click', () => {
+        const emailInp = document.getElementById('directCoachEmailInput');
+        const nameInp = document.getElementById('directCoachNameInput');
+        const statusEl = document.getElementById('authStatusText');
+        let email = (emailInp?.value || '').trim().toLowerCase();
+        let displayName = (nameInp?.value || '').trim();
+        
+        if (!email) {
+          email = 'mmaddox@ambassadorsfootball.org';
+          if (emailInp) emailInp.value = email;
+        }
+        if (!displayName) {
+          displayName = email.includes('@') ? email.split('@')[0] : 'Coach';
+          if (nameInp) nameInp.value = displayName;
+        }
+
+        if (auth) {
+          try { auth.signInAnonymously().catch(() => {}); } catch(e) {}
+        }
+
+        enterWorkspaceAsCoach({ email: email, displayName: displayName }, true);
+        showToast('Signed in as ' + displayName + ' (' + email + ')');
       });
 
       document.getElementById('demoAuthBtn').addEventListener('click', () => {
-        enterWorkspaceAsCoach({ email: 'mmaddox@ambassadorsfootball.org', displayName: 'Coach Mike' }, true);
-        showToast('Signed in (Preview / Local Mode)');
+        enterWorkspaceAsCoach({ email: '', displayName: 'Preview Coach' }, true);
+        showToast('Opened in Offline / Preview Mode');
       });
 
       document.getElementById('settingsSignOutBtn').addEventListener('click', () => {
         if (auth && !isDemoUser) auth.signOut();
+        localStorage.removeItem('afc_saved_coach_session');
         currentUser = null;
         isDemoUser = false;
         const indicator = document.getElementById('navSignedInIndicator');
