@@ -1,0 +1,167 @@
+{
+  "updatedAt": "2026-11-20T03:15:25.414Z",
+  "updatedBy": "Coach Mason",
+  "activityNote": "Connected GitHub team sync",
+  "drills": [],
+  "videos": [],
+  "sessions": [],
+  "games": [],
+  "roster": [
+    {
+      "id": "p_1",
+      "name": "Lucas",
+      "positions": [
+        "GK"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_2",
+      "name": "Mason",
+      "positions": [
+        "CB"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_3",
+      "name": "Ethan",
+      "positions": [
+        "LB",
+        "CB"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_4",
+      "name": "Noah",
+      "positions": [
+        "RB"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_5",
+      "name": "Liam",
+      "positions": [
+        "CM",
+        "CDM"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_6",
+      "name": "Caleb",
+      "positions": [
+        "CM",
+        "CAM"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_7",
+      "name": "Owen",
+      "positions": [
+        "LW"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_8",
+      "name": "Aiden",
+      "positions": [
+        "RW"
+      ],
+      "present": true
+    },
+    {
+      "id": "p_9",
+      "name": "Jackson",
+      "positions": [
+        "ST"
+      ],
+      "present": true
+    }
+  ],
+  "teamGameRosters": {
+    "11/12s": [
+      {
+        "id": "p_1",
+        "name": "Lucas",
+        "positions": [
+          "GK"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_2",
+        "name": "Mason",
+        "positions": [
+          "CB"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_3",
+        "name": "Ethan",
+        "positions": [
+          "LB",
+          "CB"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_4",
+        "name": "Noah",
+        "positions": [
+          "RB"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_5",
+        "name": "Liam",
+        "positions": [
+          "CM",
+          "CDM"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_6",
+        "name": "Caleb",
+        "positions": [
+          "CM",
+          "CAM"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_7",
+        "name": "Owen",
+        "positions": [
+          "LW"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_8",
+        "name": "Aiden",
+        "positions": [
+          "RW"
+        ],
+        "present": true
+      },
+      {
+        "id": "p_9",
+        "name": "Jackson",
+        "positions": [
+          "ST"
+        ],
+        "present": true
+      }
+    ],
+    "09/10s": []
+  },
+  "sheetUrl": ""
+}
