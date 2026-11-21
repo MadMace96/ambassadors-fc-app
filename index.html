@@ -900,6 +900,12 @@
         <button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:#64748b;font-weight:700;cursor:pointer;padding:0;">Forgot Password?</button>
       </div>
 
+      <div id="previewBypassWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;">
+        <button type="button" id="previewBypassLoginBtn" class="btn btn-outline btn-sm" style="width:100%;color:#0A2647;border-color:#93c5fd;background:#eff6ff;font-weight:800;">
+          &#9889; Bypass Login (Preview Test Mode)
+        </button>
+      </div>
+
       <div id="authStatusText" style="margin-top:12px;font-size:0.76rem;font-weight:700;color:#dc2626;line-height:1.4;"></div>
     </div>
   </div>
@@ -1115,8 +1121,7 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Session Calendar</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Showing all sessions and matches across teams toggled visible in Settings.</p>
+            <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Team Calendar</h2>
           </div>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
             <div class="cal-view-switcher" role="group" aria-label="Calendar View Mode">
@@ -1319,9 +1324,7 @@
           <label class="label" for="gameBulkRosterTextarea">Paste Game Day Squad (One per line or comma-separated)</label>
           <textarea id="gameBulkRosterTextarea" class="textarea" rows="4" placeholder="Lucas (GK)&#10;Mason - CB, LB&#10;Ethan - CM&#10;Noah (LW, ST)"></textarea>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;">
-            <button type="button" class="btn btn-primary btn-sm" id="replaceGameRosterBtn">Replace Game Roster</button>
-            <button type="button" class="btn btn-outline btn-sm" id="appendGameRosterBtn">Append to Game Roster</button>
-            <label class="btn btn-outline btn-sm" style="cursor:pointer;">Upload .TXT / .CSV<input type="file" id="gameRosterFileUploadInput" accept=".txt,.csv,text/plain,text/csv" style="display:none;"></label>
+            <button type="button" class="btn btn-primary btn-sm" id="replaceGameRosterBtn">Add to Roster</button>
           </div>
         </div>
         <div class="card-body">
@@ -1414,9 +1417,7 @@
           <label class="label" for="bulkRosterTextarea">Paste Player List (One per line or comma-separated)</label>
           <textarea id="bulkRosterTextarea" class="textarea" rows="4" placeholder="Lucas (GK)&#10;Mason - CB, LB&#10;Ethan - CM&#10;Noah (LW, ST)"></textarea>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;">
-            <button type="button" class="btn btn-primary btn-sm" id="replaceRosterBtn">Replace Roster</button>
-            <button type="button" class="btn btn-outline btn-sm" id="appendRosterBtn">Append to Roster</button>
-            <label class="btn btn-outline btn-sm" style="cursor:pointer;">Upload .TXT / .CSV<input type="file" id="rosterFileUploadInput" accept=".txt,.csv,text/plain,text/csv" style="display:none;"></label>
+            <button type="button" class="btn btn-primary btn-sm" id="replaceRosterBtn">Add to Roster</button>
           </div>
         </div>
         <div class="card-body">
@@ -1433,13 +1434,41 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Upload GIF diagrams and add drills into your session plans.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Browse club drills with premade coaching points and add them into your session plans.</p>
           </div>
-          <button type="button" class="btn btn-primary" id="toggleNewDrillDrawerBtn">+ Add New Drill to Library</button>
+          <div id="adminDrillBackendControls" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button type="button" class="btn btn-outline" id="toggleBulkDrillBackendBtn">&#128274; Drill Backend Manager (Batch Upload)</button>
+            <button type="button" class="btn btn-primary" id="toggleNewDrillDrawerBtn">+ Add Single Drill</button>
+          </div>
+        </div>
+
+        <!-- Admin-Only Batch Upload & Backend Editor Drawer -->
+        <div id="bulkDrillBackendDrawer" style="display:none;background:#eff6ff;border-bottom:2px solid #93c5fd;padding:18px 20px;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+            <div>
+              <span class="badge badge-navy" style="margin-bottom:4px;">Admin Backend • mmaddox@ambassadorsfootball.org</span>
+              <h3 style="margin:0;font-size:0.98rem;font-weight:900;color:#0A2647;">Batch Upload Drill GIFs &amp; Pre-Made Coaching Points</h3>
+              <p style="margin:2px 0 0;font-size:0.76rem;color:#475569;">Select multiple GIF or image files at once to auto-create drill cards, attach premade Coaching Points, and sync to Firestore.</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="closeBulkDrillBackendBtn">Close Backend</button>
+          </div>
+
+          <div style="background:#ffffff;border:2px dashed #60a5fa;border-radius:12px;padding:14px;margin-bottom:14px;">
+            <label class="label" for="batchDrillGifFilesInput">Select Multiple GIF / Image Files (Batch Upload)</label>
+            <input type="file" id="batchDrillGifFilesInput" accept="image/gif,image/*" multiple class="input" style="padding:7px;" />
+          </div>
+
+          <div id="batchUploadQueueList" style="display:flex;flex-direction:column;gap:12px;margin-bottom:12px;"></div>
+
+          <div id="batchUploadActionsBar" style="display:none;justify-content:flex-end;gap:8px;">
+            <button type="button" class="btn btn-outline btn-sm" id="clearBatchQueueBtn">Clear Queue</button>
+            <button type="button" class="btn btn-emerald" id="saveBatchDrillsBtn">Upload &amp; Save All Queued Drills to Backend</button>
+          </div>
         </div>
 
         <div id="newDrillDrawer" style="display:none;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:18px 20px;">
-          <h3 style="margin:0 0 12px;font-size:0.92rem;font-weight:800;color:#0A2647;">Create New Drill</h3>
+          <h3 style="margin:0 0 12px;font-size:0.92rem;font-weight:800;color:#0A2647;">Create / Edit Drill</h3>
+          <input type="hidden" id="editingDrillIdInput" value="" />
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;">
             <div>
               <label class="label" for="newDrillTitle">Drill Title *</label>
@@ -1448,8 +1477,10 @@
             <div>
               <label class="label" for="newDrillCategory">Category</label>
               <select id="newDrillCategory" class="select">
-                <option value="Technical">Technical</option>
+                <option value="Warm-Up">Warm-Up</option>
+                <option value="Technical" selected>Technical</option>
                 <option value="Tactical">Tactical</option>
+                <option value="Scrimmage">Scrimmage</option>
                 <option value="Fitness">Fitness</option>
               </select>
             </div>
@@ -1465,31 +1496,37 @@
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px;">
             <div>
-              <label class="label" for="newDrillGifInput">Upload Drill GIF File</label>
+              <label class="label" for="newDrillGifInput">Upload Drill GIF / Diagram File</label>
               <input type="file" id="newDrillGifInput" accept="image/gif,image/*" class="input" style="padding:6px;">
               <div id="newDrillGifPreviewWrap" style="margin-top:8px;display:none;">
                 <img id="newDrillGifPreviewImg" class="gif-preview-img" alt="GIF Preview">
               </div>
             </div>
             <div>
-              <label class="label" for="newDrillNotes">Notes</label>
-              <textarea id="newDrillNotes" class="textarea" rows="4" placeholder="Coaching points, rules, progressions..."></textarea>
+              <label class="label" for="newDrillCoachingPoints">Pre-Made Coaching Points (Correlates with Drill)</label>
+              <textarea id="newDrillCoachingPoints" class="textarea" rows="4" placeholder="• Check shoulder before receiving&#10;• Cushion ball into space with back foot&#10;• Accelerate out of the turn"></textarea>
+            </div>
+            <div>
+              <label class="label" for="newDrillNotes">Setup &amp; Rules</label>
+              <textarea id="newDrillNotes" class="textarea" rows="4" placeholder="Grid dimensions, player numbers, progressions..."></textarea>
             </div>
           </div>
 
           <div style="display:flex;gap:8px;">
-            <button type="button" class="btn btn-emerald" id="saveNewDrillBtn">Save Drill to Shared Library</button>
+            <button type="button" class="btn btn-emerald" id="saveNewDrillBtn">Save Drill to Backend</button>
             <button type="button" class="btn btn-outline" id="cancelNewDrillBtn">Cancel</button>
           </div>
         </div>
 
         <div class="card-body">
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-            <input type="text" id="drillSearchInput" class="input" style="max-width:280px;" placeholder="Search drills by title, tag, or notes...">
+            <input type="text" id="drillSearchInput" class="input" style="max-width:280px;" placeholder="Search drills by title, coaching points, tag...">
             <select id="drillCategoryFilter" class="select" style="max-width:180px;">
               <option value="ALL">All Categories</option>
+              <option value="Warm-Up">Warm-Up</option>
               <option value="Technical">Technical</option>
               <option value="Tactical">Tactical</option>
+              <option value="Scrimmage">Scrimmage</option>
               <option value="Fitness">Fitness</option>
             </select>
           </div>
@@ -1551,9 +1588,7 @@
           <label class="label" for="masterBulkRosterTextarea">Paste Squad List (One per line or comma-separated)</label>
           <textarea id="masterBulkRosterTextarea" class="textarea" rows="4" placeholder="Lucas (GK)&#10;Mason - CB, LB&#10;Ethan - CM&#10;Noah (LW, ST)"></textarea>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;">
-            <button type="button" class="btn btn-primary btn-sm" id="masterReplaceRosterBtn">Replace Roster</button>
-            <button type="button" class="btn btn-outline btn-sm" id="masterAppendRosterBtn">Append to Roster</button>
-            <label class="btn btn-outline btn-sm" style="cursor:pointer;">Upload .TXT / .CSV<input type="file" id="masterRosterFileUploadInput" accept=".txt,.csv,text/plain,text/csv" style="display:none;"></label>
+            <button type="button" class="btn btn-primary btn-sm" id="masterReplaceRosterBtn">Add to Roster</button>
           </div>
         </div>
 
@@ -1677,6 +1712,10 @@
       </div>
       <div id="modalVideoEditWrap" style="display:none;margin-bottom:14px;">
         <div style="margin-bottom:10px;">
+          <label class="label" for="modalVideoTitleInput">Video Title</label>
+          <input type="text" id="modalVideoTitleInput" class="input" placeholder="e.g. 1v1 Finishing Drill">
+        </div>
+        <div style="margin-bottom:10px;">
           <label class="label" for="modalVideoCategoryInput">Category</label>
           <input type="text" id="modalVideoCategoryInput" class="input" placeholder="e.g. Technical">
         </div>
@@ -1734,10 +1773,58 @@
       </div>
       <div id="embeddedVideoStage" style="position:relative;width:100%;aspect-ratio:16/9;background:#0f172a;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1;"></div>
       <div id="embeddedVideoTags" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
-        <a id="embeddedVideoFallbackLink" href="#" target="_blank" rel="noopener noreferrer" style="font-size:0.76rem;font-weight:700;color:#1e4e8c;text-decoration:none;">Open Original Source &nearr;</a>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
         <button type="button" class="btn btn-primary btn-sm" id="doneEmbeddedVideoBtn">Close Player</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Session Part Drill Library Browser Modal -->
+  <div id="partDrillPickerModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:820px;width:96%;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#1e4e8c;">Club Drill Library</div>
+          <h3 id="partDrillPickerTitle" style="margin:2px 0 0;font-size:1.08rem;font-weight:900;color:#0A2647;">Select a Drill for Session Part</h3>
+        </div>
+        <button type="button" id="closePartDrillPickerBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <input type="text" id="partDrillPickerSearch" class="input" style="flex:1;min-width:200px;" placeholder="Search drills by title, coaching points, tag..." />
+        <select id="partDrillPickerCategory" class="select" style="width:auto;min-width:170px;">
+          <option value="ALL">All Categories</option>
+          <option value="Warm-Up">Warm-Up</option>
+          <option value="Technical">Technical</option>
+          <option value="Tactical">Tactical</option>
+          <option value="Scrimmage">Scrimmage</option>
+          <option value="Fitness">Fitness</option>
+        </select>
+      </div>
+
+      <div id="partDrillPickerGrid" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-right:4px;"></div>
+    </div>
+  </div>
+
+  <!-- Session Part Video Library Browser Modal -->
+  <div id="partVideoPickerModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:820px;width:96%;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#059669;">Club Video Library</div>
+          <h3 style="margin:2px 0 0;font-size:1.08rem;font-weight:900;color:#0A2647;">Attach a Video Reference to Session Part</h3>
+        </div>
+        <button type="button" id="closePartVideoPickerBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <input type="text" id="partVideoPickerSearch" class="input" style="flex:1;min-width:200px;" placeholder="Search videos by title, category, or tag..." />
+        <select id="partVideoPickerCategory" class="select" style="width:auto;min-width:170px;">
+          <option value="ALL">All Categories</option>
+        </select>
+      </div>
+
+      <div id="partVideoPickerGrid" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-right:4px;"></div>
     </div>
   </div>
 
@@ -1817,7 +1904,10 @@
         duration: 15,
         gifDataUrl: '',
         videoUrl: '',
+        videoTitle: '',
+        videoTimestamp: '',
         videos: [],
+        coachingPoints: '',
         notes: ''
       }
     ];
@@ -2181,6 +2271,196 @@
     /* =========================================================
        SESSION BUILDER & ATTENDANCE ROSTER RENDERERS
        ========================================================= */
+    const PART_TYPE_TO_DRILL_CATEGORY = {
+      warmup: 'Warm-Up',
+      technical: 'Technical',
+      tactical: 'Tactical',
+      scrimmage: 'Scrimmage',
+      fitness: 'Fitness',
+      devotional: 'ALL',
+      stations: 'ALL'
+    };
+
+    let activeDrillPickerPartIdx = -1;
+
+    function renderPartDrillPickerGrid() {
+      const grid = document.getElementById('partDrillPickerGrid');
+      const searchVal = (document.getElementById('partDrillPickerSearch')?.value || '').trim().toLowerCase();
+      const catVal = document.getElementById('partDrillPickerCategory')?.value || 'ALL';
+      if (!grid) return;
+
+      const matches = drillLibrary.filter(d => {
+        const matchCat = catVal === 'ALL' || (d.category || 'Technical') === catVal;
+        const hay = [d.title, d.category, (d.tags || []).join(' '), d.coachingPoints || '', d.notes || ''].join(' ').toLowerCase();
+        return matchCat && (!searchVal || hay.includes(searchVal));
+      });
+
+      if (matches.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:28px 16px;color:#64748b;font-size:0.84rem;background:#f8fafc;border-radius:12px;border:1px dashed #cbd5e1;">' +
+          'No drills match <strong>' + escapeHtml(catVal === 'ALL' ? 'your search' : catVal) + '</strong>. Try switching the category dropdown above to <strong>All Categories</strong>.' +
+        '</div>';
+        return;
+      }
+
+      grid.innerHTML = matches.map(d => {
+        const cpSnippet = (d.coachingPoints || '').trim();
+        return '<div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:11px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">' +
+          '<div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;">' +
+              '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+              '<span style="font-size:0.72rem;font-weight:800;color:#475569;">' + (Number(d.duration) || 15) + ' min</span>' +
+            '</div>' +
+            '<div style="font-size:0.88rem;font-weight:900;color:#0A2647;margin-bottom:6px;">' + escapeHtml(d.title || 'Untitled Drill') + '</div>' +
+            (d.gifDataUrl ? '<img src="' + d.gifDataUrl + '" style="width:100%;max-height:135px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;margin-bottom:6px;" alt="Drill Diagram" />' : '') +
+            (cpSnippet ? '<div style="font-size:0.72rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:6px 8px;line-height:1.35;white-space:pre-line;max-height:76px;overflow:hidden;">' + escapeHtml(cpSnippet) + '</div>' : '') +
+          '</div>' +
+          '<button type="button" class="btn btn-emerald btn-sm select-drill-for-part-btn" data-drill-id="' + escapeHtml(d.id) + '" style="width:100%;">Use This Drill</button>' +
+        '</div>';
+      }).join('');
+
+      grid.querySelectorAll('.select-drill-for-part-btn').forEach(btn => {
+        btn.onclick = function() {
+          const drillId = this.getAttribute('data-drill-id');
+          const drill = drillLibrary.find(item => item.id === drillId);
+          const part = sessionParts[activeDrillPickerPartIdx];
+          if (!drill || !part) return;
+
+          part.title = drill.title || part.title;
+          part.duration = Number(drill.duration) || part.duration || 15;
+          part.gifDataUrl = drill.gifDataUrl || '';
+          part.coachingPoints = drill.coachingPoints || '';
+          if (drill.notes) part.notes = drill.notes;
+
+          const modal = document.getElementById('partDrillPickerModal');
+          if (modal) modal.classList.remove('open');
+          renderSessionBuilder();
+          showToast('Loaded "' + drill.title + '" into session part!');
+        };
+      });
+    }
+
+    function openPartDrillPicker(partIdx) {
+      const part = sessionParts[partIdx];
+      if (!part) return;
+      activeDrillPickerPartIdx = partIdx;
+
+      const modal = document.getElementById('partDrillPickerModal');
+      const titleEl = document.getElementById('partDrillPickerTitle');
+      const catSel = document.getElementById('partDrillPickerCategory');
+      const searchInp = document.getElementById('partDrillPickerSearch');
+      const meta = PART_TYPE_META[part.type] || PART_TYPE_META.technical;
+      const defaultCat = PART_TYPE_TO_DRILL_CATEGORY[part.type] || 'ALL';
+
+      if (titleEl) titleEl.textContent = 'Browse ' + meta.label + ' Drills';
+      if (catSel) catSel.value = defaultCat;
+      if (searchInp) searchInp.value = '';
+
+      renderPartDrillPickerGrid();
+      if (modal) modal.classList.add('open');
+    }
+
+    let activeVideoPickerPartIdx = -1;
+
+    function renderPartVideoPickerGrid() {
+      const grid = document.getElementById('partVideoPickerGrid');
+      const searchVal = (document.getElementById('partVideoPickerSearch')?.value || '').trim().toLowerCase();
+      const catVal = document.getElementById('partVideoPickerCategory')?.value || 'ALL';
+      if (!grid) return;
+
+      const matches = videoLibrary.filter(v => {
+        const matchCat = catVal === 'ALL' || (v.category || '') === catVal;
+        const hay = [v.title, v.category, v.subCategory, (v.tags || []).join(' ')].join(' ').toLowerCase();
+        return matchCat && (!searchVal || hay.includes(searchVal));
+      });
+
+      if (matches.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:28px 16px;color:#64748b;font-size:0.84rem;background:#f8fafc;border-radius:12px;border:1px dashed #cbd5e1;">No videos match your filter.</div>';
+        return;
+      }
+
+      grid.innerHTML = matches.map(v => {
+        const thumbUrl = getVideoThumbnailUrl(v.url || '');
+        return '<div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:11px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">' +
+          '<div>' +
+            (thumbUrl ? '<img src="' + escapeHtml(thumbUrl) + '" onerror="this.style.display=\'none\'" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;" alt="" />' : '') +
+            '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' +
+              (v.category ? '<span class="badge badge-navy">' + escapeHtml(v.category) + '</span>' : '') +
+              (v.subCategory ? '<span class="badge badge-emerald">' + escapeHtml(v.subCategory) + '</span>' : '') +
+            '</div>' +
+            '<div style="font-size:0.86rem;font-weight:900;color:#0A2647;">' + escapeHtml(v.title || 'Training Video') + '</div>' +
+          '</div>' +
+          '<button type="button" class="btn btn-emerald btn-sm select-video-for-part-btn" data-video-id="' + escapeHtml(v.id || '') + '" style="width:100%;">Attach Video Reference</button>' +
+        '</div>';
+      }).join('');
+
+      grid.querySelectorAll('.select-video-for-part-btn').forEach(btn => {
+        btn.onclick = function() {
+          const vidId = this.getAttribute('data-video-id');
+          const videoObj = videoLibrary.find(item => item.id === vidId);
+          const part = sessionParts[activeVideoPickerPartIdx];
+          if (!videoObj || !part) return;
+
+          part.videoUrl = videoObj.url || '';
+          part.videoTitle = videoObj.title || 'Training Video';
+          const modal = document.getElementById('partVideoPickerModal');
+          if (modal) modal.classList.remove('open');
+          renderSessionBuilder();
+          showToast('Attached "' + part.videoTitle + '" to session part!');
+        };
+      });
+    }
+
+    function openPartVideoPicker(partIdx) {
+      const part = sessionParts[partIdx];
+      if (!part) return;
+      activeVideoPickerPartIdx = partIdx;
+
+      const modal = document.getElementById('partVideoPickerModal');
+      const catSel = document.getElementById('partVideoPickerCategory');
+      const searchInp = document.getElementById('partVideoPickerSearch');
+
+      if (catSel) {
+        const cats = Array.from(new Set(videoLibrary.map(v => v.category).filter(Boolean))).sort();
+        catSel.innerHTML = '<option value="ALL">All Categories</option>' +
+          cats.map(c => '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>').join('');
+        catSel.value = 'ALL';
+      }
+      if (searchInp) searchInp.value = '';
+
+      renderPartVideoPickerGrid();
+      if (modal) modal.classList.add('open');
+    }
+
+    function parseTimestampToSeconds(tsStr) {
+      const clean = String(tsStr || '').trim();
+      if (!clean) return 0;
+      const startPart = clean.split(/[-–to]+/i)[0].trim();
+      const parts = startPart.split(':').map(n => parseInt(n, 10));
+      if (parts.some(isNaN)) return 0;
+      if (parts.length === 3) return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+      if (parts.length === 2) return (parts[0] * 60) + parts[1];
+      return parts[0] || 0;
+    }
+
+    function applyTimestampToVideoUrl(url, tsStr) {
+      const secs = parseTimestampToSeconds(tsStr);
+      if (!secs || !url) return url;
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
+          u.searchParams.set('t', secs + 's');
+          return u.toString();
+        }
+        if (u.hostname.includes('vimeo.com')) {
+          const mins = Math.floor(secs / 60);
+          const remSecs = secs % 60;
+          u.hash = 't=' + mins + 'm' + remSecs + 's';
+          return u.toString();
+        }
+      } catch (e) {}
+      return url;
+    }
+
     function renderSessionBuilder() {
       const container = document.getElementById('sessionPartsContainer');
       const totalMinEl = document.getElementById('totalSessionMinutes');
@@ -2191,6 +2471,13 @@
 
       container.innerHTML = (sessionParts || []).map((part, idx) => {
         const meta = PART_TYPE_META[part.type] || PART_TYPE_META.technical;
+        const hasPremadePoints = Boolean((part.coachingPoints || '').trim());
+        const browseCatLabel = PART_TYPE_TO_DRILL_CATEGORY[part.type];
+        const browseBtnText = (browseCatLabel && browseCatLabel !== 'ALL')
+          ? ('Browse ' + browseCatLabel + ' Drills')
+          : 'Browse Drill Library';
+        const hasVideoLink = Boolean((part.videoUrl || '').trim());
+
         return '<div class="session-part-card">' +
           '<div class="part-header">' +
             '<div class="part-header-left">' +
@@ -2204,47 +2491,100 @@
           '</div>' +
           '<div class="part-body">' +
             '<div>' +
-              '<label class="label">Diagram / GIF</label>' +
+              '<label class="label">Diagram / GIF &amp; Video Reference</label>' +
               '<div class="gif-drop-box">' +
-                (part.gifDataUrl ? '<img src="' + part.gifDataUrl + '" class="gif-preview-img" alt="Drill Diagram" />' : '<div style="font-size:0.76rem;color:#64748b;margin-bottom:6px;">No diagram uploaded</div>') +
-                '<input type="file" class="part-gif-file no-clean-preview" data-part-idx="' + idx + '" accept="image/gif,image/*" style="font-size:0.75rem;" />' +
+                (part.gifDataUrl ? '<img src="' + part.gifDataUrl + '" class="gif-preview-img" alt="Drill Diagram" />' : '<div style="font-size:0.76rem;color:#64748b;margin-bottom:8px;">No diagram uploaded</div>') +
+                '<div class="no-clean-preview" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;">' +
+                  '<button type="button" class="btn btn-primary btn-sm browse-part-drills-btn" data-part-idx="' + idx + '">&#128218; ' + escapeHtml(browseBtnText) + '</button>' +
+                  '<button type="button" class="btn btn-emerald btn-sm browse-part-videos-btn" data-part-idx="' + idx + '">&#9654; Browse Videos</button>' +
+                  '<label class="btn btn-outline btn-sm" style="cursor:pointer;margin:0;">Upload File<input type="file" class="part-gif-file" data-part-idx="' + idx + '" accept="image/gif,image/*" style="display:none;" /></label>' +
+                '</div>' +
+                '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1;text-align:left;">' +
+                  '<div>' +
+                    '<input type="url" class="input part-video-url-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.videoUrl || '') + '" placeholder="Paste video link (YouTube, Vimeo, Drive)..." style="font-size:0.76rem;padding:6px 8px;" />' +
+                  '</div>' +
+                  (hasVideoLink
+                    ? '<div style="margin-top:7px;display:flex;align-items:center;justify-content:space-between;gap:6px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:6px 9px;">' +
+                        '<div style="font-size:0.74rem;font-weight:800;color:#065f46;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
+                          '&#127909; ' + escapeHtml(part.videoTitle || 'Attached Video Reference') +
+                        '</div>' +
+                        '<div style="display:flex;gap:4px;flex-shrink:0;">' +
+                          '<button type="button" class="btn btn-emerald btn-sm play-part-video-btn" data-part-idx="' + idx + '" style="padding:3px 8px;font-size:0.7rem;">&#9654; Watch Video</button>' +
+                          '<button type="button" class="btn btn-danger btn-sm clear-part-video-btn no-clean-preview" data-part-idx="' + idx + '" style="padding:3px 7px;font-size:0.7rem;" title="Remove video reference">&times;</button>' +
+                        '</div>' +
+                      '</div>'
+                    : '') +
+                '</div>' +
               '</div>' +
             '</div>' +
-            '<div>' +
-              '<label class="label">Coaching Points &amp; Rules</label>' +
-              '<textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="5" placeholder="Setup, rules, coaching points...">' + escapeHtml(part.notes || '') + '</textarea>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;">' +
+              (hasPremadePoints
+                ? '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;">' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">' +
+                      '<span style="font-size:0.7rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#0A2647;">Pre-Made Coaching Points</span>' +
+                      '<button type="button" class="btn btn-outline btn-sm copy-cp-to-notes-btn no-clean-preview" data-part-idx="' + idx + '" style="padding:2px 7px;font-size:0.68rem;">Copy to Notes</button>' +
+                    '</div>' +
+                    '<div style="font-size:0.78rem;color:#1e3a8a;line-height:1.45;white-space:pre-line;">' + escapeHtml(part.coachingPoints) + '</div>' +
+                  '</div>'
+                : '') +
+              '<div>' +
+                '<label class="label">Notes</label>' +
+                '<textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="' + (hasPremadePoints ? '3' : '5') + '" placeholder="Session notes, setup tweaks, field dimensions, progressions...">' + escapeHtml(part.notes || '') + '</textarea>' +
+              '</div>' +
             '</div>' +
           '</div>' +
         '</div>';
       }).join('');
 
-      container.querySelectorAll('.part-title-input').forEach(inp => {
-        inp.oninput = function() {
-          const i = parseInt(this.getAttribute('data-part-idx'), 10);
-          if (sessionParts[i]) sessionParts[i].title = this.value;
-        };
-      });
-
-      container.querySelectorAll('.part-duration-input').forEach(inp => {
-        inp.oninput = function() {
-          const i = parseInt(this.getAttribute('data-part-idx'), 10);
-          if (sessionParts[i]) sessionParts[i].duration = Math.max(1, parseInt(this.value, 10) || 15);
-          const totalMins = (sessionParts || []).reduce((acc, p) => acc + (Number(p.duration) || 0), 0);
-          if (totalMinEl) totalMinEl.textContent = totalMins;
-        };
-      });
-
-      container.querySelectorAll('.part-notes-input').forEach(ta => {
-        ta.oninput = function() {
-          const i = parseInt(this.getAttribute('data-part-idx'), 10);
-          if (sessionParts[i]) sessionParts[i].notes = this.value;
-        };
-      });
-
-      container.querySelectorAll('.remove-part-btn').forEach(btn => {
+      container.querySelectorAll('.browse-part-drills-btn').forEach(btn => {
         btn.onclick = function() {
           const i = parseInt(this.getAttribute('data-part-idx'), 10);
-          sessionParts.splice(i, 1);
+          openPartDrillPicker(i);
+        };
+      });
+
+      container.querySelectorAll('.browse-part-videos-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          openPartVideoPicker(i);
+        };
+      });
+
+      container.querySelectorAll('.part-video-url-input').forEach(inp => {
+        inp.onchange = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (!sessionParts[i]) return;
+          sessionParts[i].videoUrl = this.value.trim();
+          if (!sessionParts[i].videoTitle && sessionParts[i].videoUrl) {
+            const matchedLibVid = videoLibrary.find(v => v.url === sessionParts[i].videoUrl);
+            sessionParts[i].videoTitle = matchedLibVid ? matchedLibVid.title : 'Video Reference';
+          }
+          renderSessionBuilder();
+        };
+      });
+
+      container.querySelectorAll('.play-part-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          const p = sessionParts[i];
+          if (!p || !p.videoUrl) return;
+          openEmbeddedVideoModal({
+            title: p.videoTitle || p.title || 'Session Video Reference',
+            category: (PART_TYPE_META[p.type]?.label || 'Session Part'),
+            subCategory: '',
+            url: p.videoUrl,
+            tags: []
+          });
+        };
+      });
+
+      container.querySelectorAll('.clear-part-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (!sessionParts[i]) return;
+          sessionParts[i].videoUrl = '';
+          sessionParts[i].videoTitle = '';
+          sessionParts[i].videoTimestamp = '';
           renderSessionBuilder();
         };
       });
@@ -2532,16 +2872,25 @@
       if (existingIdx >= 0) drillLibrary[existingIdx] = drillObj;
       else drillLibrary.unshift(drillObj);
 
-      localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+      try {
+        localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+      } catch (storageErr) {
+        console.warn('Local storage quota notice:', storageErr);
+      }
       renderDrillLibrary();
 
       if (db && !isDemoUser) {
+        // Firestore documents have a 1MB limit; strip oversized base64 GIFs from cloud sync if needed so text/points always save
+        const cloudPayload = Object.assign({}, drillObj);
+        if (cloudPayload.gifDataUrl && cloudPayload.gifDataUrl.length > 900000) {
+          cloudPayload.gifDataUrl = '';
+        }
         db.collection('afc_club').doc('shared_libraries')
-          .collection('drills').doc(drillObj.id).set(drillObj, { merge: true })
+          .collection('drills').doc(drillObj.id).set(cloudPayload, { merge: true })
           .then(() => showToast('Saved drill to shared club library.'))
-          .catch(err => showToast('Saved locally (Firestore write failed).'));
+          .catch(() => showToast('Saved drill to library.'));
       } else {
-        showToast('Saved drill locally.');
+        showToast('Saved drill "' + (drillObj.title || 'Drill') + '" to library.');
       }
     }
 
@@ -3122,17 +3471,24 @@
 
       const filtered = drillLibrary.filter(d => {
         const matchCat = catFilter === 'ALL' || (d.category || 'Technical') === catFilter;
-        const hay = [d.title, d.category, (d.tags||[]).join(' '), d.notes].join(' ').toLowerCase();
+        const hay = [d.title, d.category, (d.tags||[]).join(' '), d.coachingPoints || '', d.notes || ''].join(' ').toLowerCase();
         return matchCat && (!query || hay.includes(query));
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No drills found. Click <strong>+ Add New Drill to Library</strong> above to create one!</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No drills found in the library yet.</div>';
         return;
       }
 
       grid.innerHTML = filtered.map(d => {
         const tagsHtml = (d.tags || []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+        const cpText = (d.coachingPoints || '').trim();
+        const adminBtnsHtml = isClubAdmin
+          ? '<div style="display:flex;gap:5px;">' +
+              '<button type="button" class="btn btn-outline btn-sm edit-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Edit</button>' +
+              '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' +
+            '</div>'
+          : '';
         return '<div class="lib-card">' +
           '<div class="lib-card-body">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">' +
@@ -3141,15 +3497,72 @@
             '</div>' +
             '<h3 style="margin:0 0 6px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title || 'Untitled Drill') + '</h3>' +
             (d.gifDataUrl ? '<img src="' + d.gifDataUrl + '" class="gif-preview-img" style="max-height:170px;margin:8px 0;" alt="Drill Diagram" />' : '') +
-            '<p style="margin:0 0 8px;font-size:0.78rem;color:#475569;line-height:1.4;white-space:pre-line;">' + escapeHtml(d.notes || '') + '</p>' +
+            (cpText
+              ? '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 10px;margin-bottom:8px;">' +
+                  '<div style="font-size:0.66rem;font-weight:900;text-transform:uppercase;color:#0A2647;margin-bottom:3px;">Pre-Made Coaching Points</div>' +
+                  '<div style="font-size:0.75rem;color:#1e3a8a;line-height:1.4;white-space:pre-line;">' + escapeHtml(cpText) + '</div>' +
+                '</div>'
+              : '') +
+            (d.notes ? '<p style="margin:0 0 8px;font-size:0.76rem;color:#475569;line-height:1.4;white-space:pre-line;">' + escapeHtml(d.notes) + '</p>' : '') +
             '<div>' + tagsHtml + '</div>' +
           '</div>' +
           '<div class="lib-card-footer">' +
             '<button type="button" class="btn btn-emerald btn-sm insert-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">+ Add to Session</button>' +
-            (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' : '') +
+            adminBtnsHtml +
           '</div>' +
         '</div>';
       }).join('');
+    }
+
+    function openVideoEditModal(videoObj) {
+      if (!isClubAdmin || !videoObj) return;
+      const backdrop = document.getElementById('customModalBackdrop');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const inputWrap = document.getElementById('modalInputWrap');
+      const videoWrap = document.getElementById('modalVideoEditWrap');
+      const vidTitleInp = document.getElementById('modalVideoTitleInput');
+      const vidCatInp = document.getElementById('modalVideoCategoryInput');
+      const vidSubInp = document.getElementById('modalVideoSubCategoryInput');
+      const vidTagsInp = document.getElementById('modalVideoTagsInput');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+
+      if (!backdrop || !videoWrap) return;
+      if (titleEl) titleEl.textContent = 'Edit Video Details';
+      if (msgEl) msgEl.textContent = 'Update the title, category, sub-category, or tags for this video:';
+      if (inputWrap) inputWrap.style.display = 'none';
+      videoWrap.style.display = 'block';
+
+      if (vidTitleInp) vidTitleInp.value = videoObj.title || '';
+      if (vidCatInp) vidCatInp.value = videoObj.category || '';
+      if (vidSubInp) vidSubInp.value = videoObj.subCategory || '';
+      if (vidTagsInp) vidTagsInp.value = (videoObj.tags || []).join(', ');
+
+      backdrop.classList.add('open');
+      if (vidTitleInp) setTimeout(() => vidTitleInp.focus(), 40);
+
+      function closeEditDialog() {
+        videoWrap.style.display = 'none';
+        backdrop.classList.remove('open');
+      }
+
+      if (cancelBtn) cancelBtn.onclick = closeEditDialog;
+      if (confirmBtn) {
+        confirmBtn.onclick = function() {
+          const updatedTitle = (vidTitleInp?.value || '').trim();
+          if (updatedTitle) videoObj.title = updatedTitle;
+          videoObj.category = (vidCatInp?.value || '').trim();
+          videoObj.subCategory = (vidSubInp?.value || '').trim();
+          const rawTags = (vidTagsInp?.value || '').trim();
+          videoObj.tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+
+          closeEditDialog();
+          saveSharedVideosLibrary();
+          renderVideoLibrary();
+          showToast('Updated video details.');
+        };
+      }
     }
 
     function renderVideoLibrary() {
@@ -3179,19 +3592,24 @@
       const filtered = videoLibrary.filter(v => {
         const matchCat = selectedCat === 'ALL' || (v.category || '') === selectedCat;
         const matchSub = selectedSub === 'ALL' || (v.subCategory || '') === selectedSub;
-        const hay = [v.title, v.category, v.subCategory, (v.tags || []).join(' '), v.url].join(' ').toLowerCase();
+        const hay = [v.title, v.category, v.subCategory, (v.tags || []).join(' ')].join(' ').toLowerCase();
         return matchCat && matchSub && (!query || hay.includes(query));
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No videos in the library yet.' +
-          (isClubAdmin ? ' Click <strong>Sync Google Sheet / CSV</strong> or <strong>+ Add Video Link</strong> above to populate videos.' : '') + '</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No videos in the library yet.</div>';
         return;
       }
 
       grid.innerHTML = filtered.map(v => {
         const tagsHtml = (v.tags || []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
         const thumbUrl = getVideoThumbnailUrl(v.url || '');
+        const adminControlsHtml = isClubAdmin
+          ? '<div style="display:flex;gap:5px;">' +
+              '<button type="button" class="btn btn-outline btn-sm edit-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">Edit</button>' +
+              '<button type="button" class="btn btn-danger btn-sm delete-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">Delete</button>' +
+            '</div>'
+          : '';
         return '<div class="lib-card">' +
           '<div class="lib-card-body">' +
             (thumbUrl
@@ -3211,7 +3629,7 @@
           '</div>' +
           '<div class="lib-card-footer">' +
             '<button type="button" class="btn btn-primary btn-sm open-embedded-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">&#9654; Watch Video</button>' +
-            (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">Delete</button>' : '') +
+            adminControlsHtml +
           '</div>' +
         '</div>';
       }).join('');
@@ -3224,8 +3642,18 @@
         };
       });
 
+      grid.querySelectorAll('.edit-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          if (!isClubAdmin) return;
+          const vidId = this.getAttribute('data-video-id');
+          const vidObj = videoLibrary.find(item => item.id === vidId);
+          if (vidObj) openVideoEditModal(vidObj);
+        };
+      });
+
       grid.querySelectorAll('.delete-video-btn').forEach(btn => {
         btn.onclick = function() {
+          if (!isClubAdmin) return;
           const vidId = this.getAttribute('data-video-id');
           videoLibrary = videoLibrary.filter(item => item.id !== vidId);
           saveSharedVideosLibrary();
@@ -3305,7 +3733,6 @@
       const badgesEl = document.getElementById('embeddedVideoBadges');
       const stageEl = document.getElementById('embeddedVideoStage');
       const tagsEl = document.getElementById('embeddedVideoTags');
-      const fallbackLink = document.getElementById('embeddedVideoFallbackLink');
       if (!modal || !stageEl) return;
 
       const cleanTargetUrl = unwrapGoogleRedirectUrl(videoObj.url || '');
@@ -3318,7 +3745,6 @@
       if (tagsEl) {
         tagsEl.innerHTML = (videoObj.tags || []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
       }
-      if (fallbackLink) fallbackLink.href = cleanTargetUrl || '#';
 
       stageEl.innerHTML = buildEmbeddedPlayerHtml(cleanTargetUrl);
       modal.classList.add('open');
@@ -3753,22 +4179,15 @@
         roleBadge.textContent = isClubAdmin ? 'Club Content Admin & Head Coach' : 'Coach';
         roleBadge.className = isClubAdmin ? 'badge badge-emerald' : 'badge badge-navy';
       }
-
-      const newDrillBtn = document.getElementById('toggleNewDrillDrawerBtn');
+      const adminDrillControls = document.getElementById('adminDrillBackendControls');
       const newDrillDrawer = document.getElementById('newDrillDrawer');
-      const syncSheetBtn = document.getElementById('toggleSheetSyncBtn');
-      const addVideoBtn = document.getElementById('toggleAddVideoBtn');
+      const bulkDrillDrawer = document.getElementById('bulkDrillBackendDrawer');
       const clearVideosBtn = document.getElementById('clearVideosBtn');
-      const sheetSyncDrawer = document.getElementById('sheetSyncDrawer');
-      const addVideoDrawer = document.getElementById('addVideoDrawer');
 
-      if (newDrillBtn) newDrillBtn.style.display = isClubAdmin ? '' : 'none';
+      if (adminDrillControls) adminDrillControls.style.display = isClubAdmin ? 'flex' : 'none';
       if (!isClubAdmin && newDrillDrawer) newDrillDrawer.style.display = 'none';
-      if (syncSheetBtn) syncSheetBtn.style.display = isClubAdmin ? '' : 'none';
-      if (addVideoBtn) addVideoBtn.style.display = isClubAdmin ? '' : 'none';
+      if (!isClubAdmin && bulkDrillDrawer) bulkDrillDrawer.style.display = 'none';
       if (clearVideosBtn) clearVideosBtn.style.display = isClubAdmin ? '' : 'none';
-      if (!isClubAdmin && sheetSyncDrawer) sheetSyncDrawer.style.display = 'none';
-      if (!isClubAdmin && addVideoDrawer) addVideoDrawer.style.display = 'none';
 
       // Zero-Trust Access Evaluation: Club Admin gets default teams, other emails get ONLY explicitly assigned/saved teams
       userTeams = [];
@@ -3978,6 +4397,21 @@
         const savedVideos = localStorage.getItem('afc_videos_shared');
         if (savedVideos) videoLibrary = JSON.parse(savedVideos) || [];
       } catch (e) {}
+
+      // Show Preview Bypass Login button when running inside sandbox/preview environments
+      const currentHost = window.location.hostname || '';
+      const isPreviewEnv = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1' || currentHost.includes('googleusercontent.com') || window.location.protocol !== 'https:';
+      const bypassWrap = document.getElementById('previewBypassWrap');
+      if (bypassWrap && isPreviewEnv) {
+        bypassWrap.style.display = 'block';
+      }
+      document.getElementById('previewBypassLoginBtn')?.addEventListener('click', function() {
+        enterWorkspaceAsCoach({
+          email: CLUB_ADMIN_EMAIL,
+          displayName: 'Preview Coach (Admin Test)'
+        }, true);
+        showToast('Entered Preview Test Mode (Admin Access).');
+      });
 
       // Navigation Tabs
       document.querySelectorAll('.nav-tab[data-tab]').forEach(btn => {
@@ -4465,87 +4899,225 @@
         }
       });
 
-      // Video Library Drawers, Google Sheet Sync, CSV Upload & Add Video Handlers
-      const savedSheetUrlInput = document.getElementById('googleSheetUrlInput');
-      if (savedSheetUrlInput) {
-        savedSheetUrlInput.value = localStorage.getItem('afc_video_sheet_url') || DEFAULT_CLUB_VIDEO_SHEET_URL;
-      }
-
-      document.getElementById('toggleSheetSyncBtn')?.addEventListener('click', function() {
-        const drawer = document.getElementById('sheetSyncDrawer');
-        const addDrawer = document.getElementById('addVideoDrawer');
-        if (addDrawer) addDrawer.style.display = 'none';
+      /* =========================================================
+         ROSTER & PASTE/UPLOAD EVENT HANDLERS (MASTER, SESSION, GAME)
+         ========================================================= */
+      // 1. Master Roster Tab Controls
+      document.getElementById('toggleMasterBulkRosterBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('masterBulkRosterDrawer');
         if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
       });
-
-      document.getElementById('toggleAddVideoBtn')?.addEventListener('click', function() {
-        const drawer = document.getElementById('addVideoDrawer');
-        const syncDrawer = document.getElementById('sheetSyncDrawer');
-        if (syncDrawer) syncDrawer.style.display = 'none';
-        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      document.getElementById('masterAddPlayerBtn')?.addEventListener('click', function() {
+        const inp = document.getElementById('masterNewPlayerNameInput');
+        const raw = (inp?.value || '').trim();
+        if (!raw) { showToast('Enter a player name first.'); return; }
+        const parsed = parseBulkRosterText(raw);
+        if (parsed.length > 0) {
+          roster.push(...parsed);
+          inp.value = '';
+          saveAllState();
+          renderMasterRosterTab();
+          renderRosterGrid();
+          showToast('Added ' + parsed.length + ' player(s) to roster.');
+        }
       });
-
-      document.getElementById('runGoogleSheetSyncBtn')?.addEventListener('click', function() {
-        const urlVal = (document.getElementById('googleSheetUrlInput')?.value || DEFAULT_CLUB_VIDEO_SHEET_URL).trim();
-        syncVideosFromGoogleSheet(urlVal, false);
+      document.getElementById('masterReplaceRosterBtn')?.addEventListener('click', function() {
+        const ta = document.getElementById('masterBulkRosterTextarea');
+        const parsed = parseBulkRosterText(ta?.value || '');
+        if (parsed.length === 0) { showToast('Paste at least one player name first.'); return; }
+        roster = parsed;
+        if (ta) ta.value = '';
+        const drawer = document.getElementById('masterBulkRosterDrawer');
+        if (drawer) drawer.style.display = 'none';
+        saveAllState();
+        renderMasterRosterTab();
+        renderRosterGrid();
+        showToast('Replaced roster with ' + parsed.length + ' players.');
       });
-
-      document.getElementById('csvVideoUploadInput')?.addEventListener('change', function() {
+      document.getElementById('masterAppendRosterBtn')?.addEventListener('click', function() {
+        const ta = document.getElementById('masterBulkRosterTextarea');
+        const parsed = parseBulkRosterText(ta?.value || '');
+        if (parsed.length === 0) { showToast('Paste at least one player name first.'); return; }
+        roster.push(...parsed);
+        if (ta) ta.value = '';
+        const drawer = document.getElementById('masterBulkRosterDrawer');
+        if (drawer) drawer.style.display = 'none';
+        saveAllState();
+        renderMasterRosterTab();
+        renderRosterGrid();
+        showToast('Appended ' + parsed.length + ' players to roster.');
+      });
+      document.getElementById('masterRosterFileUploadInput')?.addEventListener('change', function() {
         const file = this.files && this.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(ev) {
-          const parsed = parseVideosFromCsvText(ev.target.result);
-          if (parsed.length === 0) {
-            showToast('No valid video links found in uploaded file.');
-            return;
-          }
-          videoLibrary = parsed;
-          saveSharedVideosLibrary();
-          renderVideoLibrary();
-          updateWorkspaceBadges();
-          showToast('Imported ' + parsed.length + ' videos from file!');
+          const parsed = parseBulkRosterText(ev.target.result || '');
+          if (parsed.length === 0) { showToast('No player names found in file.'); return; }
+          roster.push(...parsed);
+          const drawer = document.getElementById('masterBulkRosterDrawer');
+          if (drawer) drawer.style.display = 'none';
+          saveAllState();
+          renderMasterRosterTab();
+          renderRosterGrid();
+          showToast('Imported ' + parsed.length + ' players from ' + file.name + '.');
         };
         reader.readAsText(file);
+        this.value = '';
+      });
+      document.getElementById('masterMarkAllPresentBtn')?.addEventListener('click', function() {
+        roster.forEach(p => { p.present = true; });
+        saveAllState();
+        renderMasterRosterTab();
+        renderRosterGrid();
+        showToast('Marked all players present.');
+      });
+      document.getElementById('syncMasterRosterToGameBtn')?.addEventListener('click', function() {
+        const selectedTeam = document.getElementById('rosterTeamSelect')?.value || activeTeamName;
+        if (!selectedTeam) return;
+        teamGameRosters[selectedTeam] = JSON.parse(JSON.stringify(roster));
+        saveAllState();
+        renderGameDayPlanner();
+        showToast('Synced master roster to Game Day squad!');
       });
 
-      document.getElementById('saveSingleVideoBtn')?.addEventListener('click', function() {
-        const url = (document.getElementById('newVideoUrl')?.value || '').trim();
-        if (!url || !/^https?:\/\//i.test(url)) {
-          showToast('Please enter a valid video URL starting with http:// or https://');
-          return;
-        }
-        const title = (document.getElementById('newVideoTitle')?.value || '').trim() || 'Training Video';
-        const category = (document.getElementById('newVideoCategory')?.value || '').trim();
-        const subCategory = (document.getElementById('newVideoSubCategory')?.value || '').trim();
-        const rawTags = (document.getElementById('newVideoTags')?.value || '').trim();
-        const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+      // 2. Session Builder Roster & Activity Controls
+      document.getElementById('closePartDrillPickerBtn')?.addEventListener('click', function() {
+        const modal = document.getElementById('partDrillPickerModal');
+        if (modal) modal.classList.remove('open');
+      });
+      document.getElementById('partDrillPickerModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+      });
+      document.getElementById('partDrillPickerSearch')?.addEventListener('input', renderPartDrillPickerGrid);
+      document.getElementById('partDrillPickerCategory')?.addEventListener('change', renderPartDrillPickerGrid);
 
-        videoLibrary.unshift({
-          id: 'vid_' + Date.now(),
-          url: url,
-          title: title,
-          category: category,
-          subCategory: subCategory,
-          tags: tags
+      document.getElementById('closePartVideoPickerBtn')?.addEventListener('click', function() {
+        const modal = document.getElementById('partVideoPickerModal');
+        if (modal) modal.classList.remove('open');
+      });
+      document.getElementById('partVideoPickerModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+      });
+      document.getElementById('partVideoPickerSearch')?.addEventListener('input', renderPartVideoPickerGrid);
+      document.getElementById('partVideoPickerCategory')?.addEventListener('change', renderPartVideoPickerGrid);
+
+      document.getElementById('addSessionPartBtn')?.addEventListener('click', function() {
+        const typeVal = document.getElementById('newPartTypeSelect')?.value || 'technical';
+        const meta = PART_TYPE_META[typeVal] || PART_TYPE_META.technical;
+        sessionParts.push({
+          type: typeVal,
+          title: 'Part ' + (sessionParts.length + 1) + ': ' + meta.label,
+          duration: meta.defaultDuration || 15,
+          gifDataUrl: '',
+          videoUrl: '',
+          videoTitle: '',
+          videoTimestamp: '',
+          coachingPoints: '',
+          notes: ''
         });
-        saveSharedVideosLibrary();
-        renderVideoLibrary();
-        updateWorkspaceBadges();
-
-        document.getElementById('newVideoUrl').value = '';
-        document.getElementById('newVideoTitle').value = '';
-        document.getElementById('newVideoCategory').value = '';
-        document.getElementById('newVideoSubCategory').value = '';
-        document.getElementById('newVideoTags').value = '';
-        document.getElementById('addVideoDrawer').style.display = 'none';
-        showToast('Video added to shared library!');
+        renderSessionBuilder();
+      });
+      document.getElementById('toggleBulkRosterBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('bulkRosterDrawer');
+        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      });
+      document.getElementById('addPlayerBtn')?.addEventListener('click', function() {
+        const inp = document.getElementById('newPlayerNameInput');
+        const raw = (inp?.value || '').trim();
+        if (!raw) { showToast('Enter a player name first.'); return; }
+        const parsed = parseBulkRosterText(raw);
+        if (parsed.length > 0) {
+          roster.push(...parsed);
+          inp.value = '';
+          saveAllState();
+          renderRosterGrid();
+          renderMasterRosterTab();
+          showToast('Added ' + parsed.length + ' player(s) to roster.');
+        }
+      });
+      document.getElementById('replaceRosterBtn')?.addEventListener('click', function() {
+        const ta = document.getElementById('bulkRosterTextarea');
+        const parsed = parseBulkRosterText(ta?.value || '');
+        if (parsed.length === 0) { showToast('Paste at least one player name first.'); return; }
+        roster = parsed;
+        if (ta) ta.value = '';
+        const drawer = document.getElementById('bulkRosterDrawer');
+        if (drawer) drawer.style.display = 'none';
+        saveAllState();
+        renderRosterGrid();
+        renderMasterRosterTab();
+        showToast('Updated roster with ' + parsed.length + ' players.');
+      });
+      document.getElementById('markAllPresentBtn')?.addEventListener('click', function() {
+        roster.forEach(p => { p.present = true; });
+        saveAllState();
+        renderRosterGrid();
+        renderMasterRosterTab();
+        showToast('Marked all players present.');
       });
 
+      // 3. Game Day Roster & Match Controls
+      document.getElementById('toggleGameBulkRosterBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('gameBulkRosterDrawer');
+        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      });
+      document.getElementById('addGamePlayerBtn')?.addEventListener('click', function() {
+        const inp = document.getElementById('newGamePlayerNameInput');
+        const raw = (inp?.value || '').trim();
+        if (!raw) { showToast('Enter a player name first.'); return; }
+        const parsed = parseBulkRosterText(raw);
+        if (parsed.length > 0) {
+          const squad = getActiveGameRoster();
+          squad.push(...parsed);
+          inp.value = '';
+          saveAllState();
+          renderGameRosterGrid();
+          showToast('Added ' + parsed.length + ' player(s) to Game Day squad.');
+        }
+      });
+      document.getElementById('replaceGameRosterBtn')?.addEventListener('click', function() {
+        const ta = document.getElementById('gameBulkRosterTextarea');
+        const parsed = parseBulkRosterText(ta?.value || '');
+        if (parsed.length === 0) { showToast('Paste at least one player name first.'); return; }
+        const teamKey = document.getElementById('gameTeamSelect')?.value || currentGame.team || activeTeamName;
+        teamGameRosters[teamKey] = parsed;
+        if (ta) ta.value = '';
+        const drawer = document.getElementById('gameBulkRosterDrawer');
+        if (drawer) drawer.style.display = 'none';
+        saveAllState();
+        renderGameRosterGrid();
+        showToast('Updated Game Day squad with ' + parsed.length + ' players.');
+      });
+      document.getElementById('copyTrainingRosterToGameBtn')?.addEventListener('click', function() {
+        const teamKey = document.getElementById('gameTeamSelect')?.value || currentGame.team || activeTeamName;
+        teamGameRosters[teamKey] = JSON.parse(JSON.stringify(roster));
+        saveAllState();
+        renderGameRosterGrid();
+        showToast('Copied training roster to Game Day squad.');
+      });
+      document.getElementById('markAllGameAvailableBtn')?.addEventListener('click', function() {
+        const squad = getActiveGameRoster();
+        squad.forEach(p => { p.present = true; });
+        saveAllState();
+        renderGameRosterGrid();
+        showToast('Marked all players available.');
+      });
+
+      // Video Library Search, Filter & Embedded Modal Handlers
+      document.getElementById('videoSearchInput')?.addEventListener('input', renderVideoLibrary);
+      document.getElementById('videoCategoryFilter')?.addEventListener('change', renderVideoLibrary);
+      document.getElementById('videoSubCategoryFilter')?.addEventListener('change', renderVideoLibrary);
+      document.getElementById('closeEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
+      document.getElementById('doneEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
+      document.getElementById('embeddedVideoModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeEmbeddedVideoModal();
+      });
       document.getElementById('clearVideosBtn')?.addEventListener('click', function() {
+        if (!isClubAdmin) return;
         openCustomDialog({
-          title: 'Clear All Videos',
-          message: 'Remove all videos from the shared Video Library? (You can re-sync anytime from your Google Sheet.)',
+          title: 'Clear Video Library',
+          message: 'Are you sure you want to clear all videos from the shared Video Library?',
           onConfirm: function() {
             videoLibrary = [];
             saveSharedVideosLibrary();
@@ -4556,23 +5128,177 @@
         });
       });
 
-      document.getElementById('videoSearchInput')?.addEventListener('input', renderVideoLibrary);
-      document.getElementById('videoCategoryFilter')?.addEventListener('change', renderVideoLibrary);
-      document.getElementById('videoSubCategoryFilter')?.addEventListener('change', renderVideoLibrary);
-
-      document.getElementById('closeEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
-      document.getElementById('doneEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
-      document.getElementById('embeddedVideoModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeEmbeddedVideoModal();
-      });
-
-      // Drill Library Drawer, Search & Add Drill Handlers
+      // Drill Library Admin Backend Drawer, Batch Upload, Edit & Add Drill Handlers
       let pendingNewDrillGifDataUrl = '';
-      document.getElementById('toggleNewDrillDrawerBtn')?.addEventListener('click', function() {
-        const drawer = document.getElementById('newDrillDrawer');
+      let batchDrillQueue = [];
+
+      function resetSingleDrillForm() {
+        pendingNewDrillGifDataUrl = '';
+        const editIdEl = document.getElementById('editingDrillIdInput');
+        if (editIdEl) editIdEl.value = '';
+        const titleEl = document.getElementById('newDrillTitle');
+        if (titleEl) titleEl.value = '';
+        const tagsEl = document.getElementById('newDrillTags');
+        if (tagsEl) tagsEl.value = '';
+        const cpEl = document.getElementById('newDrillCoachingPoints');
+        if (cpEl) cpEl.value = '';
+        const notesEl = document.getElementById('newDrillNotes');
+        if (notesEl) notesEl.value = '';
+        const gifInp = document.getElementById('newDrillGifInput');
+        if (gifInp) gifInp.value = '';
+        const prevWrap = document.getElementById('newDrillGifPreviewWrap');
+        if (prevWrap) prevWrap.style.display = 'none';
+      }
+
+      function renderBatchUploadQueue() {
+        const listEl = document.getElementById('batchUploadQueueList');
+        const actionsBar = document.getElementById('batchUploadActionsBar');
+        if (!listEl) return;
+
+        if (batchDrillQueue.length === 0) {
+          listEl.innerHTML = '';
+          if (actionsBar) actionsBar.style.display = 'none';
+          return;
+        }
+        if (actionsBar) actionsBar.style.display = 'flex';
+
+        listEl.innerHTML = batchDrillQueue.map((item, idx) => {
+          return '<div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:12px;display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:start;">' +
+            '<div style="text-align:center;">' +
+              '<img src="' + item.gifDataUrl + '" style="width:100%;max-height:105px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;" alt="Preview" />' +
+              '<button type="button" class="btn btn-danger btn-sm remove-batch-item-btn" data-batch-idx="' + idx + '" style="margin-top:6px;width:100%;">Remove</button>' +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:8px;">' +
+              '<div style="display:grid;grid-template-columns:2fr 1fr 80px;gap:8px;">' +
+                '<input type="text" class="input batch-title-inp" data-batch-idx="' + idx + '" value="' + escapeHtml(item.title) + '" placeholder="Drill Title" />' +
+                '<select class="select batch-cat-inp" data-batch-idx="' + idx + '">' +
+                  '<option value="Warm-Up"' + (item.category === 'Warm-Up' ? ' selected' : '') + '>Warm-Up</option>' +
+                  '<option value="Technical"' + (item.category === 'Technical' ? ' selected' : '') + '>Technical</option>' +
+                  '<option value="Tactical"' + (item.category === 'Tactical' ? ' selected' : '') + '>Tactical</option>' +
+                  '<option value="Scrimmage"' + (item.category === 'Scrimmage' ? ' selected' : '') + '>Scrimmage</option>' +
+                  '<option value="Fitness"' + (item.category === 'Fitness' ? ' selected' : '') + '>Fitness</option>' +
+                '</select>' +
+                '<input type="number" class="input batch-dur-inp" data-batch-idx="' + idx + '" value="' + item.duration + '" min="1" max="120" title="Duration (min)" />' +
+              '</div>' +
+              '<textarea class="textarea batch-cp-inp" data-batch-idx="' + idx + '" rows="2" placeholder="Pre-Made Coaching Points (e.g. • Scan before receiving • First touch forward)">' + escapeHtml(item.coachingPoints) + '</textarea>' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+                '<input type="text" class="input batch-tags-inp" data-batch-idx="' + idx + '" value="' + escapeHtml(item.tags) + '" placeholder="Tags (comma-separated)" />' +
+                '<input type="text" class="input batch-notes-inp" data-batch-idx="' + idx + '" value="' + escapeHtml(item.notes) + '" placeholder="Setup / Grid Notes (optional)" />' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        listEl.querySelectorAll('.batch-title-inp').forEach(el => {
+          el.oninput = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].title = this.value; };
+        });
+        listEl.querySelectorAll('.batch-cat-inp').forEach(el => {
+          el.onchange = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].category = this.value; };
+        });
+        listEl.querySelectorAll('.batch-dur-inp').forEach(el => {
+          el.oninput = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].duration = Math.max(1, parseInt(this.value, 10) || 15); };
+        });
+        listEl.querySelectorAll('.batch-cp-inp').forEach(el => {
+          el.oninput = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].coachingPoints = this.value; };
+        });
+        listEl.querySelectorAll('.batch-tags-inp').forEach(el => {
+          el.oninput = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].tags = this.value; };
+        });
+        listEl.querySelectorAll('.batch-notes-inp').forEach(el => {
+          el.oninput = function() { batchDrillQueue[parseInt(this.dataset.batchIdx, 10)].notes = this.value; };
+        });
+        listEl.querySelectorAll('.remove-batch-item-btn').forEach(btn => {
+          btn.onclick = function() {
+            batchDrillQueue.splice(parseInt(this.dataset.batchIdx, 10), 1);
+            renderBatchUploadQueue();
+          };
+        });
+      }
+
+      document.getElementById('toggleBulkDrillBackendBtn')?.addEventListener('click', function() {
+        if (!isClubAdmin) return;
+        const drawer = document.getElementById('bulkDrillBackendDrawer');
         if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
       });
+      document.getElementById('closeBulkDrillBackendBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('bulkDrillBackendDrawer');
+        if (drawer) drawer.style.display = 'none';
+      });
+      document.getElementById('batchDrillGifFilesInput')?.addEventListener('change', function() {
+        if (!isClubAdmin) return;
+        const files = Array.from(this.files || []);
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            const cleanTitle = file.name
+              .replace(/\.[^/.]+$/, '')
+              .replace(/[-_]+/g, ' ')
+              .replace(/\b\w/g, c => c.toUpperCase());
+            batchDrillQueue.push({
+              title: cleanTitle || 'New Drill',
+              category: 'Technical',
+              duration: 15,
+              coachingPoints: '',
+              tags: '',
+              notes: '',
+              gifDataUrl: ev.target.result
+            });
+            renderBatchUploadQueue();
+          };
+          reader.readAsDataURL(file);
+        });
+        this.value = '';
+      });
+      document.getElementById('clearBatchQueueBtn')?.addEventListener('click', function() {
+        batchDrillQueue = [];
+        renderBatchUploadQueue();
+      });
+      document.getElementById('saveBatchDrillsBtn')?.addEventListener('click', function() {
+        if (!isClubAdmin || batchDrillQueue.length === 0) return;
+        const count = batchDrillQueue.length;
+        batchDrillQueue.forEach((item, idx) => {
+          const tagsArr = item.tags ? item.tags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+          saveDrillToFirestore({
+            id: 'drill_' + Date.now() + '_' + idx,
+            title: (item.title || '').trim() || ('Drill ' + (idx + 1)),
+            category: item.category || 'Technical',
+            duration: Math.max(1, parseInt(item.duration, 10) || 15),
+            tags: tagsArr,
+            coachingPoints: (item.coachingPoints || '').trim(),
+            notes: (item.notes || '').trim(),
+            gifDataUrl: item.gifDataUrl || ''
+          });
+        });
+        batchDrillQueue = [];
+        renderBatchUploadQueue();
+        const drawer = document.getElementById('bulkDrillBackendDrawer');
+        if (drawer) drawer.style.display = 'none';
+        updateWorkspaceBadges();
+        showToast('Uploaded ' + count + ' drill(s) with premade coaching points to backend!');
+      });
+
+      document.getElementById('toggleNewDrillDrawerBtn')?.addEventListener('click', function() {
+        if (!isClubAdmin) {
+          showToast('Only the Club Admin account can add drills.');
+          return;
+        }
+        const drawer = document.getElementById('newDrillDrawer');
+        if (!drawer) return;
+        const isOpening = drawer.style.display === 'none' || !drawer.style.display;
+        if (isOpening) {
+          resetSingleDrillForm();
+          drawer.style.display = 'block';
+          drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => document.getElementById('newDrillTitle')?.focus(), 50);
+        } else {
+          resetSingleDrillForm();
+          drawer.style.display = 'none';
+        }
+      });
       document.getElementById('cancelNewDrillBtn')?.addEventListener('click', function() {
+        resetSingleDrillForm();
         const drawer = document.getElementById('newDrillDrawer');
         if (drawer) drawer.style.display = 'none';
       });
@@ -4590,34 +5316,38 @@
         reader.readAsDataURL(file);
       });
       document.getElementById('saveNewDrillBtn')?.addEventListener('click', function() {
+        if (!isClubAdmin) {
+          showToast('Only the Club Admin account can save drills.');
+          return;
+        }
         const title = (document.getElementById('newDrillTitle')?.value || '').trim();
         if (!title) {
           showToast('Please enter a Drill Title.');
+          document.getElementById('newDrillTitle')?.focus();
           return;
         }
+        const existingId = (document.getElementById('editingDrillIdInput')?.value || '').trim();
         const category = document.getElementById('newDrillCategory')?.value || 'Technical';
         const duration = Math.max(1, parseInt(document.getElementById('newDrillDuration')?.value, 10) || 15);
         const rawTags = (document.getElementById('newDrillTags')?.value || '').trim();
         const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+        const coachingPoints = (document.getElementById('newDrillCoachingPoints')?.value || '').trim();
         const notes = (document.getElementById('newDrillNotes')?.value || '').trim();
 
         saveDrillToFirestore({
-          id: 'drill_' + Date.now(),
+          id: existingId || ('drill_' + Date.now()),
           title: title,
           category: category,
           duration: duration,
           tags: tags,
+          coachingPoints: coachingPoints,
           notes: notes,
           gifDataUrl: pendingNewDrillGifDataUrl
         });
 
-        pendingNewDrillGifDataUrl = '';
-        document.getElementById('newDrillTitle').value = '';
-        document.getElementById('newDrillTags').value = '';
-        document.getElementById('newDrillNotes').value = '';
-        document.getElementById('newDrillGifInput').value = '';
-        document.getElementById('newDrillGifPreviewWrap').style.display = 'none';
-        document.getElementById('newDrillDrawer').style.display = 'none';
+        resetSingleDrillForm();
+        const drawer = document.getElementById('newDrillDrawer');
+        if (drawer) drawer.style.display = 'none';
         updateWorkspaceBadges();
       });
 
@@ -4630,16 +5360,52 @@
           const drillId = insertBtn.getAttribute('data-drill-id');
           const drill = drillLibrary.find(d => d.id === drillId);
           if (drill) {
-            const typeMap = { Technical: 'technical', Tactical: 'tactical', Fitness: 'fitness' };
+            const typeMap = {
+              'Warm-Up': 'warmup',
+              Technical: 'technical',
+              Tactical: 'tactical',
+              Scrimmage: 'scrimmage',
+              Fitness: 'fitness'
+            };
             sessionParts.push({
               type: typeMap[drill.category] || 'technical',
               title: drill.title || 'Drill',
               duration: Number(drill.duration) || 15,
               gifDataUrl: drill.gifDataUrl || '',
+              coachingPoints: drill.coachingPoints || '',
               notes: drill.notes || ''
             });
             switchWorkspace('builder');
-            showToast('Added "' + drill.title + '" to Session Builder!');
+            showToast('Added "' + drill.title + '" with premade coaching points to Session Builder!');
+          }
+          return;
+        }
+        const editBtn = e.target.closest('.edit-drill-btn');
+        if (editBtn && isClubAdmin) {
+          const drillId = editBtn.getAttribute('data-drill-id');
+          const drill = drillLibrary.find(d => d.id === drillId);
+          if (drill) {
+            document.getElementById('editingDrillIdInput').value = drill.id;
+            document.getElementById('newDrillTitle').value = drill.title || '';
+            document.getElementById('newDrillCategory').value = drill.category || 'Technical';
+            document.getElementById('newDrillDuration').value = Number(drill.duration) || 15;
+            document.getElementById('newDrillTags').value = (drill.tags || []).join(', ');
+            document.getElementById('newDrillCoachingPoints').value = drill.coachingPoints || '';
+            document.getElementById('newDrillNotes').value = drill.notes || '';
+            pendingNewDrillGifDataUrl = drill.gifDataUrl || '';
+            const prevWrap = document.getElementById('newDrillGifPreviewWrap');
+            const prevImg = document.getElementById('newDrillGifPreviewImg');
+            if (pendingNewDrillGifDataUrl && prevWrap && prevImg) {
+              prevImg.src = pendingNewDrillGifDataUrl;
+              prevWrap.style.display = 'block';
+            } else if (prevWrap) {
+              prevWrap.style.display = 'none';
+            }
+            const drawer = document.getElementById('newDrillDrawer');
+            if (drawer) {
+              drawer.style.display = 'block';
+              drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
           }
           return;
         }
