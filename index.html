@@ -3749,8 +3749,8 @@
         renderCoachDirectory();
 
         const rawHref = window.location.href.split('?')[0].split('#')[0];
-        const isSandboxPreview = !rawHref.startsWith('http') || rawHref.includes('googleusercontent.com') || rawHref.includes('localhost') === false && rawHref.includes('srcdoc');
-        const baseUrl = isSandboxPreview ? 'https://ambassadors-fc-app-git-main-mace12.vercel.app/' : rawHref;
+        const isSandboxPreview = !rawHref.startsWith('http') || rawHref.includes('googleusercontent.com') || rawHref.includes('srcdoc') || rawHref.includes('-git-');
+        const baseUrl = isSandboxPreview ? 'https://ambassadors-fc-app.vercel.app/' : rawHref;
         const regInfo = teamRegistry[selectedTeam] || {};
         const teamCode = regInfo.joinCode || (selectedTeam ? generateJoinCode(selectedTeam) : '');
         const inviteUrl = baseUrl +
