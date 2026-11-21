@@ -1700,17 +1700,13 @@
         </div>
 
         <div id="inviteGeneratedBox" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;">
-          <div style="font-size:0.74rem;font-weight:800;color:#065f46;margin-bottom:4px;">Invite Ready!</div>
-          <div style="font-size:0.74rem;color:#334155;margin-bottom:8px;word-break:break-all;" id="invitePreviewSummary"></div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            <a id="inviteMailtoAnchor" href="#" class="btn btn-emerald btn-sm" style="text-decoration:none;flex:1;">Send Email Invite &nearr;</a>
-            <button type="button" id="inviteCopyLinkBtn" class="btn btn-outline btn-sm">Copy Link</button>
-          </div>
+          <div style="font-size:0.76rem;font-weight:800;color:#065f46;margin-bottom:4px;" id="inviteStatusHeading">Invitation Email Sent!</div>
+          <div style="font-size:0.74rem;color:#334155;line-height:1.4;" id="invitePreviewSummary"></div>
         </div>
 
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
           <button type="button" class="btn btn-outline btn-sm" id="cancelInviteCoachBtn">Close</button>
-          <button type="button" class="btn btn-primary btn-sm" id="generateTeamInviteBtn">Create Invite &amp; Link</button>
+          <button type="button" class="btn btn-emerald btn-sm" id="generateTeamInviteBtn">Send Invite Email &rarr;</button>
         </div>
       </div>
     </div>
@@ -2207,13 +2203,13 @@
             '<div>' +
               '<label class="label">Diagram / GIF</label>' +
               '<div class="gif-drop-box">' +
-                (part.gifDataUrl ? '<img src="' + part.gifDataUrl + '" class="gif-preview-img" alt="GIF Diagram" />' : '') +
-                '<label class="btn btn-outline btn-sm no-clean-preview" style="cursor:pointer;">Upload GIF<input type="file" class="part-gif-file" data-part-idx="' + idx + '" accept="image/gif,image/*" style="display:none;"></label>' +
+                (part.gifDataUrl ? '<img src="' + part.gifDataUrl + '" class="gif-preview-img" alt="Drill Diagram" />' : '<div style="font-size:0.76rem;color:#64748b;margin-bottom:6px;">No diagram uploaded</div>') +
+                '<input type="file" class="part-gif-file no-clean-preview" data-part-idx="' + idx + '" accept="image/gif,image/*" style="font-size:0.75rem;" />' +
               '</div>' +
             '</div>' +
             '<div>' +
-              '<label class="label">Organization &amp; Coaching Points</label>' +
-              '<textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="6" placeholder="Setup dimensions, coaching points...">' + escapeHtml(part.notes || '') + '</textarea>' +
+              '<label class="label">Coaching Points &amp; Rules</label>' +
+              '<textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="5" placeholder="Setup, rules, coaching points...">' + escapeHtml(part.notes || '') + '</textarea>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -2229,11 +2225,9 @@
       container.querySelectorAll('.part-duration-input').forEach(inp => {
         inp.oninput = function() {
           const i = parseInt(this.getAttribute('data-part-idx'), 10);
-          if (sessionParts[i]) {
-            sessionParts[i].duration = parseInt(this.value, 10) || 0;
-            const total = sessionParts.reduce((acc, p) => acc + (Number(p.duration) || 0), 0);
-            if (totalMinEl) totalMinEl.textContent = total;
-          }
+          if (sessionParts[i]) sessionParts[i].duration = Math.max(1, parseInt(this.value, 10) || 15);
+          const totalMins = (sessionParts || []).reduce((acc, p) => acc + (Number(p.duration) || 0), 0);
+          if (totalMinEl) totalMinEl.textContent = totalMins;
         };
       });
 
@@ -3730,7 +3724,102 @@
       const inviteTeamSel = document.getElementById('inviteTeamSelect');
       const inviteEmailInp = document.getElementById('inviteEmailInput');
       const inviteGenBox = document.getElementById('inviteGeneratedBox');
-      let latestGeneratedInviteUrl = '';
+
+      function sendAutomatedTeamInviteEmail(targetEmail, selectedTeam, triggerBtn) {
+        const cleanEmail = (targetEmail || '').trim().toLowerCase();
+        const emailKey = cleanEmail.replace(/[^a-z0-9]+/g, '_');
+        const existingRecord = coachDirectory[emailKey] || { email: cleanEmail, name: cleanEmail.split('@')[0], teams: [] };
+        const updatedTeams = Array.isArray(existingRecord.teams) ? existingRecord.teams.slice() : [];
+        if (selectedTeam && !updatedTeams.includes(selectedTeam)) {
+          updatedTeams.push(selectedTeam);
+        }
+
+        coachDirectory[emailKey] = {
+          email: cleanEmail,
+          name: existingRecord.name || cleanEmail.split('@')[0],
+          teams: updatedTeams
+        };
+
+        localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
+        if (db && !isDemoUser) {
+          db.collection('afc_club').doc('coach_permissions').set({
+            [emailKey]: coachDirectory[emailKey]
+          }, { merge: true }).catch(() => {});
+        }
+        renderCoachDirectory();
+
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const regInfo = teamRegistry[selectedTeam] || {};
+        const teamCode = regInfo.joinCode || (selectedTeam ? generateJoinCode(selectedTeam) : '');
+        const inviteUrl = baseUrl +
+          '?invite=' + encodeURIComponent(cleanEmail) +
+          (selectedTeam ? '&team=' + encodeURIComponent(selectedTeam) : '') +
+          (teamCode ? '&code=' + encodeURIComponent(teamCode) : '');
+
+        // Queue email record in Firestore 'mail' collection (for Firebase Trigger Email extension)
+        if (db && !isDemoUser) {
+          db.collection('mail').add({
+            to: [cleanEmail],
+            message: {
+              subject: 'Ambassadors FC Training App - ' + (selectedTeam || 'Team') + ' Invite',
+              text: 'Hi,\n\nYou have been invited to join ' + (selectedTeam || 'our team') + ' on the Ambassadors FC Training App.\n\nClick the link below to set up your account and automatically unlock your team workspace:\n' + inviteUrl,
+              html: '<p>Hi,</p><p>You have been invited to join <strong>' + escapeHtml(selectedTeam || 'our team') + '</strong> on the <strong>Ambassadors FC Training App</strong>.</p><p><a href="' + escapeHtml(inviteUrl) + '" style="display:inline-block;padding:10px 18px;background:#0A2647;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;">Accept Invite &amp; Set Up Account</a></p><p>Or copy this link into your browser:<br>' + escapeHtml(inviteUrl) + '</p>'
+            },
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(() => {});
+        }
+
+        const headingEl = document.getElementById('inviteStatusHeading');
+        const summaryEl = document.getElementById('invitePreviewSummary');
+        const originalBtnText = triggerBtn ? triggerBtn.textContent : '';
+        if (triggerBtn) {
+          triggerBtn.disabled = true;
+          triggerBtn.textContent = 'Sending Email...';
+        }
+
+        // Send direct email via Firebase Auth Email Link Delivery
+        if (auth && typeof auth.sendSignInLinkToEmail === 'function') {
+          const actionCodeSettings = {
+            url: inviteUrl,
+            handleCodeInApp: true
+          };
+          auth.sendSignInLinkToEmail(cleanEmail, actionCodeSettings).then(() => {
+            if (headingEl) { headingEl.style.color = '#065f46'; headingEl.textContent = 'Invitation Email Sent!'; }
+            if (summaryEl) {
+              summaryEl.textContent = 'An automated invitation email with a direct account setup link has been sent to ' + cleanEmail + ' for ' + selectedTeam + '.';
+            }
+            if (inviteGenBox) {
+              inviteGenBox.style.background = '#f0fdf4';
+              inviteGenBox.style.borderColor = '#bbf7d0';
+              inviteGenBox.style.display = 'block';
+            }
+            showToast('Invitation email sent directly to ' + cleanEmail + '!');
+          }).catch(err => {
+            console.warn('Direct email link dispatch notice:', err);
+            if (headingEl) { headingEl.style.color = '#92400e'; headingEl.textContent = 'Permissions Granted & Invite Queued'; }
+            if (summaryEl) {
+              summaryEl.textContent = cleanEmail + ' has been granted access to ' + selectedTeam + '. Note: To enable direct Firebase email delivery on this URL, enable "Email link (passwordless sign-in)" under Firebase Console → Authentication → Sign-in method.';
+            }
+            if (inviteGenBox) {
+              inviteGenBox.style.background = '#fffbeb';
+              inviteGenBox.style.borderColor = '#fde68a';
+              inviteGenBox.style.display = 'block';
+            }
+            showToast('Team permissions saved for ' + cleanEmail + '.');
+          }).finally(() => {
+            if (triggerBtn) {
+              triggerBtn.disabled = false;
+              triggerBtn.textContent = originalBtnText;
+            }
+          });
+        } else {
+          if (triggerBtn) {
+            triggerBtn.disabled = false;
+            triggerBtn.textContent = originalBtnText;
+          }
+          showToast('Team permissions saved for ' + cleanEmail + '.');
+        }
+      }
 
       document.getElementById('openInviteCoachModalBtn')?.addEventListener('click', function() {
         if (!inviteModal) return;
@@ -3768,60 +3857,7 @@
           return;
         }
 
-        const emailKey = targetEmail.replace(/[^a-z0-9]+/g, '_');
-        const existingRecord = coachDirectory[emailKey] || { email: targetEmail, name: targetEmail.split('@')[0], teams: [] };
-        const updatedTeams = Array.isArray(existingRecord.teams) ? existingRecord.teams.slice() : [];
-        if (!updatedTeams.includes(selectedTeam)) {
-          updatedTeams.push(selectedTeam);
-        }
-
-        coachDirectory[emailKey] = {
-          email: targetEmail,
-          name: existingRecord.name || targetEmail.split('@')[0],
-          teams: updatedTeams
-        };
-
-        localStorage.setItem('afc_coach_directory', JSON.stringify(coachDirectory));
-        if (db && !isDemoUser) {
-          db.collection('afc_club').doc('coach_permissions').set({
-            [emailKey]: coachDirectory[emailKey]
-          }, { merge: true }).catch(() => {});
-        }
-        renderCoachDirectory();
-
-        const baseUrl = window.location.href.split('?')[0].split('#')[0];
-        const regInfo = teamRegistry[selectedTeam] || {};
-        const teamCode = regInfo.joinCode || generateJoinCode(selectedTeam);
-        latestGeneratedInviteUrl = baseUrl +
-          '?invite=' + encodeURIComponent(targetEmail) +
-          '&team=' + encodeURIComponent(selectedTeam) +
-          '&code=' + encodeURIComponent(teamCode);
-
-        const mailSubject = 'Ambassadors FC Training App - ' + selectedTeam + ' Invite';
-        const mailBody = 'Hi,\n\nYou have been invited to join ' + selectedTeam + ' on the Ambassadors FC Training App.\n\nClick the link below to create your account and automatically unlock the team workspace:\n' + latestGeneratedInviteUrl;
-
-        const mailAnchor = document.getElementById('inviteMailtoAnchor');
-        if (mailAnchor) {
-          mailAnchor.href = 'mailto:' + encodeURIComponent(targetEmail) + '?subject=' + encodeURIComponent(mailSubject) + '&body=' + encodeURIComponent(mailBody);
-        }
-
-        const summaryEl = document.getElementById('invitePreviewSummary');
-        if (summaryEl) {
-          summaryEl.textContent = 'Invited ' + targetEmail + ' to ' + selectedTeam + '. Send them the email invite or copy the link below:';
-        }
-        if (inviteGenBox) inviteGenBox.style.display = 'block';
-        showToast('Invite created for ' + targetEmail + ' (' + selectedTeam + ')!');
-      });
-
-      document.getElementById('inviteCopyLinkBtn')?.addEventListener('click', function() {
-        if (!latestGeneratedInviteUrl) return;
-        const tempInp = document.createElement('input');
-        tempInp.value = latestGeneratedInviteUrl;
-        document.body.appendChild(tempInp);
-        tempInp.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInp);
-        showToast('Invite link copied to clipboard!');
+        sendAutomatedTeamInviteEmail(targetEmail, selectedTeam, this);
       });
 
       // Handle Incoming Invite Link on Login Screen (Auto-switch to Register & pre-fill email)
@@ -3882,7 +3918,7 @@
             if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
               statusEl.textContent = 'Google popup is blocked or unavailable in this view. Please sign in with your Coach Email & Password below.';
             } else if (err && err.code === 'auth/unauthorized-domain') {
-              statusEl.textContent = 'Google Sign-In domain restricted. Please use Email & Password below to sign in directly.';
+              statusEl.textContent = 'This preview URL is not in Firebase Authorized Domains yet. Sign in with Email & Password below (or add this domain in Firebase Console → Authentication → Settings → Authorized domains).';
             } else {
               statusEl.textContent = 'Google Sign-In was closed or unavailable. Use Email & Password below.';
             }
