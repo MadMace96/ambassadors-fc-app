@@ -1506,53 +1506,8 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Video Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Sync from Google Sheets or add individual videos.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Browse and watch club training videos by category or tag.</p>
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <button type="button" class="btn btn-outline btn-sm" id="toggleSheetSyncBtn">Sync Google Sheet / CSV</button>
-            <button type="button" class="btn btn-primary btn-sm" id="toggleAddVideoBtn">+ Add Video Link</button>
-          </div>
-        </div>
-
-        <div id="sheetSyncDrawer" style="display:none;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:16px 20px;">
-          <h3 style="margin:0 0 8px;font-size:0.9rem;font-weight:800;color:#0A2647;">Sync Videos from Google Sheet</h3>
-          <p style="margin:0 0 10px;font-size:0.78rem;color:#475569;">Paste a public Google Sheet link (<strong>Share &rarr; Anyone with link can view</strong>).</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-            <input type="url" id="googleSheetUrlInput" class="input" style="flex:1;min-width:240px;" placeholder="https://docs.google.com/spreadsheets/d/...">
-            <button type="button" class="btn btn-emerald" id="runGoogleSheetSyncBtn">Sync Sheet</button>
-          </div>
-          <div id="sheetSyncFeedback" style="display:none;margin-bottom:10px;padding:8px 12px;border-radius:8px;font-size:0.78rem;font-weight:600;"></div>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
-            <label class="label" style="margin:0;">Or Upload CSV / TSV:</label>
-            <input type="file" id="csvVideoUploadInput" accept=".csv,.tsv,.txt" style="font-size:0.78rem;">
-          </div>
-        </div>
-
-        <div id="addVideoDrawer" style="display:none;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:16px 20px;">
-          <h3 style="margin:0 0 10px;font-size:0.9rem;font-weight:800;color:#0A2647;">Add Single Video</h3>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:10px;">
-            <div>
-              <label class="label" for="newVideoUrl">Video URL *</label>
-              <input type="url" id="newVideoUrl" class="input" placeholder="https://www.youtube.com/watch?v=...">
-            </div>
-            <div>
-              <label class="label" for="newVideoTitle">Title (optional)</label>
-              <input type="text" id="newVideoTitle" class="input" placeholder="Auto-detects if blank">
-            </div>
-            <div>
-              <label class="label" for="newVideoCategory">Category</label>
-              <input type="text" id="newVideoCategory" class="input" placeholder="e.g. Technical">
-            </div>
-            <div>
-              <label class="label" for="newVideoSubCategory">Sub-Category</label>
-              <input type="text" id="newVideoSubCategory" class="input" placeholder="e.g. Finishing">
-            </div>
-            <div>
-              <label class="label" for="newVideoTags">Tags</label>
-              <input type="text" id="newVideoTags" class="input" placeholder="e.g. finishing, weak-foot">
-            </div>
-          </div>
-          <button type="button" class="btn btn-emerald" id="saveSingleVideoBtn">Add Video</button>
         </div>
 
         <div class="card-body">
@@ -1741,6 +1696,51 @@
     </div>
   </div>
 
+  <!-- Password Setup Modal for First-Time Email-Link Invitees -->
+  <div id="setInvitePasswordModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:430px;">
+      <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#059669;">Account Setup</div>
+      <h3 style="margin:4px 0 8px;font-size:1.12rem;font-weight:900;color:#0A2647;">Set a Password for Future Logins</h3>
+      <p style="margin:0 0 14px;font-size:0.8rem;color:#475569;line-height:1.45;">
+        Your email is verified and your team workspace is unlocked! Set a password below so you can sign in anytime on your phone or sideline tablet without needing another email link.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <div>
+          <label class="label" for="inviteSetupNameInput">Your Coach Name</label>
+          <input type="text" id="inviteSetupNameInput" class="input" placeholder="e.g. Coach Ben" />
+        </div>
+        <div>
+          <label class="label" for="inviteSetupPasswordInput">Create Password (min 6 characters) *</label>
+          <input type="password" id="inviteSetupPasswordInput" class="input" placeholder="••••••••••••" />
+        </div>
+        <div id="inviteSetupPasswordFeedback" style="font-size:0.75rem;font-weight:700;color:#dc2626;display:none;"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button type="button" class="btn btn-outline btn-sm" id="skipSetInvitePasswordBtn">Skip for Now</button>
+        <button type="button" class="btn btn-emerald btn-sm" id="saveSetInvitePasswordBtn">Save Password &amp; Continue &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embedded In-App Video Player Modal -->
+  <div id="embeddedVideoModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:860px;width:96%;padding:16px 20px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;">
+        <div>
+          <div id="embeddedVideoBadges" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"></div>
+          <h3 id="embeddedVideoTitle" style="margin:0;font-size:1.05rem;font-weight:900;color:#0A2647;">Training Video</h3>
+        </div>
+        <button type="button" id="closeEmbeddedVideoBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <div id="embeddedVideoStage" style="position:relative;width:100%;aspect-ratio:16/9;background:#0f172a;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1;"></div>
+      <div id="embeddedVideoTags" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
+        <a id="embeddedVideoFallbackLink" href="#" target="_blank" rel="noopener noreferrer" style="font-size:0.76rem;font-weight:700;color:#1e4e8c;text-decoration:none;">Open Original Source &nearr;</a>
+        <button type="button" class="btn btn-primary btn-sm" id="doneEmbeddedVideoBtn">Close Player</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toastContainer"></div>
 
   <!-- Main JavaScript App Code -->
@@ -1765,7 +1765,9 @@
     let userTeams = [];
     let userAccessibleTeams = userTeams;
     let calendarVisibleTeams = new Set();
-    let isHeadCoach = false;
+    let isClubAdmin = false;
+    const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
+    let clubTeamsRegistry = {};
 
     // Team Registry with Join Codes
     let teamRegistry = {
@@ -1775,6 +1777,7 @@
 
     let drillLibrary = [];
     let videoLibrary = [];
+    const DEFAULT_CLUB_VIDEO_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w/edit?gid=704136561#gid=704136561';
     let savedSessions = [];
     let savedGames = [];
     let roster = [];
@@ -2503,9 +2506,11 @@
       }
 
       db.collection('afc_club').doc('shared_libraries').onSnapshot(doc => {
-        if (doc.exists && Array.isArray(doc.data().videos)) {
+        if (doc.exists && Array.isArray(doc.data().videos) && doc.data().videos.length > 0) {
           videoLibrary = doc.data().videos;
+          localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
           renderVideoLibrary();
+          updateWorkspaceBadges();
         }
       }, err => {});
 
@@ -3141,7 +3146,7 @@
           '</div>' +
           '<div class="lib-card-footer">' +
             '<button type="button" class="btn btn-emerald btn-sm insert-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">+ Add to Session</button>' +
-            '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' +
+            (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' : '') +
           '</div>' +
         '</div>';
       }).join('');
@@ -3149,40 +3154,552 @@
 
     function renderVideoLibrary() {
       const grid = document.getElementById('videoLibraryGrid');
+      const catFilterEl = document.getElementById('videoCategoryFilter');
+      const subCatFilterEl = document.getElementById('videoSubCategoryFilter');
       if (!grid) return;
 
-      const query = (document.getElementById('videoSearchInput')?.value || '').trim().toLowerCase();
-      const catFilter = document.getElementById('videoCategoryFilter')?.value || 'ALL';
-      const subCatFilter = document.getElementById('videoSubCategoryFilter')?.value || 'ALL';
+      const cats = Array.from(new Set(videoLibrary.map(v => v.category).filter(Boolean))).sort();
+      const subCats = Array.from(new Set(videoLibrary.map(v => v.subCategory).filter(Boolean))).sort();
 
-      const filtered = (videoLibrary || []).filter(v => {
-        const matchCat = catFilter === 'ALL' || (v.category || '') === catFilter;
-        const matchSub = subCatFilter === 'ALL' || (v.subCategory || '') === subCatFilter;
+      if (catFilterEl) {
+        const curCat = catFilterEl.value || 'ALL';
+        catFilterEl.innerHTML = '<option value="ALL">All Categories</option>' +
+          cats.map(c => '<option value="' + escapeHtml(c) + '"' + (c === curCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
+      }
+      if (subCatFilterEl) {
+        const curSub = subCatFilterEl.value || 'ALL';
+        subCatFilterEl.innerHTML = '<option value="ALL">All Sub-Categories</option>' +
+          subCats.map(sc => '<option value="' + escapeHtml(sc) + '"' + (sc === curSub ? ' selected' : '') + '>' + escapeHtml(sc) + '</option>').join('');
+      }
+
+      const query = (document.getElementById('videoSearchInput')?.value || '').trim().toLowerCase();
+      const selectedCat = catFilterEl ? catFilterEl.value : 'ALL';
+      const selectedSub = subCatFilterEl ? subCatFilterEl.value : 'ALL';
+
+      const filtered = videoLibrary.filter(v => {
+        const matchCat = selectedCat === 'ALL' || (v.category || '') === selectedCat;
+        const matchSub = selectedSub === 'ALL' || (v.subCategory || '') === selectedSub;
         const hay = [v.title, v.category, v.subCategory, (v.tags || []).join(' '), v.url].join(' ').toLowerCase();
         return matchCat && matchSub && (!query || hay.includes(query));
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No videos found. Click <strong>+ Add Video Link</strong> or <strong>Sync Google Sheet / CSV</strong> above.</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;color:#64748b;font-size:0.85rem;">No videos in the library yet.' +
+          (isClubAdmin ? ' Click <strong>Sync Google Sheet / CSV</strong> or <strong>+ Add Video Link</strong> above to populate videos.' : '') + '</div>';
         return;
       }
 
       grid.innerHTML = filtered.map(v => {
         const tagsHtml = (v.tags || []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+        const thumbUrl = getVideoThumbnailUrl(v.url || '');
         return '<div class="lib-card">' +
           '<div class="lib-card-body">' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">' +
-              '<span class="badge badge-navy">' + escapeHtml(v.category || 'Video') + '</span>' +
-              (v.subCategory ? '<span class="badge badge-amber">' + escapeHtml(v.subCategory) + '</span>' : '') +
+            (thumbUrl
+              ? '<div class="open-embedded-video-btn" data-video-id="' + escapeHtml(v.id || '') + '" style="position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;margin-bottom:10px;background:#0f172a;cursor:pointer;border:1px solid #cbd5e1;">' +
+                  '<img src="' + escapeHtml(thumbUrl) + '" onerror="this.style.display=\'none\'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" />' +
+                  '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,38,71,0.28);">' +
+                    '<span style="width:44px;height:44px;border-radius:50%;background:rgba(10,38,71,0.9);color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.35);">&#9654;</span>' +
+                  '</div>' +
+                '</div>'
+              : '') +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;">' +
+              (v.category ? '<span class="badge badge-navy">' + escapeHtml(v.category) + '</span>' : '') +
+              (v.subCategory ? '<span class="badge badge-emerald">' + escapeHtml(v.subCategory) + '</span>' : '') +
             '</div>' +
-            '<h3 style="margin:0 0 6px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(v.title || 'Training Video') + '</h3>' +
-            '<div style="margin-bottom:8px;">' + tagsHtml + '</div>' +
+            '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(v.title || 'Training Video') + '</h3>' +
+            '<div>' + tagsHtml + '</div>' +
           '</div>' +
           '<div class="lib-card-footer">' +
-            '<a href="' + escapeHtml(v.url || '#') + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="text-decoration:none;">Watch Video &nearr;</a>' +
+            '<button type="button" class="btn btn-primary btn-sm open-embedded-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">&#9654; Watch Video</button>' +
+            (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-video-btn" data-video-id="' + escapeHtml(v.id || '') + '">Delete</button>' : '') +
           '</div>' +
         '</div>';
       }).join('');
+
+      grid.querySelectorAll('.open-embedded-video-btn').forEach(el => {
+        el.onclick = function() {
+          const vidId = this.getAttribute('data-video-id');
+          const vidObj = videoLibrary.find(item => item.id === vidId);
+          if (vidObj) openEmbeddedVideoModal(vidObj);
+        };
+      });
+
+      grid.querySelectorAll('.delete-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const vidId = this.getAttribute('data-video-id');
+          videoLibrary = videoLibrary.filter(item => item.id !== vidId);
+          saveSharedVideosLibrary();
+          renderVideoLibrary();
+          updateWorkspaceBadges();
+          showToast('Video removed from library.');
+        };
+      });
+    }
+
+    function extractYouTubeId(url) {
+      const m = String(url || '').match(/(?:(?:www\.|m\.)?youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|v\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      return m ? m[1] : '';
+    }
+
+    function getVideoThumbnailUrl(url) {
+      const ytId = extractYouTubeId(url);
+      if (ytId) return 'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg';
+      return '';
+    }
+
+    function buildEmbeddedPlayerHtml(url) {
+      let cleanUrl = String(url || '').trim();
+      // Unwrap Google redirect links (https://www.google.com/url?q=...)
+      if (cleanUrl.includes('google.com/url?')) {
+        try {
+          const uObj = new URL(cleanUrl);
+          const q = uObj.searchParams.get('q') || uObj.searchParams.get('url');
+          if (q) cleanUrl = q;
+        } catch (e) {}
+      }
+
+      const ytId = extractYouTubeId(cleanUrl);
+      if (ytId) {
+        return '<iframe src="https://www.youtube.com/embed/' + encodeURIComponent(ytId) + '?autoplay=1&rel=0" style="width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+      }
+
+      // Support Vimeo standard URLs, unlisted privacy-hash URLs (vimeo.com/123456789/abcdef1234), and showcase/channel paths
+      const vimeoMatch = cleanUrl.match(/vimeo\.com\/(?:(?:channels\/[^/]+|groups\/[^/]+\/videos|album\/\d+\/video|showcase\/\d+\/video|video)\/)?([0-9]+)(?:\/([a-zA-Z0-9]+))?/);
+      if (vimeoMatch) {
+        const vidId = vimeoMatch[1];
+        let privacyHash = vimeoMatch[2] || '';
+        if (!privacyHash) {
+          try {
+            const vUrl = new URL(cleanUrl);
+            privacyHash = vUrl.searchParams.get('h') || '';
+          } catch (e) {}
+        }
+        const hashParam = privacyHash ? ('&h=' + encodeURIComponent(privacyHash)) : '';
+        return '<iframe src="https://player.vimeo.com/video/' + encodeURIComponent(vidId) + '?autoplay=1&dnt=1' + hashParam + '" style="width:100%;height:100%;border:0;background:#000;" allow="autoplay; fullscreen; picture-in-picture; clipboard-write" allowfullscreen></iframe>';
+      }
+
+      // Support all Google Drive file/folder/open/uc URL formats (including resourcekey)
+      const driveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?.*id=)([a-zA-Z0-9_-]+)/);
+      if (driveMatch) {
+        let rkParam = '';
+        try {
+          const dUrl = new URL(cleanUrl);
+          const rk = dUrl.searchParams.get('resourcekey');
+          if (rk) rkParam = '?resourcekey=' + encodeURIComponent(rk);
+        } catch (e) {}
+        return '<iframe src="https://drive.google.com/file/d/' + encodeURIComponent(driveMatch[1]) + '/preview' + rkParam + '" style="width:100%;height:100%;border:0;background:#000;" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+      }
+
+      // Support direct video streams (including Dropbox raw links)
+      const directMediaUrl = cleanUrl.includes('dropbox.com') ? cleanUrl.replace(/[?&]dl=0/, '?raw=1') : cleanUrl;
+      if (/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(directMediaUrl) || directMediaUrl.includes('dropbox.com')) {
+        return '<video src="' + escapeHtml(directMediaUrl) + '" controls autoplay playsinline style="width:100%;height:100%;background:#000;"></video>';
+      }
+
+      return '<iframe src="' + escapeHtml(cleanUrl) + '" style="width:100%;height:100%;border:0;background:#ffffff;" allowfullscreen></iframe>';
+    }
+
+    function openEmbeddedVideoModal(videoObj) {
+      const modal = document.getElementById('embeddedVideoModal');
+      const titleEl = document.getElementById('embeddedVideoTitle');
+      const badgesEl = document.getElementById('embeddedVideoBadges');
+      const stageEl = document.getElementById('embeddedVideoStage');
+      const tagsEl = document.getElementById('embeddedVideoTags');
+      const fallbackLink = document.getElementById('embeddedVideoFallbackLink');
+      if (!modal || !stageEl) return;
+
+      const cleanTargetUrl = unwrapGoogleRedirectUrl(videoObj.url || '');
+      if (titleEl) titleEl.textContent = videoObj.title || 'Training Video';
+      if (badgesEl) {
+        badgesEl.innerHTML =
+          (videoObj.category ? '<span class="badge badge-navy">' + escapeHtml(videoObj.category) + '</span>' : '') +
+          (videoObj.subCategory ? '<span class="badge badge-emerald">' + escapeHtml(videoObj.subCategory) + '</span>' : '');
+      }
+      if (tagsEl) {
+        tagsEl.innerHTML = (videoObj.tags || []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+      }
+      if (fallbackLink) fallbackLink.href = cleanTargetUrl || '#';
+
+      stageEl.innerHTML = buildEmbeddedPlayerHtml(cleanTargetUrl);
+      modal.classList.add('open');
+    }
+
+    function closeEmbeddedVideoModal() {
+      const modal = document.getElementById('embeddedVideoModal');
+      const stageEl = document.getElementById('embeddedVideoStage');
+      if (stageEl) stageEl.innerHTML = '';
+      if (modal) modal.classList.remove('open');
+    }
+
+    function saveSharedVideosLibrary() {
+      localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
+      if (db && (!isDemoUser || (currentUser && currentUser.email))) {
+        db.collection('afc_club').doc('shared_libraries').set({
+          videos: videoLibrary,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(() => {});
+      }
+    }
+
+    function parseDelimitedRow(line, delimiter) {
+      const cells = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === delimiter && !inQuotes) {
+          cells.push(cur.trim());
+          cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      cells.push(cur.trim());
+      return cells;
+    }
+
+    function parseVideosFromCsvText(rawText, defaultCategory) {
+      const lines = String(rawText || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) return [];
+      const delimiter = lines[0].includes('\t') ? '\t' : ',';
+      const firstRow = parseDelimitedRow(lines[0], delimiter).map(c => c.toLowerCase());
+      const hasHeader = firstRow.some(c => c.includes('url') || c.includes('link') || c.includes('title') || c.includes('category') || c.includes('drill') || c.includes('video'));
+      const startIndex = hasHeader ? 1 : 0;
+
+      const imported = [];
+      for (let i = startIndex; i < lines.length; i++) {
+        const cols = parseDelimitedRow(lines[i], delimiter);
+        const urlColIdx = cols.findIndex(c => /^https?:\/\//i.test(c));
+        if (urlColIdx === -1) continue;
+
+        const url = cols[urlColIdx].trim();
+        let title = '';
+        let rowCat = '';
+        let rowSubCat = '';
+        let tags = [];
+
+        if (hasHeader) {
+          firstRow.forEach((h, idx) => {
+            if (idx === urlColIdx || !cols[idx]) return;
+            if (!title && (h.includes('title') || h.includes('name') || h.includes('drill') || h.includes('video'))) title = cols[idx];
+            else if (!rowCat && (h.includes('cat') || h.includes('phase') || h.includes('type'))) rowCat = cols[idx];
+            else if (!rowSubCat && (h.includes('sub') || h.includes('topic') || h.includes('focus'))) rowSubCat = cols[idx];
+            else if (h.includes('tag')) tags = cols[idx].split(/[,;|]+/).map(t => t.trim()).filter(Boolean);
+          });
+        }
+
+        if (!title) {
+          const nonUrlCols = cols.filter((c, idx) => idx !== urlColIdx && c && !/^https?:\/\//i.test(c));
+          title = nonUrlCols[0] || ('Training Video ' + (imported.length + 1));
+          if (!rowCat && nonUrlCols[1]) rowCat = nonUrlCols[1];
+          if (!rowSubCat && nonUrlCols[2]) rowSubCat = nonUrlCols[2];
+        }
+
+        const category = defaultCategory || rowCat;
+        const subCategory = defaultCategory ? (rowCat || rowSubCat) : rowSubCat;
+
+        imported.push({
+          id: 'vid_' + Date.now() + '_' + i + '_' + Math.floor(Math.random() * 1000),
+          url: url,
+          title: title,
+          category: category,
+          subCategory: subCategory,
+          tags: tags
+        });
+      }
+      return imported;
+    }
+
+    function extractSpreadsheetId(sheetUrl) {
+      const m = String(sheetUrl || '').match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      return m ? m[1] : '';
+    }
+
+    async function discoverAllSheetTabs(sheetId, fallbackGid) {
+      const discovered = [];
+      const seenGids = new Set();
+      const htmlUrls = [
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/htmlview',
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit'
+      ];
+
+      for (let u = 0; u < htmlUrls.length; u++) {
+        try {
+          const resp = await fetch(htmlUrls[u], { cache: 'no-store' });
+          if (!resp.ok) continue;
+          const html = await resp.text();
+          if (!html) continue;
+
+          const itemRegex = /items\.push\(\{\s*name:\s*"((?:[^"\\]|\\.)*)"\s*,\s*pageUrl:\s*"[^"]*"\s*,\s*gid:\s*"([0-9]+)"/g;
+          let match;
+          while ((match = itemRegex.exec(html)) !== null) {
+            const rawName = match[1].replace(/\\"/g, '"').replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+            const gid = match[2];
+            if (!seenGids.has(gid)) {
+              seenGids.add(gid);
+              discovered.push({ gid: gid, name: rawName });
+            }
+          }
+
+          if (discovered.length === 0) {
+            const liRegex = /id="sheet-button-([0-9]+)"[^>]*>[\s\S]*?<a[^>]*>([^<]+)<\/a>/g;
+            while ((match = liRegex.exec(html)) !== null) {
+              const gid = match[1];
+              const name = match[2].trim();
+              if (!seenGids.has(gid)) {
+                seenGids.add(gid);
+                discovered.push({ gid: gid, name: name });
+              }
+            }
+          }
+
+          if (discovered.length > 0) break;
+        } catch (err) {}
+      }
+
+      if (discovered.length === 0) {
+        discovered.push({ gid: fallbackGid || '0', name: '' });
+      }
+      return discovered;
+    }
+
+    async function fetchCsvForSingleTab(sheetId, gid) {
+      const gidParam = gid ? '&gid=' + encodeURIComponent(gid) : '';
+      const candidateUrls = [
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv' + gidParam,
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:csv' + gidParam
+      ];
+      for (let i = 0; i < candidateUrls.length; i++) {
+        try {
+          const resp = await fetch(candidateUrls[i], { cache: 'no-store' });
+          if (resp.ok) {
+            const text = await resp.text();
+            if (text && !text.trim().startsWith('<!DOCTYPE html')) {
+              return text;
+            }
+          }
+        } catch (err) {}
+      }
+      return '';
+    }
+
+    function unwrapGoogleRedirectUrl(rawHref) {
+      let href = String(rawHref || '').trim();
+      if (!href) return '';
+      if (href.startsWith('https://www.google.com/url?') || href.startsWith('http://www.google.com/url?')) {
+        try {
+          const parsed = new URL(href);
+          const target = parsed.searchParams.get('q') || parsed.searchParams.get('url');
+          if (target) href = target;
+        } catch (e) {}
+      }
+      return href;
+    }
+
+    function parseVideosFromSheetHtml(htmlText, defaultCategory) {
+      const imported = [];
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        const rows = Array.from(doc.querySelectorAll('table.waffle tr, table tr'));
+        let headerCols = [];
+
+        rows.forEach((tr, rIdx) => {
+          const cells = Array.from(tr.querySelectorAll('td, th'));
+          if (cells.length === 0) return;
+          const cellTexts = cells.map(td => (td.textContent || '').trim());
+
+          // Detect header row for category/sub-category mapping
+          const lowerTexts = cellTexts.map(t => t.toLowerCase());
+          if (headerCols.length === 0 && lowerTexts.some(t => t.includes('title') || t.includes('drill') || t.includes('video') || t.includes('category') || t.includes('topic'))) {
+            headerCols = lowerTexts;
+            return;
+          }
+
+          // Inspect every cell in the row for embedded <a href="..."> hyperlinks OR plain-text URLs
+          let foundUrls = [];
+          cells.forEach((td, cIdx) => {
+            const anchors = Array.from(td.querySelectorAll('a[href]'));
+            anchors.forEach(a => {
+              const cleanHref = unwrapGoogleRedirectUrl(a.getAttribute('href'));
+              if (/^https?:\/\//i.test(cleanHref) && !cleanHref.includes('docs.google.com/spreadsheets')) {
+                foundUrls.push({ url: cleanHref, label: (a.textContent || '').trim(), colIdx: cIdx });
+              }
+            });
+            const plainMatches = (td.textContent || '').match(/https?:\/\/[^\s"'<>]+/g);
+            if (plainMatches) {
+              plainMatches.forEach(u => {
+                const cleanU = unwrapGoogleRedirectUrl(u);
+                if (!cleanU.includes('docs.google.com/spreadsheets')) {
+                  foundUrls.push({ url: cleanU, label: '', colIdx: cIdx });
+                }
+              });
+            }
+          });
+
+          if (foundUrls.length === 0) return;
+
+          // Deduplicate URLs within the same row
+          const rowSeen = new Set();
+          foundUrls.forEach((item, uIdx) => {
+            if (rowSeen.has(item.url)) return;
+            rowSeen.add(item.url);
+
+            // Find best title from non-URL cells or link text
+            let title = (item.label && !/^https?:\/\//i.test(item.label)) ? item.label : '';
+            if (!title) {
+              const candidateText = cellTexts.find((txt, idx) => idx !== item.colIdx && txt && !/^https?:\/\//i.test(txt) && txt.length > 1 && !/^\d+$/.test(txt));
+              title = candidateText || ('Training Video ' + (imported.length + 1));
+            }
+
+            let rowCat = '';
+            let rowSubCat = '';
+            let tags = [];
+
+            if (headerCols.length > 0) {
+              headerCols.forEach((h, hIdx) => {
+                const val = cellTexts[hIdx] || '';
+                if (!val || /^https?:\/\//i.test(val) || val === title) return;
+                if (!rowCat && (h.includes('cat') || h.includes('phase') || h.includes('type'))) rowCat = val;
+                else if (!rowSubCat && (h.includes('sub') || h.includes('topic') || h.includes('focus') || h.includes('skill'))) rowSubCat = val;
+                else if (h.includes('tag')) tags = val.split(/[,;|]+/).map(t => t.trim()).filter(Boolean);
+              });
+            } else {
+              const otherTexts = cellTexts.filter((txt, idx) => idx !== item.colIdx && txt && txt !== title && !/^https?:\/\//i.test(txt) && !/^\d+$/.test(txt));
+              if (otherTexts[0]) rowCat = otherTexts[0];
+              if (otherTexts[1]) rowSubCat = otherTexts[1];
+            }
+
+            const category = defaultCategory || rowCat;
+            const subCategory = defaultCategory ? (rowCat || rowSubCat) : rowSubCat;
+
+            imported.push({
+              id: 'vid_' + Date.now() + '_' + rIdx + '_' + uIdx + '_' + Math.floor(Math.random() * 1000),
+              url: item.url,
+              title: title,
+              category: category,
+              subCategory: subCategory,
+              tags: tags
+            });
+          });
+        });
+      } catch (err) {}
+      return imported;
+    }
+
+    async function fetchHtmlForSingleTab(sheetId, gid) {
+      const gidParam = gid ? '?gid=' + encodeURIComponent(gid) : '';
+      const candidateUrls = [
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/htmlview/sheetheaders' + gidParam,
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/htmlview' + gidParam,
+        'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:html' + (gid ? '&gid=' + encodeURIComponent(gid) : '')
+      ];
+      for (let i = 0; i < candidateUrls.length; i++) {
+        try {
+          const resp = await fetch(candidateUrls[i], { cache: 'no-store' });
+          if (resp.ok) {
+            const text = await resp.text();
+            if (text && text.includes('<tr')) {
+              return text;
+            }
+          }
+        } catch (err) {}
+      }
+      return '';
+    }
+
+    async function syncVideosFromGoogleSheet(sheetUrl, silent) {
+      const targetUrl = (sheetUrl || DEFAULT_CLUB_VIDEO_SHEET_URL).trim();
+      localStorage.setItem('afc_video_sheet_url', targetUrl);
+      const feedbackEl = document.getElementById('sheetSyncFeedback');
+      if (!silent && feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.style.background = '#eff6ff';
+        feedbackEl.style.color = '#1e4e8c';
+        feedbackEl.textContent = 'Scanning all tabs and hyperlinked cells across your Google Sheet...';
+      }
+
+      const sheetId = extractSpreadsheetId(targetUrl);
+      if (!sheetId) {
+        if (!silent && feedbackEl) {
+          feedbackEl.style.background = '#fef2f2';
+          feedbackEl.style.color = '#dc2626';
+          feedbackEl.textContent = 'Invalid Google Sheet URL.';
+        }
+        return false;
+      }
+
+      const gidMatch = targetUrl.match(/[?&#]gid=([0-9]+)/);
+      const fallbackGid = gidMatch ? gidMatch[1] : '';
+      const tabs = await discoverAllSheetTabs(sheetId, fallbackGid);
+
+      const allImported = [];
+      const seenUrls = new Set();
+      let syncedTabCount = 0;
+
+      for (let t = 0; t < tabs.length; t++) {
+        const tab = tabs[t];
+        let tabVideos = [];
+
+        // 1. Parse rendered HTML table first so hyperlinked text cells (<a href="...">Drill Name</a>) are captured!
+        const htmlText = await fetchHtmlForSingleTab(sheetId, tab.gid);
+        if (htmlText) {
+          syncedTabCount++;
+          tabVideos = parseVideosFromSheetHtml(htmlText, tab.name || '');
+        }
+
+        // 2. Also scan CSV export for any plain-text links not caught in HTML
+        const csvText = await fetchCsvForSingleTab(sheetId, tab.gid);
+        if (csvText) {
+          if (!htmlText) syncedTabCount++;
+          const csvVideos = parseVideosFromCsvText(csvText, tab.name || '');
+          csvVideos.forEach(cv => {
+            if (!tabVideos.some(tv => tv.url === cv.url)) {
+              tabVideos.push(cv);
+            }
+          });
+        }
+
+        tabVideos.forEach(v => {
+          const normUrl = v.url.trim();
+          if (!seenUrls.has(normUrl)) {
+            seenUrls.add(normUrl);
+            allImported.push(v);
+          }
+        });
+      }
+
+      if (allImported.length === 0) {
+        if (!silent && feedbackEl) {
+          feedbackEl.style.background = '#fef2f2';
+          feedbackEl.style.color = '#dc2626';
+          feedbackEl.textContent = 'Could not fetch videos from the spreadsheet tabs. Ensure the Google Sheet is set to "Anyone with the link can view", or upload a CSV below.';
+        }
+        return false;
+      }
+
+      videoLibrary = allImported;
+      saveSharedVideosLibrary();
+      renderVideoLibrary();
+      updateWorkspaceBadges();
+
+      if (!silent) {
+        const tabLabel = syncedTabCount > 1 ? (' across ' + syncedTabCount + ' tabs') : '';
+        if (feedbackEl) {
+          feedbackEl.style.background = '#ecfdf5';
+          feedbackEl.style.color = '#065f46';
+          feedbackEl.textContent = 'Synced ' + allImported.length + ' videos' + tabLabel + ' from Google Sheet!';
+        }
+        showToast('Synced ' + allImported.length + ' videos' + tabLabel + '!');
+      }
+      return true;
     }
 
     function saveUserTeamsToStorage() {
@@ -3228,13 +3745,36 @@
       const displayName = (user && user.displayName) ? user.displayName : (demoMode ? 'Preview Coach' : 'Coach');
       const email = (user && user.email) ? user.email.toLowerCase() : (demoMode ? 'Preview / Local Mode' : '');
       const emailKey = email.replace(/[^a-z0-9]+/g, '_');
-      isHeadCoach = (email === 'mmaddox@ambassadorsfootball.org');
+      isClubAdmin = (email === CLUB_ADMIN_EMAIL);
 
-      // Zero-Trust Access Evaluation: Admin gets default teams, other emails get ONLY explicitly assigned/saved teams
+      // Update Settings Role Badge & Enforce Club Content Admin vs. Coach UI Permissions
+      const roleBadge = document.getElementById('settingsRoleBadge');
+      if (roleBadge) {
+        roleBadge.textContent = isClubAdmin ? 'Club Content Admin & Head Coach' : 'Coach';
+        roleBadge.className = isClubAdmin ? 'badge badge-emerald' : 'badge badge-navy';
+      }
+
+      const newDrillBtn = document.getElementById('toggleNewDrillDrawerBtn');
+      const newDrillDrawer = document.getElementById('newDrillDrawer');
+      const syncSheetBtn = document.getElementById('toggleSheetSyncBtn');
+      const addVideoBtn = document.getElementById('toggleAddVideoBtn');
+      const clearVideosBtn = document.getElementById('clearVideosBtn');
+      const sheetSyncDrawer = document.getElementById('sheetSyncDrawer');
+      const addVideoDrawer = document.getElementById('addVideoDrawer');
+
+      if (newDrillBtn) newDrillBtn.style.display = isClubAdmin ? '' : 'none';
+      if (!isClubAdmin && newDrillDrawer) newDrillDrawer.style.display = 'none';
+      if (syncSheetBtn) syncSheetBtn.style.display = isClubAdmin ? '' : 'none';
+      if (addVideoBtn) addVideoBtn.style.display = isClubAdmin ? '' : 'none';
+      if (clearVideosBtn) clearVideosBtn.style.display = isClubAdmin ? '' : 'none';
+      if (!isClubAdmin && sheetSyncDrawer) sheetSyncDrawer.style.display = 'none';
+      if (!isClubAdmin && addVideoDrawer) addVideoDrawer.style.display = 'none';
+
+      // Zero-Trust Access Evaluation: Club Admin gets default teams, other emails get ONLY explicitly assigned/saved teams
       userTeams = [];
       calendarVisibleTeams.clear();
 
-      if (isHeadCoach) {
+      if (isClubAdmin) {
         userTeams = ["11/12 AFC Boys", "09/10 AFC Boys"];
       }
 
@@ -3330,71 +3870,15 @@
 
       updateZeroTeamGateVisibility();
       loadTeamWorkspace(userTeams[0] || "");
+      renderDrillLibrary();
+      renderVideoLibrary();
       renderCoachDirectory();
       setupRealtimeFirestoreSync();
-    }
 
-    function openGoogleAccountPicker() {
-      const pickerModal = document.getElementById('googleAccountPickerModal');
-      const savedList = document.getElementById('googleSavedAccountsList');
-      if (!pickerModal) return;
-
-      // Build accounts list from known local accounts & coachDirectory
-      let known = [];
-      try {
-        known = JSON.parse(localStorage.getItem('afc_known_accounts') || '[]');
-      } catch(e) {}
-
-      // Combine with coachDirectory
-      const dirList = Object.values(coachDirectory || {}).map(c => ({
-        email: c.email,
-        displayName: c.name || c.email
-      }));
-
-      const allAccounts = [];
-      const seen = new Set();
-      [...known, ...dirList].forEach(a => {
-        if (a && a.email && !seen.has(a.email.toLowerCase())) {
-          seen.add(a.email.toLowerCase());
-          allAccounts.push(a);
-        }
-      });
-
-      if (savedList) {
-        savedList.innerHTML = allAccounts.map(acc =>
-          '<button type="button" class="btn btn-outline picker-acc-btn" data-email="' + escapeHtml(acc.email) + '" data-name="' + escapeHtml(acc.displayName) + '" style="width:100%;justify-content:flex-start;padding:10px 12px;text-align:left;">' +
-            '<div><div style="font-size:0.85rem;font-weight:800;color:#0A2647;">' + escapeHtml(acc.displayName) + '</div>' +
-            '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(acc.email) + '</div></div>' +
-          '</button>'
-        ).join('');
-
-        savedList.querySelectorAll('.picker-acc-btn').forEach(btn => {
-          btn.onclick = function() {
-            const em = this.getAttribute('data-email');
-            const nm = this.getAttribute('data-name');
-            pickerModal.classList.remove('open');
-            enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
-          };
-        });
-      }
-
-      pickerModal.classList.add('open');
-
-      const closeBtn = document.getElementById('pickerCloseBtn');
-      if (closeBtn) closeBtn.onclick = () => pickerModal.classList.remove('open');
-
-      const customSubmitBtn = document.getElementById('pickerSubmitCustomBtn');
-      if (customSubmitBtn) {
-        customSubmitBtn.onclick = () => {
-          const em = (document.getElementById('pickerCustomEmail')?.value || '').trim().toLowerCase();
-          const nm = (document.getElementById('pickerCustomName')?.value || '').trim() || (em ? em.split('@')[0] : 'Coach');
-          if (!em || !em.includes('@')) {
-            showToast('Please enter a valid Google email address.');
-            return;
-          }
-          pickerModal.classList.remove('open');
-          enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
-        };
+      // Automatically sync from default club Google Sheet if library is empty (e.g., after app reset)
+      if (videoLibrary.length === 0) {
+        const savedSheetUrl = localStorage.getItem('afc_video_sheet_url') || DEFAULT_CLUB_VIDEO_SHEET_URL;
+        syncVideosFromGoogleSheet(savedSheetUrl, true);
       }
     }
 
@@ -3879,6 +4363,12 @@
             if (res && res.user) {
               const name = res.user.displayName || invitedEmail.split('@')[0];
               enterWorkspaceAsCoach({ email: res.user.email, displayName: name }, false);
+
+              // Prompt invited coach to set a password for future logins
+              const pwModal = document.getElementById('setInvitePasswordModal');
+              const nameInp = document.getElementById('inviteSetupNameInput');
+              if (nameInp) nameInp.value = name;
+              if (pwModal) pwModal.classList.add('open');
             }
           }).catch(err => {
             if (statusEl) {
@@ -3898,6 +4388,64 @@
           }
         }
       } catch (e) {}
+
+      // Password Setup Modal Actions for Email-Link Invitees
+      document.getElementById('skipSetInvitePasswordBtn')?.addEventListener('click', () => {
+        const pwModal = document.getElementById('setInvitePasswordModal');
+        if (pwModal) pwModal.classList.remove('open');
+      });
+
+      document.getElementById('saveSetInvitePasswordBtn')?.addEventListener('click', function() {
+        const pwModal = document.getElementById('setInvitePasswordModal');
+        const newName = (document.getElementById('inviteSetupNameInput')?.value || '').trim();
+        const newPass = document.getElementById('inviteSetupPasswordInput')?.value || '';
+        const fbEl = document.getElementById('inviteSetupPasswordFeedback');
+
+        if (!newPass || newPass.length < 6) {
+          if (fbEl) {
+            fbEl.textContent = 'Please enter a password with at least 6 characters.';
+            fbEl.style.display = 'block';
+          }
+          return;
+        }
+        if (fbEl) fbEl.style.display = 'none';
+
+        const fbUser = auth ? auth.currentUser : null;
+        if (!fbUser) {
+          if (pwModal) pwModal.classList.remove('open');
+          return;
+        }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+
+        const profilePromise = newName
+          ? fbUser.updateProfile({ displayName: newName }).catch(() => {})
+          : Promise.resolve();
+
+        profilePromise
+          .then(() => fbUser.updatePassword(newPass))
+          .then(() => {
+            if (newName) {
+              currentUser.displayName = newName;
+              const nameText = document.getElementById('settingsCoachNameText');
+              if (nameText) nameText.textContent = newName;
+            }
+            if (pwModal) pwModal.classList.remove('open');
+            showToast('Password saved! You can now sign in with Email & Password anytime.');
+          })
+          .catch(err => {
+            if (fbEl) {
+              fbEl.textContent = (err && err.message) ? err.message : 'Could not save password.';
+              fbEl.style.display = 'block';
+            }
+          })
+          .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Save Password & Continue →';
+          });
+      });
       document.getElementById('sessionTeamSelect')?.addEventListener('change', function() {
         if (this.value) {
           loadTeamWorkspace(this.value);
@@ -3914,6 +4462,193 @@
         if (this.value) {
           loadTeamWorkspace(this.value);
           showToast('Switched to ' + this.value + ' master roster');
+        }
+      });
+
+      // Video Library Drawers, Google Sheet Sync, CSV Upload & Add Video Handlers
+      const savedSheetUrlInput = document.getElementById('googleSheetUrlInput');
+      if (savedSheetUrlInput) {
+        savedSheetUrlInput.value = localStorage.getItem('afc_video_sheet_url') || DEFAULT_CLUB_VIDEO_SHEET_URL;
+      }
+
+      document.getElementById('toggleSheetSyncBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('sheetSyncDrawer');
+        const addDrawer = document.getElementById('addVideoDrawer');
+        if (addDrawer) addDrawer.style.display = 'none';
+        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      });
+
+      document.getElementById('toggleAddVideoBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('addVideoDrawer');
+        const syncDrawer = document.getElementById('sheetSyncDrawer');
+        if (syncDrawer) syncDrawer.style.display = 'none';
+        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      });
+
+      document.getElementById('runGoogleSheetSyncBtn')?.addEventListener('click', function() {
+        const urlVal = (document.getElementById('googleSheetUrlInput')?.value || DEFAULT_CLUB_VIDEO_SHEET_URL).trim();
+        syncVideosFromGoogleSheet(urlVal, false);
+      });
+
+      document.getElementById('csvVideoUploadInput')?.addEventListener('change', function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          const parsed = parseVideosFromCsvText(ev.target.result);
+          if (parsed.length === 0) {
+            showToast('No valid video links found in uploaded file.');
+            return;
+          }
+          videoLibrary = parsed;
+          saveSharedVideosLibrary();
+          renderVideoLibrary();
+          updateWorkspaceBadges();
+          showToast('Imported ' + parsed.length + ' videos from file!');
+        };
+        reader.readAsText(file);
+      });
+
+      document.getElementById('saveSingleVideoBtn')?.addEventListener('click', function() {
+        const url = (document.getElementById('newVideoUrl')?.value || '').trim();
+        if (!url || !/^https?:\/\//i.test(url)) {
+          showToast('Please enter a valid video URL starting with http:// or https://');
+          return;
+        }
+        const title = (document.getElementById('newVideoTitle')?.value || '').trim() || 'Training Video';
+        const category = (document.getElementById('newVideoCategory')?.value || '').trim();
+        const subCategory = (document.getElementById('newVideoSubCategory')?.value || '').trim();
+        const rawTags = (document.getElementById('newVideoTags')?.value || '').trim();
+        const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+
+        videoLibrary.unshift({
+          id: 'vid_' + Date.now(),
+          url: url,
+          title: title,
+          category: category,
+          subCategory: subCategory,
+          tags: tags
+        });
+        saveSharedVideosLibrary();
+        renderVideoLibrary();
+        updateWorkspaceBadges();
+
+        document.getElementById('newVideoUrl').value = '';
+        document.getElementById('newVideoTitle').value = '';
+        document.getElementById('newVideoCategory').value = '';
+        document.getElementById('newVideoSubCategory').value = '';
+        document.getElementById('newVideoTags').value = '';
+        document.getElementById('addVideoDrawer').style.display = 'none';
+        showToast('Video added to shared library!');
+      });
+
+      document.getElementById('clearVideosBtn')?.addEventListener('click', function() {
+        openCustomDialog({
+          title: 'Clear All Videos',
+          message: 'Remove all videos from the shared Video Library? (You can re-sync anytime from your Google Sheet.)',
+          onConfirm: function() {
+            videoLibrary = [];
+            saveSharedVideosLibrary();
+            renderVideoLibrary();
+            updateWorkspaceBadges();
+            showToast('Cleared Video Library.');
+          }
+        });
+      });
+
+      document.getElementById('videoSearchInput')?.addEventListener('input', renderVideoLibrary);
+      document.getElementById('videoCategoryFilter')?.addEventListener('change', renderVideoLibrary);
+      document.getElementById('videoSubCategoryFilter')?.addEventListener('change', renderVideoLibrary);
+
+      document.getElementById('closeEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
+      document.getElementById('doneEmbeddedVideoBtn')?.addEventListener('click', closeEmbeddedVideoModal);
+      document.getElementById('embeddedVideoModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeEmbeddedVideoModal();
+      });
+
+      // Drill Library Drawer, Search & Add Drill Handlers
+      let pendingNewDrillGifDataUrl = '';
+      document.getElementById('toggleNewDrillDrawerBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('newDrillDrawer');
+        if (drawer) drawer.style.display = (drawer.style.display === 'none' || !drawer.style.display) ? 'block' : 'none';
+      });
+      document.getElementById('cancelNewDrillBtn')?.addEventListener('click', function() {
+        const drawer = document.getElementById('newDrillDrawer');
+        if (drawer) drawer.style.display = 'none';
+      });
+      document.getElementById('newDrillGifInput')?.addEventListener('change', function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          pendingNewDrillGifDataUrl = ev.target.result;
+          const wrap = document.getElementById('newDrillGifPreviewWrap');
+          const img = document.getElementById('newDrillGifPreviewImg');
+          if (img) img.src = pendingNewDrillGifDataUrl;
+          if (wrap) wrap.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      });
+      document.getElementById('saveNewDrillBtn')?.addEventListener('click', function() {
+        const title = (document.getElementById('newDrillTitle')?.value || '').trim();
+        if (!title) {
+          showToast('Please enter a Drill Title.');
+          return;
+        }
+        const category = document.getElementById('newDrillCategory')?.value || 'Technical';
+        const duration = Math.max(1, parseInt(document.getElementById('newDrillDuration')?.value, 10) || 15);
+        const rawTags = (document.getElementById('newDrillTags')?.value || '').trim();
+        const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+        const notes = (document.getElementById('newDrillNotes')?.value || '').trim();
+
+        saveDrillToFirestore({
+          id: 'drill_' + Date.now(),
+          title: title,
+          category: category,
+          duration: duration,
+          tags: tags,
+          notes: notes,
+          gifDataUrl: pendingNewDrillGifDataUrl
+        });
+
+        pendingNewDrillGifDataUrl = '';
+        document.getElementById('newDrillTitle').value = '';
+        document.getElementById('newDrillTags').value = '';
+        document.getElementById('newDrillNotes').value = '';
+        document.getElementById('newDrillGifInput').value = '';
+        document.getElementById('newDrillGifPreviewWrap').style.display = 'none';
+        document.getElementById('newDrillDrawer').style.display = 'none';
+        updateWorkspaceBadges();
+      });
+
+      document.getElementById('drillSearchInput')?.addEventListener('input', renderDrillLibrary);
+      document.getElementById('drillCategoryFilter')?.addEventListener('change', renderDrillLibrary);
+
+      document.getElementById('drillLibraryGrid')?.addEventListener('click', function(e) {
+        const insertBtn = e.target.closest('.insert-drill-btn');
+        if (insertBtn) {
+          const drillId = insertBtn.getAttribute('data-drill-id');
+          const drill = drillLibrary.find(d => d.id === drillId);
+          if (drill) {
+            const typeMap = { Technical: 'technical', Tactical: 'tactical', Fitness: 'fitness' };
+            sessionParts.push({
+              type: typeMap[drill.category] || 'technical',
+              title: drill.title || 'Drill',
+              duration: Number(drill.duration) || 15,
+              gifDataUrl: drill.gifDataUrl || '',
+              notes: drill.notes || ''
+            });
+            switchWorkspace('builder');
+            showToast('Added "' + drill.title + '" to Session Builder!');
+          }
+          return;
+        }
+        const delBtn = e.target.closest('.delete-drill-btn');
+        if (delBtn && isClubAdmin) {
+          const drillId = delBtn.getAttribute('data-drill-id');
+          deleteDrillFromFirestore(drillId);
+          updateWorkspaceBadges();
+          showToast('Deleted drill from library.');
         }
       });
 
