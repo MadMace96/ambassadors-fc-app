@@ -3748,7 +3748,9 @@
         }
         renderCoachDirectory();
 
-        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const rawHref = window.location.href.split('?')[0].split('#')[0];
+        const isSandboxPreview = !rawHref.startsWith('http') || rawHref.includes('googleusercontent.com') || rawHref.includes('localhost') === false && rawHref.includes('srcdoc');
+        const baseUrl = isSandboxPreview ? 'https://ambassadors-fc-app-git-main-mace12.vercel.app/' : rawHref;
         const regInfo = teamRegistry[selectedTeam] || {};
         const teamCode = regInfo.joinCode || (selectedTeam ? generateJoinCode(selectedTeam) : '');
         const inviteUrl = baseUrl +
@@ -3796,9 +3798,11 @@
             showToast('Invitation email sent directly to ' + cleanEmail + '!');
           }).catch(err => {
             console.warn('Direct email link dispatch notice:', err);
-            if (headingEl) { headingEl.style.color = '#92400e'; headingEl.textContent = 'Permissions Granted & Invite Queued'; }
+            const errCode = (err && err.code) ? err.code : '';
+            const errMsg = (err && err.message) ? err.message : '';
+            if (headingEl) { headingEl.style.color = '#92400e'; headingEl.textContent = 'Permissions Granted (' + (errCode || 'Domain Notice') + ')'; }
             if (summaryEl) {
-              summaryEl.textContent = cleanEmail + ' has been granted access to ' + selectedTeam + '. Note: To enable direct Firebase email delivery on this URL, enable "Email link (passwordless sign-in)" under Firebase Console → Authentication → Sign-in method.';
+              summaryEl.textContent = cleanEmail + ' has been granted access to ' + selectedTeam + '. Firebase reported: ' + (errMsg || 'Add your app domain under Firebase Console → Authentication → Settings → Authorized domains.');
             }
             if (inviteGenBox) {
               inviteGenBox.style.background = '#fffbeb';
@@ -3845,27 +3849,44 @@
       document.getElementById('cancelInviteCoachBtn')?.addEventListener('click', closeInviteModal);
 
       document.getElementById('generateTeamInviteBtn')?.addEventListener('click', function() {
-        const selectedTeam = inviteTeamSel ? inviteTeamSel.value.trim() : '';
-        const targetEmail = inviteEmailInp ? inviteEmailInp.value.trim().toLowerCase() : '';
-
+        const selectedTeam = inviteTeamSel ? inviteTeamSel.value : activeTeamName;
+        const targetEmail = inviteEmailInp ? inviteEmailInp.value.trim() : '';
         if (!selectedTeam) {
-          showToast('Please select a team to invite the coach to.');
+          showToast('Please select a team first.');
           return;
         }
         if (!targetEmail || !targetEmail.includes('@')) {
           showToast('Please enter a valid coach email address.');
           return;
         }
-
         sendAutomatedTeamInviteEmail(targetEmail, selectedTeam, this);
       });
 
-      // Handle Incoming Invite Link on Login Screen (Auto-switch to Register & pre-fill email)
+      // Handle Incoming Invite Link on Login Screen (Auto-verify Email Link or Pre-fill Register)
       try {
+        const fullUrl = window.location.href;
         const incomingParams = new URLSearchParams(window.location.search);
         const invitedEmail = (incomingParams.get('invite') || '').trim();
         const invitedTeam = (incomingParams.get('team') || '').trim();
-        if (invitedEmail) {
+
+        if (auth && typeof auth.isSignInWithEmailLink === 'function' && auth.isSignInWithEmailLink(fullUrl) && invitedEmail) {
+          const statusEl = document.getElementById('authStatusText');
+          if (statusEl) {
+            statusEl.style.color = '#0284c7';
+            statusEl.textContent = 'Verifying your invitation link for ' + (invitedTeam || 'Ambassadors FC') + '...';
+          }
+          auth.signInWithEmailLink(invitedEmail, fullUrl).then(res => {
+            if (res && res.user) {
+              const name = res.user.displayName || invitedEmail.split('@')[0];
+              enterWorkspaceAsCoach({ email: res.user.email, displayName: name }, false);
+            }
+          }).catch(err => {
+            if (statusEl) {
+              statusEl.style.color = '#dc2626';
+              statusEl.textContent = err.message || 'Could not verify invite link. Enter your email and create a password below.';
+            }
+          });
+        } else if (invitedEmail) {
           const authEmailInp = document.getElementById('authEmailInput');
           const statusEl = document.getElementById('authStatusText');
           if (authEmailInp) authEmailInp.value = invitedEmail;
