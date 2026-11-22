@@ -1266,6 +1266,7 @@
             <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Browse club drills with premade coaching points and add them into your session plans.</p>
           </div>
           <div id="adminDrillBackendControls" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button type="button" class="btn btn-outline" id="syncGitHubDrillsBtn">&#8635; Sync GitHub Drills</button>
             <button type="button" class="btn btn-primary" id="toggleNewDrillDrawerBtn">+ Add Single Drill</button>
           </div>
         </div>
@@ -1658,18 +1659,148 @@
     let savedSessions = [];
     let savedGames = [];
     let multiTeamEventsCache = {};
-    let rosterPlayers = [
-      { id: 'p1', name: 'Lucas Miller', positions: ['GK'], present: true },
-      { id: 'p2', name: 'Mason Smith', positions: ['CB'], present: true },
-      { id: 'p3', name: 'Ethan Brooks', positions: ['CB'], present: true },
-      { id: 'p4', name: 'Noah Davis', positions: ['LB'], present: true },
-      { id: 'p5', name: 'Liam Wilson', positions: ['RB'], present: true },
-      { id: 'p6', name: 'Caleb Brown', positions: ['CM'], present: true },
-      { id: 'p7', name: 'Owen Taylor', positions: ['CM'], present: true },
-      { id: 'p8', name: 'Julian Clark', positions: ['ST'], present: true },
-      { id: 'p9', name: 'Isaac Wright', positions: ['ST'], present: true }
-    ];
-    let gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+    let rosterPlayers = [];
+    let gameRosterPlayers = [];
+
+    function getTeamDocRef(teamName) {
+      const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      return db ? db.collection('afc_teams').doc(slug) : null;
+    }
+
+    function persistCurrentTeamState() {
+      const teamState = {
+        teamName: activeTeamName,
+        sessions: savedSessions,
+        games: savedGames,
+        roster: rosterPlayers,
+        gameRoster: gameRosterPlayers,
+        updatedAt: Date.now()
+      };
+      const rosterBackupKey = 'afc_roster_backup_' + String(activeTeamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      try {
+        localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
+        localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
+        localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
+        localStorage.setItem('afc_cal_visible_teams', JSON.stringify(Array.from(calendarVisibleTeams)));
+        localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
+        localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+      } catch (e) {}
+
+      const docRef = getTeamDocRef(activeTeamName);
+      if (docRef && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
+        docRef.set(teamState, { merge: true }).catch(() => {});
+      }
+      if (db && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
+        db.collection('afc_club').doc('shared_libraries').set({
+          videos: videoLibrary,
+          drills: drillLibrary,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(() => {});
+      }
+
+      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
+      updateWorkspaceBadges();
+    }
+
+    function loadTeamStateFromStorage(teamName) {
+      activeTeamName = teamName;
+      const subEl = document.getElementById('topBarActiveTeamSub');
+      const masterTitleEl = document.getElementById('masterRosterTitle');
+      if (subEl) subEl.textContent = activeTeamName;
+      if (masterTitleEl) masterTitleEl.textContent = activeTeamName + ' Roster';
+
+      const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      let foundSavedState = false;
+      savedSessions = [];
+      savedGames = [];
+      rosterPlayers = [];
+      gameRosterPlayers = [];
+
+      try {
+        const raw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null');
+        if (raw) {
+          foundSavedState = true;
+          savedSessions = Array.isArray(raw.sessions) ? raw.sessions : [];
+          savedGames = Array.isArray(raw.games) ? raw.games : [];
+          rosterPlayers = Array.isArray(raw.roster) ? raw.roster : [];
+          gameRosterPlayers = Array.isArray(raw.gameRoster) ? raw.gameRoster : JSON.parse(JSON.stringify(rosterPlayers));
+        }
+      } catch (e) {}
+
+      if (!foundSavedState) {
+        try {
+          const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
+          if (Array.isArray(backupRaw)) {
+            foundSavedState = true;
+            rosterPlayers = backupRaw;
+            gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          }
+        } catch (e) {}
+      }
+
+      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
+      populateTeamDropdowns();
+      renderCalendar();
+      renderRoster();
+      renderGameRoster();
+      updateWorkspaceBadges();
+    }
+
+    function populateTeamDropdowns() {
+      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
+      selects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = userTeams.map(t =>
+          '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
+        ).join('');
+      });
+    }
+
+    function updateWorkspaceBadges() {
+      const calBadge = document.getElementById('calendarCountBadge');
+      const gameBadge = document.getElementById('gameCountBadge');
+      const drillBadge = document.getElementById('drillCountBadge');
+      const videoBadge = document.getElementById('videoCountBadge');
+      const rosterBadge = document.getElementById('rosterCountBadge');
+      if (calBadge) calBadge.textContent = String(savedSessions.length + savedGames.length);
+      if (gameBadge) gameBadge.textContent = String(savedGames.length);
+      if (drillBadge) drillBadge.textContent = String(drillLibrary.length);
+      if (videoBadge) videoBadge.textContent = String(videoLibrary.length);
+      if (rosterBadge) rosterBadge.textContent = String(rosterPlayers.length);
+    }
+
+    function openCustomPromptModal(title, message, defaultVal, onConfirm) {
+      const modal = document.getElementById('customModalBackdrop');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const inputWrap = document.getElementById('modalInputWrap');
+      const videoWrap = document.getElementById('modalVideoEditWrap');
+      const textInput = document.getElementById('modalTextInput');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      if (!modal || !textInput) return;
+
+      if (titleEl) titleEl.textContent = title || 'Edit';
+      if (msgEl) msgEl.textContent = message || '';
+      if (videoWrap) videoWrap.style.display = 'none';
+      if (inputWrap) inputWrap.style.display = 'block';
+      textInput.value = defaultVal || '';
+      if (confirmBtn) confirmBtn.textContent = 'Save';
+      modal.classList.add('open');
+      setTimeout(() => textInput.focus(), 30);
+
+      cancelBtn.onclick = () => {
+        inputWrap.style.display = 'none';
+        modal.classList.remove('open');
+      };
+      confirmBtn.onclick = () => {
+        const val = textInput.value;
+        inputWrap.style.display = 'none';
+        modal.classList.remove('open');
+        if (typeof onConfirm === 'function') onConfirm(val);
+      };
+    }
 
     const DEFAULT_DRILLS = [
       {
@@ -1698,169 +1829,6 @@
       if (Array.isArray(cachedVideos) && cachedVideos.length > 0) videoLibrary = cachedVideos;
     } catch (e) {}
 
-    let discoveredGitHubDrillFiles = [];
-
-    function renderEmbeddedGiveAndGoAnimation(containerEl, isLarge) {
-      if (!containerEl) return;
-      const canvas = document.createElement('canvas');
-      canvas.width = 540;
-      canvas.height = 690;
-      canvas.style.cssText = isLarge
-        ? 'display:block;width:auto;max-width:100%;max-height:66vh;height:auto;border-radius:10px;border:1px solid #cbd5e1;background:#ffffff;margin:0 auto;'
-        : 'display:block;width:100%;max-height:240px;object-fit:contain;border-radius:10px;border:1px solid #cbd5e1;background:#ffffff;margin:0 auto 8px;cursor:zoom-in;';
-      containerEl.innerHTML = '';
-      containerEl.appendChild(canvas);
-
-      const ctx = canvas.getContext('2d');
-      const CX = 270, LEFT_X = 165, RIGHT_X = 375;
-      const TOP_Y = 85, BOT_Y = 605;
-      const RIGHT_CHECK_Y = 238, TOP_PKT_Y = 192, LEFT_CHECK_Y = 452, BOT_PKT_Y = 498;
-      const POLES = [
-        { label: 'POLE 1', x: CX, y: 150 },
-        { label: 'POLE 2', x: CX, y: 280 },
-        { label: 'POLE 3', x: CX, y: 410 },
-        { label: 'POLE 4', x: CX, y: 540 }
-      ];
-      const C = { GREEN: '#16a34a', YELLOW: '#eab308', ORANGE: '#ea580c' };
-      const PHASES = [
-        {
-          duration: 1200,
-          P1: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
-          P2: { from: [RIGHT_X, BOT_Y], to: [RIGHT_X, RIGHT_CHECK_Y], color: C.YELLOW, s: 0, e: 0.96 },
-          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
-          ball: { from: [RIGHT_X, BOT_Y], to: [RIGHT_X, TOP_Y], twoLeg: false }
-        },
-        {
-          duration: 1450,
-          P1: { from: [RIGHT_X, TOP_Y], to: [LEFT_X, TOP_PKT_Y], color: C.YELLOW, curveTop: true, s: 0, e: 0.96 },
-          P2: { from: [RIGHT_X, RIGHT_CHECK_Y], to: [RIGHT_X, TOP_Y], color: C.ORANGE, s: 0.34, e: 1.0 },
-          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
-          ball: { from: [RIGHT_X, TOP_Y], mid: [RIGHT_X, RIGHT_CHECK_Y], to: [LEFT_X, TOP_PKT_Y], twoLeg: true, split: 0.34 }
-        },
-        {
-          duration: 1200,
-          P1: { from: [LEFT_X, TOP_PKT_Y], to: [LEFT_X, LEFT_CHECK_Y], color: C.YELLOW, s: 0.08, e: 0.98 },
-          P2: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
-          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
-          ball: { from: [LEFT_X, TOP_PKT_Y], to: [LEFT_X, BOT_Y], twoLeg: false }
-        },
-        {
-          duration: 1650,
-          P1: { from: [LEFT_X, LEFT_CHECK_Y], to: [LEFT_X, BOT_Y], color: C.ORANGE, s: 0.36, e: 1.0 },
-          P2: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
-          P3: { from: [LEFT_X, BOT_Y], to: [RIGHT_X, BOT_Y], color: C.YELLOW, curveBot: true, s: 0, e: 0.96 },
-          ball: { from: [LEFT_X, BOT_Y], mid: [LEFT_X, LEFT_CHECK_Y], to: [RIGHT_X, BOT_PKT_Y], twoLeg: true, split: 0.34 }
-        }
-      ];
-
-      const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      const subT = (t, s, e) => t <= (s || 0) ? 0 : (t >= (e || 1) ? 1 : (t - (s || 0)) / ((e || 1) - (s || 0)));
-      const getPos = (m, rawT) => {
-        const t = ease(subT(rawT, m.s, m.e));
-        const [x0, y0] = m.from, [x1, y1] = m.to;
-        if (m.curveTop || m.curveBot) {
-          const cy = m.curveTop ? 26 : 662, inv = 1 - t;
-          return [inv * inv * x0 + 2 * inv * t * CX + t * t * x1, inv * inv * y0 + 2 * inv * t * cy + t * t * y1];
-        }
-        return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
-      };
-      const getBall = (b, rawT) => {
-        if (b.twoLeg) {
-          if (rawT <= b.split) {
-            const t = subT(rawT, 0, b.split);
-            return [b.from[0] + (b.mid[0] - b.from[0]) * t, b.from[1] + (b.mid[1] - b.from[1]) * t];
-          }
-          const t = subT(rawT, b.split, 0.98);
-          return [b.mid[0] + (b.to[0] - b.mid[0]) * t, b.mid[1] + (b.to[1] - b.mid[1]) * t];
-        }
-        return [b.from[0] + (b.to[0] - b.from[0]) * rawT, b.from[1] + (b.to[1] - b.from[1]) * rawT];
-      };
-      const arrow = (x, y, ang, col) => {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.fillStyle = col;
-        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-10, -5); ctx.lineTo(-10, 5); ctx.closePath(); ctx.fill(); ctx.restore();
-      };
-
-      let pIdx = 0, elapsed = 0, lastTs = null;
-      function frame(ts) {
-        if (!document.body.contains(canvas)) return;
-        if (lastTs === null) lastTs = ts;
-        elapsed += ts - lastTs;
-        lastTs = ts;
-        if (elapsed >= PHASES[pIdx].duration) {
-          elapsed %= PHASES[pIdx].duration;
-          pIdx = (pIdx + 1) % PHASES.length;
-        }
-        const rawT = elapsed / PHASES[pIdx].duration;
-        const ph = PHASES[pIdx];
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 540, 690);
-        ctx.save();
-        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(CX, 24); ctx.lineTo(CX, 666); ctx.moveTo(28, 345); ctx.lineTo(512, 345); ctx.stroke();
-        ctx.restore();
-
-        POLES.forEach(p => {
-          ctx.save(); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 4; ctx.lineCap = 'round';
-          ctx.beginPath(); ctx.moveTo(p.x - 16, p.y + 14); ctx.lineTo(p.x + 16, p.y + 14);
-          ctx.moveTo(p.x, p.y + 14); ctx.lineTo(p.x, p.y - 16); ctx.stroke();
-          ctx.fillStyle = '#eab308'; ctx.beginPath(); ctx.arc(p.x, p.y - 18, 4, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#334155'; ctx.font = '800 10px Inter, sans-serif'; ctx.textAlign = 'center';
-          ctx.fillText(p.label, p.x, p.y + 28); ctx.restore();
-        });
-
-        [ph.P1, ph.P2, ph.P3].forEach(m => {
-          if (!m.color || (m.from[0] === m.to[0] && m.from[1] === m.to[1])) return;
-          const [cx, cy] = getPos(m, rawT);
-          ctx.save(); ctx.strokeStyle = m.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath();
-          if (m.curveTop || m.curveBot) {
-            ctx.moveTo(m.from[0], m.from[1]); ctx.quadraticCurveTo(CX, m.curveTop ? 26 : 662, m.to[0], m.to[1]); ctx.stroke();
-          } else {
-            ctx.moveTo(m.from[0], m.from[1]); ctx.lineTo(cx, cy); ctx.stroke();
-            if (Math.hypot(cx - m.from[0], cy - m.from[1]) > 8) arrow(cx, cy, Math.atan2(cy - m.from[1], cx - m.from[0]), m.color);
-          }
-          ctx.restore();
-        });
-
-        const [bx, by] = getBall(ph.ball, rawT);
-        ctx.save(); ctx.strokeStyle = C.GREEN; ctx.lineWidth = 3.5; ctx.setLineDash([7, 5]); ctx.beginPath();
-        ctx.moveTo(ph.ball.from[0], ph.ball.from[1]);
-        if (ph.ball.twoLeg && rawT > ph.ball.split) ctx.lineTo(ph.ball.mid[0], ph.ball.mid[1]);
-        ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
-
-        const drawP = (pos, lbl, fill, stroke) => {
-          ctx.save(); ctx.beginPath(); ctx.arc(pos[0], pos[1], 21, 0, Math.PI * 2);
-          ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = stroke; ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.font = '900 14px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText(lbl, pos[0], pos[1]); ctx.restore();
-        };
-        drawP(getPos(ph.P1, rawT), '1', '#1d4ed8', '#1e3a8a');
-        drawP(getPos(ph.P2, rawT), '2', '#4f46e5', '#312e81');
-        drawP(getPos(ph.P3, rawT), '3', '#0d9488', '#115e59');
-
-        ctx.save(); ctx.beginPath(); ctx.arc(bx, by, 9.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#fff'; ctx.stroke(); ctx.restore();
-
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-    }
-
-    function normalizeDrillRecord(d) {
-      if (!d || typeof d !== 'object') return d;
-      const copy = Object.assign({}, d);
-      if (!copy.gifUrl && /3-player|give\s*&?\s*go|4-pole/i.test(copy.title || '')) {
-        copy.gifUrl = discoveredGitHubDrillFiles.length > 0
-          ? 'drills/' + discoveredGitHubDrillFiles[0]
-          : 'drills/3-player-give-and-go-4-pole.gif';
-      }
-      return copy;
-    }
-
-    function normalizeDrillLibraryList() {
-      drillLibrary = drillLibrary.map(normalizeDrillRecord);
-    }
-
     function resolveDrillMediaUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
       if (!u) return '';
@@ -1876,208 +1844,41 @@
       return cleanPath;
     }
 
-    async function handleDrillGifError(imgEl, rawPath) {
-      if (!imgEl) return;
-      const attempt = parseInt(imgEl.getAttribute('data-retry-attempt') || '0', 10);
-      const cleanPath = String(rawPath || '').replace(/^.*\/drills\//i, 'drills/').replace(/^\.?\//, '');
-      const candidates = [
-        'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath,
-        'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + cleanPath,
-        'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + cleanPath
-      ];
-      if (cleanPath && attempt < candidates.length) {
-        imgEl.setAttribute('data-retry-attempt', String(attempt + 1));
-        imgEl.src = candidates[attempt];
-        return;
-      }
+    /* =========================================================
+       ROSTER POSITION BOARD (GK, CB, WB, CM, AM, ST) & BULK PARSER
+       ========================================================= */
+    const POSITION_COLUMNS = [
+      { key: 'GK', label: 'GK' },
+      { key: 'CB', label: 'CB' },
+      { key: 'WB', label: 'WB' },
+      { key: 'CM', label: 'CM' },
+      { key: 'AM', label: 'AM' },
+      { key: 'ST', label: 'ST' }
+    ];
 
-      // Auto-discover actual GIF filename in GitHub drills/ folder if filename differs
-      if (!imgEl.getAttribute('data-api-checked')) {
-        imgEl.setAttribute('data-api-checked', '1');
-        try {
-          const resp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills');
-          if (resp.ok) {
-            const files = await resp.json();
-            const gifFile = Array.isArray(files)
-              ? files.find(f => f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name))
-              : null;
-            if (gifFile && gifFile.download_url) {
-              discoveredGitHubDrillFiles = files.filter(f => f && f.type === 'file').map(f => f.name);
-              imgEl.src = gifFile.download_url;
-              return;
-            }
-          }
-        } catch (e) {}
+    function mapPositionToColumnKey(positions) {
+      const list = Array.isArray(positions) ? positions : [];
+      for (const raw of list) {
+        const p = String(raw || '').toUpperCase().trim();
+        if (p === 'GK' || p === 'KEEPER') return 'GK';
+        if (p === 'CB' || p === 'LCB' || p === 'RCB' || p === 'DEF') return 'CB';
+        if (p === 'WB' || p === 'LWB' || p === 'RWB' || p === 'LB' || p === 'RB') return 'WB';
+        if (p === 'CM' || p === 'LCM' || p === 'RCM' || p === 'CDM' || p === 'MID') return 'CM';
+        if (p === 'AM' || p === 'CAM' || p === 'LM' || p === 'RM' || p === 'LW' || p === 'RW' || p === 'W' || p === 'WINGER') return 'AM';
+        if (p === 'ST' || p === 'LS' || p === 'RS' || p === 'CF' || p === 'FWD' || p === 'STRIKER') return 'ST';
       }
-
-      // Show a helpful status box instead of hiding completely
-      if (/3-player|give-and-go|4-pole/i.test(cleanPath)) {
-        const animWrap = document.createElement('div');
-        animWrap.title = 'Click to enlarge animation';
-        animWrap.onclick = () => openEnlargedDiagramModal(
-          '3-Player Give & Go Combination (4-Pole Line)',
-          cleanPath,
-          '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles'
-        );
-        if (imgEl.parentNode) imgEl.parentNode.replaceChild(animWrap, imgEl);
-        renderEmbeddedGiveAndGoAnimation(animWrap, false);
-        return;
-      }
-
-      const fallbackBox = document.createElement('div');
-      fallbackBox.style.cssText = 'background:#f8fafc;border:1px dashed #94a3b8;border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;font-size:0.75rem;color:#475569;';
-      fallbackBox.innerHTML = '<strong>GIF Not Found at:</strong> <code>' + escapeHtml(cleanPath || 'drills/3-player-give-and-go-4-pole.gif') + '</code><br><span style="font-size:0.7rem;color:#64748b;">Upload the .gif into your <code>drills/</code> folder on GitHub (<code>' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '</code>) and refresh.</span>';
-      if (imgEl.parentNode) imgEl.parentNode.replaceChild(fallbackBox, imgEl);
+      return 'UNASSIGNED';
     }
 
-    function getTeamDocRef(teamName) {
-      if (!db) return null;
-      const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      return db.collection('afc_teams').doc(slug);
-    }
-
-    function persistCurrentTeamState() {
-      const teamState = {
-        teamName: activeTeamName,
-        sessions: savedSessions,
-        games: savedGames,
-        roster: rosterPlayers,
-        gameRoster: gameRosterPlayers,
-        updatedAt: Date.now()
-      };
-      const rosterBackupKey = 'afc_roster_backup_' + String(activeTeamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      try {
-        localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
-        localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
-        localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
-        localStorage.setItem('afc_cal_visible_teams', JSON.stringify(Array.from(calendarVisibleTeams)));
-        localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
-        localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
-      } catch (e) {}
-
-      if (db && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
-        const ref = getTeamDocRef(activeTeamName);
-        if (ref) ref.set(teamState, { merge: true }).catch(() => {});
-        db.collection('afc_club').doc('shared_libraries').set({
-          videos: videoLibrary,
-          drills: drillLibrary,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(() => {});
-      }
-
-      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
-      updateWorkspaceBadges();
-    }
-
-    async function loadTeamStateFromStorage(teamName) {
-      activeTeamName = teamName;
-      const subEl = document.getElementById('topBarActiveTeamSub');
-      const masterTitleEl = document.getElementById('masterRosterTitle');
-      if (subEl) subEl.textContent = activeTeamName;
-      if (masterTitleEl) masterTitleEl.textContent = activeTeamName + ' Roster';
-
-      const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      let foundLocalRoster = false;
-      try {
-        const raw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null');
-        if (raw) {
-          savedSessions = Array.isArray(raw.sessions) ? raw.sessions : [];
-          savedGames = Array.isArray(raw.games) ? raw.games : [];
-          if (Array.isArray(raw.roster) && raw.roster.length > 0) {
-            rosterPlayers = raw.roster;
-            foundLocalRoster = true;
-          }
-          if (Array.isArray(raw.gameRoster) && raw.gameRoster.length > 0) {
-            gameRosterPlayers = raw.gameRoster;
-          }
-        }
-      } catch (e) {}
-
-      if (!foundLocalRoster) {
-        try {
-          const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
-          if (Array.isArray(backupRaw) && backupRaw.length > 0) {
-            rosterPlayers = backupRaw;
-            foundLocalRoster = true;
-          }
-        } catch (e) {}
-      }
-
-      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
-      populateTeamDropdowns();
-      renderCalendar();
-      renderRoster();
-      renderGameRoster();
-      updateWorkspaceBadges();
-
-      if (db) {
-        try {
-          const ref = getTeamDocRef(teamName);
-          if (ref) {
-            const snap = await ref.get();
-            if (snap.exists) {
-              const cloudData = snap.data() || {};
-              if (Array.isArray(cloudData.roster) && cloudData.roster.length > 0) {
-                rosterPlayers = cloudData.roster;
-                localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
-              }
-              if (Array.isArray(cloudData.gameRoster) && cloudData.gameRoster.length > 0) {
-                gameRosterPlayers = cloudData.gameRoster;
-              }
-              if (Array.isArray(cloudData.sessions)) savedSessions = cloudData.sessions;
-              if (Array.isArray(cloudData.games)) savedGames = cloudData.games;
-              renderCalendar();
-              renderRoster();
-              renderGameRoster();
-              updateWorkspaceBadges();
-            }
-          }
-        } catch (cloudErr) {}
-      }
-    }
-
-    function openCustomPromptModal(title, message, defaultValue, onConfirm) {
-      const modal = document.getElementById('customModalBackdrop');
-      const titleEl = document.getElementById('modalTitle');
-      const msgEl = document.getElementById('modalMessage');
-      const inputWrap = document.getElementById('modalInputWrap');
-      const videoWrap = document.getElementById('modalVideoEditWrap');
-      const textInput = document.getElementById('modalTextInput');
-      const confirmBtn = document.getElementById('modalConfirmBtn');
-      const cancelBtn = document.getElementById('modalCancelBtn');
-      if (!modal || !textInput) return;
-
-      titleEl.textContent = title || 'Input';
-      msgEl.textContent = message || '';
-      if (videoWrap) videoWrap.style.display = 'none';
-      if (inputWrap) inputWrap.style.display = 'block';
-      textInput.value = defaultValue || '';
-      confirmBtn.textContent = 'Save';
-      modal.classList.add('open');
-      setTimeout(() => textInput.focus(), 50);
-
-      cancelBtn.onclick = () => {
-        inputWrap.style.display = 'none';
-        modal.classList.remove('open');
-      };
-      confirmBtn.onclick = () => {
-        const val = textInput.value;
-        inputWrap.style.display = 'none';
-        modal.classList.remove('open');
-        if (typeof onConfirm === 'function') onConfirm(val);
-      };
-    }
-
-    // Bulk Copy / Paste Whole Roster Parser (First & Last Name + Positions)
     function parseSingleRosterEntry(entry) {
       let line = String(entry || '').trim();
       if (!line) return null;
-      line = line.replace(/^[-*•]\s*/, '').replace(/^#?\d+[.\)\-:]?\s+/, '').trim();
+      line = line.replace(/^[-*•]\s*/, '').replace(/^#?\d+[.)\-:]?\s+/, '').trim();
       if (!line) return null;
 
       let name = line;
       let posRaw = '';
-      const POS_TOKEN_REGEX = /^(GK|CB|LCB|RCB|LB|RB|LWB|RWB|CDM|CM|LCM|RCM|CAM|LM|RM|LW|RW|CF|ST|LS|RS|DEF|MID|FWD|WINGER|STRIKER|KEEPER|GOALKEEPER)$/i;
+      const POS_TOKEN_REGEX = /^(GK|CB|LCB|RCB|LB|RB|LWB|RWB|WB|CDM|CM|LCM|RCM|CAM|AM|LM|RM|LW|RW|W|CF|ST|LS|RS|DEF|MID|FWD|WINGER|STRIKER|KEEPER)$/i;
 
       if (line.includes('\t')) {
         const cols = line.split('\t').map(c => c.trim()).filter(Boolean);
@@ -2092,8 +1893,8 @@
         const m = line.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
         name = (m[1] || '').trim();
         posRaw = (m[2] || '').trim();
-      } else if (/\s+[-\u2013\u2014:|]\s+/.test(line) || /:\s*/.test(line)) {
-        const parts = line.split(/\s+[-\u2013\u2014:|]\s+|:\s*/);
+      } else if (/\s+[-–—:|]\s+/.test(line) || /:\s*/.test(line)) {
+        const parts = line.split(/\s+[-–—:|]\s+|:\s*/);
         name = (parts[0] || '').trim();
         posRaw = parts.slice(1).join(',').trim();
       } else if (line.includes(',')) {
@@ -2103,7 +1904,7 @@
       } else {
         const words = line.split(/\s+/);
         const trailingPos = [];
-        while (words.length > 1 && POS_TOKEN_REGEX.test(words[words.length - 1].replace(/[\/|&]/g, ''))) {
+        while (words.length > 1 && POS_TOKEN_REGEX.test(words[words.length - 1].replace(/[/|&]/g, ''))) {
           trailingPos.unshift(words.pop());
         }
         if (trailingPos.length > 0) {
@@ -2113,9 +1914,8 @@
       }
 
       const positions = posRaw
-        ? posRaw.split(/[,\/|&]+/).map(p => p.trim().toUpperCase()).filter(Boolean)
+        ? posRaw.split(/[,/|&]+/).map(p => p.trim().toUpperCase()).filter(Boolean)
         : [];
-
       if (!name) return null;
       return {
         id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -2125,763 +1925,6 @@
       };
     }
 
-    function parseBulkRosterText(rawText) {
-      return String(rawText || '')
-        .split(/[\r\n;]+/)
-        .map(parseSingleRosterEntry)
-        .filter(Boolean);
-    }
-
-    function isSandboxedOrIframeEnvironment() {
-      try {
-        return window.self !== window.top ||
-          window.location.protocol === 'blob:' ||
-          window.location.hostname.includes('googleusercontent') ||
-          window.location.hostname.includes('scf.usercontent');
-      } catch (e) {
-        return true;
-      }
-    }
-
-    function populateTeamDropdowns() {
-      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
-      selects.forEach(id => {
-        const sel = document.getElementById(id);
-        if (!sel) return;
-        sel.innerHTML = userTeams.map(t =>
-          '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
-        ).join('');
-      });
-    }
-
-    function updateWorkspaceBadges() {
-      const calBadge = document.getElementById('calendarCountBadge');
-      const gameBadge = document.getElementById('gameCountBadge');
-      const drillBadge = document.getElementById('drillCountBadge');
-      const videoBadge = document.getElementById('videoCountBadge');
-      const rosterBadge = document.getElementById('rosterCountBadge');
-      if (calBadge) calBadge.textContent = String(savedSessions.length + savedGames.length);
-      if (gameBadge) gameBadge.textContent = String(savedGames.length);
-      if (drillBadge) drillBadge.textContent = String(drillLibrary.length);
-      if (videoBadge) videoBadge.textContent = String(videoLibrary.length);
-      if (rosterBadge) rosterBadge.textContent = String(rosterPlayers.length);
-    }
-
-    /* =========================================================
-       GOOGLE SHEET MULTI-TAB VIDEO IMPORTER (ALL 78 VIDEOS)
-       ========================================================= */
-    function parseCsvRows(csvText) {
-      const rows = [];
-      let currentRow = [];
-      let currentField = '';
-      let inQuotes = false;
-      for (let i = 0; i < csvText.length; i++) {
-        const ch = csvText[i];
-        const next = csvText[i + 1];
-        if (inQuotes) {
-          if (ch === '"' && next === '"') {
-            currentField += '"';
-            i++;
-          } else if (ch === '"') {
-            inQuotes = false;
-          } else {
-            currentField += ch;
-          }
-        } else {
-          if (ch === '"') {
-            inQuotes = true;
-          } else if (ch === ',') {
-            currentRow.push(currentField.trim());
-            currentField = '';
-          } else if (ch === '\r' && next === '\n') {
-            currentRow.push(currentField.trim());
-            rows.push(currentRow);
-            currentRow = [];
-            currentField = '';
-            i++;
-          } else if (ch === '\n' || ch === '\r') {
-            currentRow.push(currentField.trim());
-            rows.push(currentRow);
-            currentRow = [];
-            currentField = '';
-          } else {
-            currentField += ch;
-          }
-        }
-      }
-      if (currentField.length > 0 || currentRow.length > 0) {
-        currentRow.push(currentField.trim());
-        rows.push(currentRow);
-      }
-      return rows;
-    }
-
-    async function syncClubVideosFromGoogleSheetAndCloud(forceRefresh) {
-      try {
-        if (db) {
-          const snap = await db.collection('afc_club').doc('shared_libraries').get();
-          if (snap.exists) {
-            const data = snap.data() || {};
-            if (Array.isArray(data.videos) && data.videos.length > 0) {
-              const cloudMap = new Map();
-              data.videos.forEach(v => { if (v && v.url) cloudMap.set(v.url.trim(), v); });
-              if (videoLibrary.length === 0) {
-                videoLibrary = data.videos;
-              } else {
-                videoLibrary = videoLibrary.map(v => Object.assign({}, v, cloudMap.get((v.url || '').trim()) || {}));
-              }
-              renderVideoLibrary();
-              updateWorkspaceBadges();
-            }
-          }
-        }
-      } catch (e) {}
-
-      try {
-        const htmlResp = await fetch('https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/htmlview?t=' + Date.now());
-        if (!htmlResp.ok) return;
-        const htmlText = await htmlResp.text();
-        const tabs = [];
-        const seenGids = new Set();
-        const tabRegex = /items\.push\(\{name:\s*"([^"]+)"[^}]*?gid:\s*"(\d+)"/g;
-        let m;
-        while ((m = tabRegex.exec(htmlText)) !== null) {
-          const tabName = m[1];
-          const gid = m[2];
-          if (!seenGids.has(gid)) {
-            seenGids.add(gid);
-            tabs.push({ name: tabName, gid: gid });
-          }
-        }
-        if (tabs.length === 0) {
-          tabs.push({ name: 'General', gid: '704136561' });
-        }
-
-        const existingMap = new Map();
-        videoLibrary.forEach(v => {
-          if (v && v.url) existingMap.set(v.url.trim(), v);
-        });
-
-        const imported = [];
-        const seenUrls = new Set();
-
-        for (const tab of tabs) {
-          try {
-            const csvUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + tab.gid + '&t=' + Date.now();
-            const csvResp = await fetch(csvUrl);
-            const csvText = await csvResp.text();
-            const rows = parseCsvRows(csvText);
-            for (let r = 0; r < rows.length; r++) {
-              const cells = rows[r];
-              let foundUrl = '';
-              let titleCandidate = '';
-              let subCatCandidate = '';
-              let tagsCandidate = [];
-
-              cells.forEach((cell, cIdx) => {
-                const val = String(cell || '').trim();
-                if (!val) return;
-                if (!foundUrl && /(https?:\/\/|youtu\.be\/|youtube\.com\/|vimeo\.com\/|drive\.google\.com\/)/i.test(val)) {
-                  foundUrl = /^https?:\/\//i.test(val) ? val : 'https://' + val;
-                } else if (!titleCandidate && val.length > 2 && !/^(title|video|link|url|category|sub-?category|tags?)$/i.test(val)) {
-                  titleCandidate = val;
-                } else if (titleCandidate && !subCatCandidate && cIdx <= 2) {
-                  subCatCandidate = val;
-                } else if (cIdx >= 3) {
-                  val.split(',').map(t => t.trim()).filter(Boolean).forEach(t => tagsCandidate.push(t));
-                }
-              });
-
-              if (foundUrl && !seenUrls.has(foundUrl)) {
-                seenUrls.add(foundUrl);
-                const prev = existingMap.get(foundUrl);
-                const cleanTitle = (prev && prev.title) ||
-                  String(titleCandidate || '').replace(/https?:\/\/\S+/gi, '').trim() ||
-                  tab.name + ' Drill #' + (imported.length + 1);
-                imported.push({
-                  id: (prev && prev.id) || ('vid_' + tab.gid + '_' + r),
-                  title: cleanTitle,
-                  url: foundUrl,
-                  category: (prev && prev.category) || tab.name,
-                  subCategory: (prev && prev.subCategory) || subCatCandidate || '',
-                  tags: (prev && Array.isArray(prev.tags) && prev.tags.length > 0) ? prev.tags : tagsCandidate
-                });
-              }
-            }
-          } catch (tabErr) {
-            // Skip individual tab if network/CORS temporarily unavailable
-          }
-        }
-
-        if (imported.length > 0) {
-          videoLibrary = imported;
-          localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
-          if (db && (!isDemoUser || isClubAdmin)) {
-            db.collection('afc_club').doc('shared_libraries').set({
-              videos: videoLibrary,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(() => {});
-          }
-          renderVideoLibrary();
-          updateWorkspaceBadges();
-          if (forceRefresh) showToast('Synced ' + videoLibrary.length + ' videos across all ' + tabs.length + ' tabs!');
-        }
-      } catch (err) {
-        // Sheet sync deferred until network is available
-      }
-    }
-
-    /* =========================================================
-       GITHUB DRILLS/ FOLDER AUTOMATIC GIF SCANNER
-       ========================================================= */
-    async function syncDrillsFromGitHubRepo(showFeedback) {
-      try {
-        // 1. Merge any shared drills stored in Firestore first
-        if (db) {
-          try {
-            const snap = await db.collection('afc_club').doc('shared_libraries').get();
-            if (snap.exists) {
-              const data = snap.data() || {};
-              if (Array.isArray(data.drills) && data.drills.length > 0) {
-                const byId = new Map();
-                drillLibrary.forEach(d => { if (d && d.id) byId.set(d.id, normalizeDrillRecord(d)); });
-                data.drills.forEach(d => {
-                  if (d && d.id) {
-                    const norm = normalizeDrillRecord(d);
-                    const prev = byId.get(d.id);
-                    byId.set(d.id, prev ? Object.assign({}, prev, norm, { gifUrl: norm.gifUrl || prev.gifUrl }) : norm);
-                  }
-                });
-                drillLibrary = Array.from(byId.values());
-              }
-            }
-          } catch (fbErr) {}
-        }
-
-        const fileNames = new Set();
-
-        // 2. Scan GitHub REST API on main branch (clean simple GET without custom headers)
-        try {
-          const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills';
-          const resp = await fetch(apiUrl);
-          if (resp.ok) {
-            const files = await resp.json();
-            if (Array.isArray(files)) {
-              files.forEach(f => {
-                if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) {
-                  fileNames.add(f.name);
-                }
-              });
-            }
-          }
-        } catch (apiErr) {}
-
-        discoveredGitHubDrillFiles = Array.from(fileNames);
-        normalizeDrillLibraryList();
-
-        // If a single GIF exists in drills/ and a drill has a mismatched drills/ filename, link it
-        const fileList = Array.from(fileNames);
-        if (fileList.length > 0) {
-          drillLibrary.forEach(d => {
-            const g = String(d.gifUrl || '');
-            if (g.startsWith('drills/')) {
-              const base = g.replace(/^drills\//, '');
-              if (!fileNames.has(base) && fileList.length === 1) {
-                d.gifUrl = 'drills/' + fileList[0];
-              }
-            }
-          });
-        }
-
-        const existingPaths = new Set(
-          drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^.*\/drills\//, 'drills/'))
-        );
-
-        let addedCount = 0;
-        fileNames.forEach(fileName => {
-          const relPath = 'drills/' + fileName;
-          if (!existingPaths.has(relPath.toLowerCase())) {
-            existingPaths.add(relPath.toLowerCase());
-            const prettyTitle = fileName
-              .replace(/\.[^.]+$/, '')
-              .replace(/[-_]+/g, ' ')
-              .replace(/\b\w/g, ch => ch.toUpperCase());
-            drillLibrary.unshift({
-              id: 'gh_drill_' + fileName.replace(/[^a-z0-9]/gi, '_'),
-              title: prettyTitle,
-              category: 'Technical',
-              duration: 15,
-              tags: ['github-sync', 'gif'],
-              gifUrl: relPath,
-              coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
-              notes: 'Synced from GitHub drills/' + fileName
-            });
-            addedCount++;
-          }
-        });
-
-        localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
-        if (addedCount > 0 && db && (!isDemoUser || isClubAdmin)) {
-          db.collection('afc_club').doc('shared_libraries').set({
-            drills: drillLibrary,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).catch(() => {});
-        }
-        updateWorkspaceBadges();
-        renderDrillLibrary();
-        if (addedCount > 0) {
-          showToast('Imported ' + addedCount + ' new drill(s) from GitHub drills/ folder!');
-        } else if (showFeedback) {
-          showToast('All GitHub drills/ GIFs are already up to date.');
-        }
-      } catch (err) {
-        // GitHub sync skipped gracefully
-      }
-    }
-
-    /* =========================================================
-       VIDEO LIBRARY RENDERING, IN-WINDOW PLAYER & ADMIN TAG EDITOR
-       ========================================================= */
-    function buildInWindowEmbedHtml(url, title) {
-      const u = String(url || '').trim();
-      const safeTitle = escapeHtml(title || 'Training Video');
-
-      const driveMatch = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/i);
-      if (driveMatch) {
-        const previewSrc = 'https://drive.google.com/file/d/' + driveMatch[1] + '/preview';
-        return '<iframe src="' + previewSrc + '" title="' + safeTitle + '" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>';
-      }
-
-      const ytMatch = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,})/i);
-      if (ytMatch) {
-        const embedSrc = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] + '?rel=0&modestbranding=1';
-        return '<iframe src="' + embedSrc + '" title="' + safeTitle + '" style="width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>';
-      }
-
-      const vimeoMatch = u.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?/i);
-      if (vimeoMatch) {
-        const hParam = vimeoMatch[2] ? '?h=' + vimeoMatch[2] : '';
-        const vimeoSrc = 'https://player.vimeo.com/video/' + vimeoMatch[1] + hParam;
-        return '<iframe src="' + vimeoSrc + '" title="' + safeTitle + '" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-      }
-
-      if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(u) || /dropbox\.com/i.test(u)) {
-        const directSrc = u.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace(/[?&]dl=0/, '');
-        return '<video src="' + escapeHtml(directSrc) + '" controls autoplay playsinline controlsList="nodownload" style="width:100%;height:100%;background:#000;"></video>';
-      }
-
-      return '<iframe src="' + escapeHtml(u) + '" title="' + safeTitle + '" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>';
-    }
-
-    function openEmbeddedVideoModal(videoItem) {
-      const modal = document.getElementById('embeddedVideoModal');
-      const titleEl = document.getElementById('embeddedVideoTitle');
-      const badgesEl = document.getElementById('embeddedVideoBadges');
-      const stageEl = document.getElementById('embeddedVideoStage');
-      const tagsEl = document.getElementById('embeddedVideoTags');
-      if (!modal || !stageEl) return;
-
-      const cleanTitle = String(videoItem.title || 'Training Video').replace(/https?:\/\/\S+/gi, '').trim() || 'Training Video';
-      if (titleEl) titleEl.textContent = cleanTitle;
-      if (badgesEl) {
-        badgesEl.innerHTML =
-          (videoItem.category ? '<span class="badge badge-navy">' + escapeHtml(videoItem.category) + '</span>' : '') +
-          (videoItem.subCategory ? '<span class="badge badge-emerald">' + escapeHtml(videoItem.subCategory) + '</span>' : '');
-      }
-      if (tagsEl) {
-        const tags = Array.isArray(videoItem.tags) ? videoItem.tags : [];
-        tagsEl.innerHTML = tags.map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
-      }
-      stageEl.innerHTML = buildInWindowEmbedHtml(videoItem.url, cleanTitle);
-      modal.classList.add('open');
-    }
-
-    function closeEmbeddedVideoModal() {
-      const modal = document.getElementById('embeddedVideoModal');
-      const stageEl = document.getElementById('embeddedVideoStage');
-      if (stageEl) stageEl.innerHTML = '';
-      if (modal) modal.classList.remove('open');
-    }
-
-    function openVideoEditModal(videoItem) {
-      const modal = document.getElementById('customModalBackdrop');
-      const titleEl = document.getElementById('modalTitle');
-      const msgEl = document.getElementById('modalMessage');
-      const inputWrap = document.getElementById('modalInputWrap');
-      const videoWrap = document.getElementById('modalVideoEditWrap');
-      const confirmBtn = document.getElementById('modalConfirmBtn');
-      const cancelBtn = document.getElementById('modalCancelBtn');
-      if (!modal || !videoWrap) return;
-
-      titleEl.textContent = 'Edit Video Info & Tags';
-      msgEl.textContent = 'Update the title, category, sub-category, or searchable tags for this video:';
-      if (inputWrap) inputWrap.style.display = 'none';
-      videoWrap.style.display = 'block';
-
-      document.getElementById('modalVideoTitleInput').value = videoItem.title || '';
-      document.getElementById('modalVideoCategoryInput').value = videoItem.category || '';
-      document.getElementById('modalVideoSubCategoryInput').value = videoItem.subCategory || '';
-      document.getElementById('modalVideoTagsInput').value = Array.isArray(videoItem.tags) ? videoItem.tags.join(', ') : '';
-
-      confirmBtn.textContent = 'Save Changes';
-      modal.classList.add('open');
-
-      cancelBtn.onclick = function() {
-        videoWrap.style.display = 'none';
-        modal.classList.remove('open');
-      };
-
-      confirmBtn.onclick = function() {
-        const newTitle = document.getElementById('modalVideoTitleInput').value.trim();
-        const newCat = document.getElementById('modalVideoCategoryInput').value.trim();
-        const newSubCat = document.getElementById('modalVideoSubCategoryInput').value.trim();
-        const newTags = document.getElementById('modalVideoTagsInput').value
-          .split(',')
-          .map(t => t.trim())
-          .filter(Boolean);
-
-        const target = videoLibrary.find(v => (v.id && v.id === videoItem.id) || (v.url && v.url === videoItem.url));
-        if (target) {
-          if (newTitle) target.title = newTitle;
-          target.category = newCat || 'General';
-          target.subCategory = newSubCat;
-          target.tags = newTags;
-        }
-
-        localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
-        if (db && (!isDemoUser || isClubAdmin)) {
-          db.collection('afc_club').doc('shared_libraries').set({
-            videos: videoLibrary,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).catch(() => {});
-        }
-        videoWrap.style.display = 'none';
-        modal.classList.remove('open');
-        renderVideoLibrary();
-        showToast('Saved video info & tags!');
-      };
-    }
-
-    function renderVideoLibrary() {
-      const grid = document.getElementById('videoLibraryGrid');
-      const searchEl = document.getElementById('videoSearchInput');
-      const catSel = document.getElementById('videoCategoryFilter');
-      const subCatSel = document.getElementById('videoSubCategoryFilter');
-      if (!grid) return;
-
-      const selectedCat = catSel ? catSel.value : 'ALL';
-      const selectedSub = subCatSel ? subCatSel.value : 'ALL';
-      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
-
-      if (catSel) {
-        const categories = Array.from(new Set(videoLibrary.map(v => v.category || 'General'))).sort();
-        catSel.innerHTML = '<option value="ALL">All Categories (' + videoLibrary.length + ')</option>' +
-          categories.map(c => '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
-      }
-
-      if (subCatSel) {
-        const subs = Array.from(new Set(videoLibrary
-          .filter(v => selectedCat === 'ALL' || (v.category || 'General') === selectedCat)
-          .map(v => v.subCategory)
-          .filter(Boolean)
-        )).sort();
-        subCatSel.innerHTML = '<option value="ALL">All Sub-Categories</option>' +
-          subs.map(s => '<option value="' + escapeHtml(s) + '"' + (s === selectedSub ? ' selected' : '') + '>' + escapeHtml(s) + '</option>').join('');
-      }
-
-      const filtered = videoLibrary.filter(v => {
-        const cat = v.category || 'General';
-        const sub = v.subCategory || '';
-        if (selectedCat !== 'ALL' && cat !== selectedCat) return false;
-        if (selectedSub !== 'ALL' && sub !== selectedSub) return false;
-        if (!query) return true;
-        const hay = [v.title, cat, sub, ...(Array.isArray(v.tags) ? v.tags : [])].join(' ').toLowerCase();
-        return hay.includes(query);
-      });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No videos match your current filter.</div>';
-        return;
-      }
-
-      grid.innerHTML = filtered.map((vid, idx) => {
-        const cleanDisplayTitle = String(vid.title || 'Training Video').replace(/https?:\/\/\S+/gi, '').trim() ||
-          [vid.category, vid.subCategory].filter(Boolean).join(' - ') ||
-          'Training Video';
-        const tags = Array.isArray(vid.tags) ? vid.tags : [];
-        const tagsHtml = tags.map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
-        return '<div class="lib-card">' +
-          '<div class="lib-card-body">' +
-            '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">' +
-              '<span class="badge badge-navy">' + escapeHtml(vid.category || 'General') + '</span>' +
-              (vid.subCategory ? '<span class="badge badge-emerald">' + escapeHtml(vid.subCategory) + '</span>' : '') +
-            '</div>' +
-            '<h3 style="margin:0 0 8px;font-size:0.94rem;font-weight:900;color:#0A2647;">' + escapeHtml(cleanDisplayTitle) + '</h3>' +
-            (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
-          '</div>' +
-          '<div class="lib-card-footer">' +
-            '<button type="button" class="btn btn-emerald btn-sm watch-lib-video-btn" data-vid-idx="' + idx + '">&#9654; Watch Video</button>' +
-            (isClubAdmin ? '<button type="button" class="btn btn-outline btn-sm edit-lib-video-btn" data-vid-idx="' + idx + '">&#9998; Edit Tags / Info</button>' : '') +
-          '</div>' +
-        '</div>';
-      }).join('');
-
-      grid.querySelectorAll('.watch-lib-video-btn').forEach(btn => {
-        btn.onclick = function() {
-          const i = parseInt(this.getAttribute('data-vid-idx'), 10);
-          if (filtered[i]) {
-            const item = Object.assign({}, filtered[i]);
-            item.title = String(item.title || 'Training Video').replace(/https?:\/\/\S+/gi, '').trim() || 'Training Video';
-            openEmbeddedVideoModal(item);
-          }
-        };
-      });
-
-      grid.querySelectorAll('.edit-lib-video-btn').forEach(btn => {
-        btn.onclick = function() {
-          const i = parseInt(this.getAttribute('data-vid-idx'), 10);
-          if (filtered[i]) {
-            openVideoEditModal(filtered[i]);
-          }
-        };
-      });
-    }
-
-    /* =========================================================
-       DRILL LIBRARY & ENLARGED GIF LIGHTBOX
-       ========================================================= */
-    function openEnlargedDiagramModal(title, imgUrl, coachingPoints) {
-      const modal = document.getElementById('enlargedDiagramModal');
-      const titleEl = document.getElementById('enlargedDiagramTitle');
-      const imgEl = document.getElementById('enlargedDiagramImg');
-      const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
-      const ptsText = document.getElementById('enlargedDiagramPointsText');
-      if (!modal || !imgEl) return;
-
-      if (titleEl) titleEl.textContent = title || 'Drill GIF';
-      const stageWrap = imgEl.parentNode;
-      if (stageWrap) {
-        stageWrap.innerHTML = '<img id="enlargedDiagramImg" src="" alt="Enlarged Drill GIF" style="max-width:100%;max-height:66vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:block;" />';
-        const freshImg = document.getElementById('enlargedDiagramImg');
-        freshImg.onerror = function() {
-          if (/3-player|give\s*&?\s*go|4-pole/i.test((title || '') + ' ' + (imgUrl || ''))) {
-            renderEmbeddedGiveAndGoAnimation(stageWrap, true);
-          }
-        };
-        freshImg.src = resolveDrillMediaUrl(imgUrl);
-      }
-      if (ptsWrap && ptsText) {
-        if (coachingPoints && coachingPoints.trim()) {
-          ptsText.textContent = coachingPoints;
-          ptsWrap.style.display = 'block';
-        } else {
-          ptsWrap.style.display = 'none';
-        }
-      }
-      modal.classList.add('open');
-    }
-
-    function saveDrillToFirestore(drillObj) {
-      const existingIdx = drillLibrary.findIndex(d => d.id === drillObj.id);
-      if (existingIdx >= 0) {
-        drillLibrary[existingIdx] = drillObj;
-      } else {
-        drillLibrary.unshift(drillObj);
-      }
-      localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
-      if (db && (!isDemoUser || isClubAdmin)) {
-        db.collection('afc_club').doc('shared_libraries').set({
-          drills: drillLibrary,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(() => {});
-      }
-      updateWorkspaceBadges();
-      renderDrillLibrary();
-      showToast('Saved "' + drillObj.title + '" to Drill Library.');
-    }
-
-    function deleteDrillFromFirestore(drillId) {
-      drillLibrary = drillLibrary.filter(d => d.id !== drillId);
-      localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
-      if (db && (!isDemoUser || isClubAdmin)) {
-        db.collection('afc_club').doc('shared_libraries').set({
-          drills: drillLibrary,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(() => {});
-      }
-      updateWorkspaceBadges();
-      renderDrillLibrary();
-    }
-
-    function renderDrillLibrary() {
-      const grid = document.getElementById('drillLibraryGrid');
-      const searchEl = document.getElementById('drillSearchInput');
-      const catEl = document.getElementById('drillCategoryFilter');
-      if (!grid) return;
-
-      normalizeDrillLibraryList();
-
-      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
-      const cat = catEl ? catEl.value : 'ALL';
-
-      const filtered = drillLibrary.filter(d => {
-        if (cat !== 'ALL' && d.category !== cat) return false;
-        if (!query) return true;
-        const hay = [d.title, d.category, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase();
-        return hay.includes(query);
-      });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No drills match your filter.</div>';
-        return;
-      }
-
-      grid.innerHTML = filtered.map((d, idx) => {
-        const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
-        const tagsHtml = (Array.isArray(d.tags) ? d.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
-        return '<div class="lib-card">' +
-          '<div class="lib-card-body">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-              '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
-              '<span style="font-size:0.74rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
-            '</div>' +
-            '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title) + '</h3>' +
-            (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" onerror="handleDrillGifError(this, \'' + escapeHtml(d.gifUrl || '') + '\')" alt="' + escapeHtml(d.title) + '" class="gif-preview-img enlarge-drill-gif-btn" data-drill-idx="' + idx + '" title="Click to enlarge GIF">' : '') +
-            (d.coachingPoints ? '<div style="font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border-radius:8px;padding:8px;margin-bottom:8px;white-space:pre-line;">' + escapeHtml(d.coachingPoints) + '</div>' : '') +
-            (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
-          '</div>' +
-          '<div class="lib-card-footer">' +
-            '<button type="button" class="btn btn-primary btn-sm add-drill-to-session-btn" data-drill-idx="' + idx + '">+ Add to Session</button>' +
-            (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' : '') +
-          '</div>' +
-        '</div>';
-      }).join('');
-
-      grid.querySelectorAll('.enlarge-drill-gif-btn').forEach(img => {
-        img.onclick = function() {
-          const i = parseInt(this.getAttribute('data-drill-idx'), 10);
-          if (filtered[i]) {
-            openEnlargedDiagramModal(filtered[i].title, filtered[i].gifUrl, filtered[i].coachingPoints);
-          }
-        };
-      });
-
-      grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
-        btn.onclick = function() {
-          const i = parseInt(this.getAttribute('data-drill-idx'), 10);
-          if (filtered[i]) {
-            addSessionPartFromDrill(filtered[i]);
-            switchTab('builder');
-            showToast('Added "' + filtered[i].title + '" to Session Builder!');
-          }
-        };
-      });
-
-      grid.querySelectorAll('.delete-drill-btn').forEach(btn => {
-        btn.onclick = function() {
-          deleteDrillFromFirestore(this.getAttribute('data-drill-id'));
-        };
-      });
-    }
-
-    /* =========================================================
-       SESSION BUILDER & ROSTER
-       ========================================================= */
-    let currentSessionParts = [
-      {
-        id: 'part_1',
-        type: 'technical',
-        title: '3-Player Give & Go Combination (4-Pole Line)',
-        duration: 15,
-        gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
-        coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
-        notes: '4 central poles spaced 6 yards apart with left and right passing lanes.'
-      }
-    ];
-
-    function addSessionPartFromDrill(drill) {
-      currentSessionParts.push({
-        id: 'part_' + Date.now(),
-        type: (drill.category || 'technical').toLowerCase(),
-        title: drill.title || 'Training Activity',
-        duration: drill.duration || 15,
-        gifUrl: drill.gifUrl || '',
-        coachingPoints: drill.coachingPoints || '',
-        notes: drill.notes || ''
-      });
-      renderSessionParts();
-    }
-
-    function renderSessionParts() {
-      const container = document.getElementById('sessionPartsContainer');
-      const totalEl = document.getElementById('totalSessionMinutes');
-      if (!container) return;
-
-      let totalMins = 0;
-      container.innerHTML = currentSessionParts.map((part, idx) => {
-        totalMins += Number(part.duration || 0);
-        const resolvedGif = resolveDrillMediaUrl(part.gifUrl);
-        return '<div class="session-part-card">' +
-          '<div class="part-header">' +
-            '<div class="part-header-left">' +
-              '<span class="badge badge-navy">' + escapeHtml(part.type || 'Activity') + '</span>' +
-              '<input type="text" class="part-title-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.title) + '">' +
-            '</div>' +
-            '<div class="part-header-right">' +
-              '<label class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</label>' +
-              '<button type="button" class="btn btn-danger btn-sm remove-part-btn" data-part-idx="' + idx + '">Remove</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="part-body">' +
-            '<div class="gif-drop-box">' +
-              (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" onerror="handleDrillGifError(this, \'' + escapeHtml(part.gifUrl || '') + '\')" alt="Drill GIF" class="gif-preview-img session-part-gif-img" data-part-idx="' + idx + '" title="Click to enlarge">' : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
-            '</div>' +
-            '<div style="display:flex;flex-direction:column;gap:10px;">' +
-              '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
-              '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-
-      if (totalEl) totalEl.textContent = String(totalMins);
-
-      container.querySelectorAll('.part-title-input').forEach(inp => {
-        inp.oninput = function() {
-          currentSessionParts[parseInt(this.dataset.partIdx, 10)].title = this.value;
-        };
-      });
-      container.querySelectorAll('.part-dur-input').forEach(inp => {
-        inp.oninput = function() {
-          currentSessionParts[parseInt(this.dataset.partIdx, 10)].duration = parseInt(this.value, 10) || 0;
-          const sum = currentSessionParts.reduce((acc, p) => acc + Number(p.duration || 0), 0);
-          if (totalEl) totalEl.textContent = String(sum);
-        };
-      });
-      container.querySelectorAll('.part-cp-input').forEach(inp => {
-        inp.oninput = function() {
-          currentSessionParts[parseInt(this.dataset.partIdx, 10)].coachingPoints = this.value;
-        };
-      });
-      container.querySelectorAll('.part-notes-input').forEach(inp => {
-        inp.oninput = function() {
-          currentSessionParts[parseInt(this.dataset.partIdx, 10)].notes = this.value;
-        };
-      });
-      container.querySelectorAll('.remove-part-btn').forEach(btn => {
-        btn.onclick = function() {
-          currentSessionParts.splice(parseInt(this.dataset.partIdx, 10), 1);
-          renderSessionParts();
-        };
-      });
-      container.querySelectorAll('.session-part-gif-img').forEach(img => {
-        img.onclick = function() {
-          const p = currentSessionParts[parseInt(this.dataset.partIdx, 10)];
-          if (p) openEnlargedDiagramModal(p.title, p.gifUrl, p.coachingPoints);
-        };
-      });
-    }
-
     function renderRoster() {
       const grid = document.getElementById('rosterGrid');
       const masterGrid = document.getElementById('masterRosterGrid');
@@ -2889,21 +1932,70 @@
       const summaryEl = document.getElementById('rosterSummaryText');
       const masterSummaryEl = document.getElementById('masterRosterSummaryText');
       if (summaryEl) summaryEl.textContent = presentCount + ' of ' + rosterPlayers.length + ' Present';
-      if (masterSummaryEl) masterSummaryEl.textContent = rosterPlayers.length + ' Players on Active Roster';
+      if (masterSummaryEl) masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster';
 
-      const cardsHtml = rosterPlayers.map((p, idx) =>
-        '<div style="display:flex;align-items:center;justify-content:space-between;background:' + (p.present ? '#f0fdf4' : '#f8fafc') + ';border:1px solid ' + (p.present ? '#86efac' : '#cbd5e1') + ';border-radius:10px;padding:8px 12px;">' +
-          '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:0.84rem;color:#0A2647;">' +
-            '<input type="checkbox" class="roster-present-cb" data-idx="' + idx + '"' + (p.present ? ' checked' : '') + '>' +
-            '<span>' + escapeHtml(p.name) + '</span>' +
-            ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
-          '</label>' +
-          '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:2px 7px;">&times;</button>' +
-        '</div>'
-      ).join('');
+      if (grid) {
+        grid.innerHTML = rosterPlayers.map((p, idx) =>
+          '<div style="display:flex;align-items:center;justify-content:space-between;background:' + (p.present ? '#f0fdf4' : '#f8fafc') + ';border:1px solid ' + (p.present ? '#86efac' : '#cbd5e1') + ';border-radius:10px;padding:8px 12px;">' +
+            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:0.84rem;color:#0A2647;">' +
+              '<input type="checkbox" class="roster-present-cb" data-idx="' + idx + '"' + (p.present ? ' checked' : '') + '>' +
+              '<span>' + escapeHtml(p.name) + '</span>' +
+              ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
+            '</label>' +
+            '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:2px 7px;">&times;</button>' +
+          '</div>'
+        ).join('');
+      }
 
-      if (grid) grid.innerHTML = cardsHtml;
-      if (masterGrid) masterGrid.innerHTML = cardsHtml;
+      if (masterGrid) {
+        masterGrid.style.display = 'grid';
+        masterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(175px, 1fr))';
+        masterGrid.style.gap = '12px';
+
+        const buckets = { GK: [], CB: [], WB: [], CM: [], AM: [], ST: [], UNASSIGNED: [] };
+        rosterPlayers.forEach((p, idx) => {
+          const colKey = mapPositionToColumnKey(p.positions);
+          buckets[colKey].push({ player: p, idx });
+        });
+
+        const colsToRender = POSITION_COLUMNS.slice();
+        if (buckets.UNASSIGNED.length > 0) {
+          colsToRender.push({ key: 'UNASSIGNED', label: 'Unassigned' });
+        }
+
+        masterGrid.innerHTML = colsToRender.map(col => {
+          const items = buckets[col.key] || [];
+          return '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0A2647;padding-bottom:6px;">' +
+              '<span style="font-size:0.86rem;font-weight:900;color:#0A2647;">' + escapeHtml(col.label) + '</span>' +
+              '<span class="badge badge-navy">' + items.length + '</span>' +
+            '</div>' +
+            (items.length === 0
+              ? '<div style="font-size:0.74rem;color:#94a3b8;text-align:center;padding:12px 4px;">No players</div>'
+              : items.map(({ player, idx }) =>
+                  '<div style="background:' + (player.present ? '#ffffff' : '#f1f5f9') + ';border:1px solid ' + (player.present ? '#86efac' : '#cbd5e1') + ';border-radius:9px;padding:7px 9px;display:flex;flex-direction:column;gap:5px;">' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
+                      '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;font-size:0.8rem;color:#0A2647;">' +
+                        '<input type="checkbox" class="roster-present-cb" data-idx="' + idx + '"' + (player.present ? ' checked' : '') + '>' +
+                        '<span>' + escapeHtml(player.name) + '</span>' +
+                      '</label>' +
+                      '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:1px 6px;">&times;</button>' +
+                    '</div>' +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
+                      '<select class="roster-col-select" data-idx="' + idx + '" style="font-size:0.68rem;font-weight:800;color:#0A2647;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:2px 4px;cursor:pointer;">' +
+                        POSITION_COLUMNS.map(c => '<option value="' + c.key + '"' + (col.key === c.key ? ' selected' : '') + '>' + c.label + '</option>').join('') +
+                        (col.key === 'UNASSIGNED' ? '<option value="UNASSIGNED" selected>Pos...</option>' : '') +
+                      '</select>' +
+                      '<button type="button" class="pos-pill edit-roster-player-btn" data-idx="' + idx + '" style="border:none;">' +
+                        escapeHtml((player.positions && player.positions.length) ? player.positions.join('/') : 'Edit') +
+                      '</button>' +
+                    '</div>' +
+                  '</div>'
+                ).join('')
+            ) +
+          '</div>';
+        }).join('');
+      }
 
       document.querySelectorAll('.roster-present-cb').forEach(cb => {
         cb.onchange = function() {
@@ -2919,10 +2011,39 @@
           renderRoster();
         };
       });
+      document.querySelectorAll('.roster-col-select').forEach(sel => {
+        sel.onchange = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          const newPos = this.value;
+          if (rosterPlayers[i] && newPos !== 'UNASSIGNED') {
+            const rest = (rosterPlayers[i].positions || []).filter(p => p.toUpperCase() !== newPos);
+            rosterPlayers[i].positions = [newPos, ...rest];
+            persistCurrentTeamState();
+            renderRoster();
+          }
+        };
+      });
+      document.querySelectorAll('.edit-roster-player-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          const p = rosterPlayers[i];
+          if (!p) return;
+          const currentLabel = p.name + (p.positions && p.positions.length ? ' (' + p.positions.join(', ') + ')' : '');
+          openCustomPromptModal('Edit Player & Positions', 'Update Name and Positions (e.g. Lucas Miller (GK, CB)):', currentLabel, (val) => {
+            const parsed = parseSingleRosterEntry(val);
+            if (parsed) {
+              rosterPlayers[i].name = parsed.name;
+              rosterPlayers[i].positions = parsed.positions;
+              persistCurrentTeamState();
+              renderRoster();
+            }
+          });
+        };
+      });
     }
 
     /* =========================================================
-       GAME DAY LINEUP PITCH (CLICK & DRAG POSITIONING) + TIMER
+       GAME DAY LINEUP PITCH (POSITION PLACEHOLDERS + DRAG MERGE) + TIMER
        ========================================================= */
     const FORMATIONS = {
       '4-2-2': [
@@ -2958,14 +2079,14 @@
         pos: slot.pos,
         x: slot.x,
         y: slot.y,
-        playerName: rosterPlayers[i] ? rosterPlayers[i].name : slot.pos
+        playerName: ''
       })),
       2: FORMATIONS['4-2-2'].map((slot, i) => ({
         id: 'h2_' + i,
         pos: slot.pos,
         x: slot.x,
         y: slot.y,
-        playerName: rosterPlayers[i] ? rosterPlayers[i].name : slot.pos
+        playerName: ''
       }))
     };
     let gameSubLogs = [];
@@ -2994,14 +2115,15 @@
             '<div class="pitch-six-bottom"></div>' +
             '<div class="pitch-goal-bottom"></div>' +
             '<div class="pitch-side-label top">Attacking Goal</div>' +
-            '<div class="pitch-side-label bottom">' + (activeHalf === 1 ? '1st Half' : '2nd Half') + ' • Drag Tokens to Arrange</div>' +
+            '<div class="pitch-side-label bottom">' + (activeHalf === 1 ? '1st Half' : '2nd Half') + ' • Drag Player onto Position or Drag Token</div>' +
             '<div class="pitch-shape-badge bottom">' + escapeHtml(formationName) + '</div>' +
-            tokens.map((tok, idx) =>
-              '<div class="pitch-token team-navy" data-tok-idx="' + idx + '" style="left:' + tok.x + '%;top:' + tok.y + '%;">' +
+            tokens.map((tok, idx) => {
+              const hasPlayer = Boolean(tok.playerName && tok.playerName.trim());
+              return '<div class="pitch-token ' + (hasPlayer ? 'team-navy' : 'team-white') + '" data-tok-idx="' + idx + '" style="left:' + tok.x + '%;top:' + tok.y + '%;' + (!hasPlayer ? 'border-style:dashed;opacity:0.94;' : '') + '">' +
                 '<span style="opacity:0.78;font-size:0.66rem;margin-right:4px;">' + escapeHtml(tok.pos) + '</span>' +
-                escapeHtml(tok.playerName || tok.pos) +
-              '</div>'
-            ).join('') +
+                (hasPlayer ? escapeHtml(tok.playerName) : '<span style="font-style:italic;opacity:0.75;">Drop Player</span>') +
+              '</div>';
+            }).join('') +
           '</div>' +
         '</div>';
 
@@ -3013,6 +2135,30 @@
           let moved = false;
           let startX = 0;
           let startY = 0;
+
+          // Support HTML5 Drag-and-Drop from Bench Chips onto Pitch Position Placeholders
+          el.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            el.style.transform = 'translate(-50%, -50%) scale(1.12)';
+            el.style.boxShadow = '0 0 0 4px #38bdf8, 0 6px 14px rgba(0,0,0,0.4)';
+          });
+          el.addEventListener('dragleave', () => {
+            el.style.transform = 'translate(-50%, -50%)';
+            el.style.boxShadow = '';
+          });
+          el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            el.style.transform = 'translate(-50%, -50%)';
+            el.style.boxShadow = '';
+            const droppedPlayer = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
+            if (droppedPlayer) {
+              // Remove from any previous slot on this half so player isn't duplicated
+              tokens.forEach(t => { if (t.playerName === droppedPlayer) t.playerName = ''; });
+              tokens[idx].playerName = droppedPlayer;
+              renderGamePitch();
+              showToast('Assigned ' + droppedPlayer + ' to ' + tokens[idx].pos);
+            }
+          });
 
           const onPointerDown = (e) => {
             dragging = true;
@@ -3042,14 +2188,12 @@
             el.style.zIndex = '10';
             if (!moved) {
               openCustomPromptModal(
-                'Assign Player (' + tokens[idx].pos + ')',
-                'Enter player name for the ' + tokens[idx].pos + ' position:',
+                'Assign Player to ' + tokens[idx].pos,
+                'Enter player name (leave blank to clear back to position placeholder):',
                 tokens[idx].playerName || '',
                 (newName) => {
-                  if (newName && newName.trim()) {
-                    tokens[idx].playerName = newName.trim();
-                    renderGamePitch();
-                  }
+                  tokens[idx].playerName = (newName || '').trim();
+                  renderGamePitch();
                 }
               );
             }
@@ -3065,17 +2209,43 @@
         });
       }
 
-      const onPitchNames = new Set(tokens.map(t => t.playerName));
+      const onPitchNames = new Set(tokens.map(t => t.playerName).filter(Boolean));
       const benchPlayers = gameRosterPlayers.filter(p => p.present && !onPitchNames.has(p.name));
 
       if (benchEl) {
-        benchEl.innerHTML = '<div class="bench-dock"><span class="bench-label">Bench (' + benchPlayers.length + '):</span>' +
-          (benchPlayers.length ? benchPlayers.map(p => '<span class="bench-chip">' + escapeHtml(p.name) + '</span>').join('') : '<span style="font-size:0.75rem;color:#64748b;">All available players on field</span>') +
+        benchEl.innerHTML = '<div class="bench-dock"><span class="bench-label">Bench / Available (' + benchPlayers.length + ') — Drag onto Pitch Position:</span>' +
+          (benchPlayers.length
+            ? benchPlayers.map(p =>
+                '<span class="bench-chip" draggable="true" data-player-name="' + escapeHtml(p.name) + '">' +
+                  escapeHtml(p.name) +
+                  ((p.positions && p.positions.length) ? ' <span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
+                '</span>'
+              ).join('')
+            : '<span style="font-size:0.75rem;color:#64748b;">All available players assigned (or add players to Roster)</span>') +
         '</div>';
+
+        benchEl.querySelectorAll('.bench-chip').forEach(chip => {
+          chip.addEventListener('dragstart', (e) => {
+            if (e.dataTransfer) {
+              e.dataTransfer.setData('text/plain', chip.getAttribute('data-player-name') || '');
+            }
+          });
+          // Tap fallback for touch devices: fills next open position placeholder
+          chip.addEventListener('click', () => {
+            const pName = chip.getAttribute('data-player-name');
+            const openSlot = tokens.find(t => !t.playerName);
+            if (openSlot && pName) {
+              openSlot.playerName = pName;
+              renderGamePitch();
+              showToast('Assigned ' + pName + ' to ' + openSlot.pos);
+            }
+          });
+        });
       }
 
       if (subOffSel) {
-        subOffSel.innerHTML = tokens.map(t => '<option value="' + escapeHtml(t.playerName) + '">' + escapeHtml(t.playerName) + ' (' + escapeHtml(t.pos) + ')</option>').join('');
+        const assignedTokens = tokens.filter(t => t.playerName);
+        subOffSel.innerHTML = assignedTokens.map(t => '<option value="' + escapeHtml(t.playerName) + '">' + escapeHtml(t.playerName) + ' (' + escapeHtml(t.pos) + ')</option>').join('');
       }
       if (subOnSel) {
         subOnSel.innerHTML = benchPlayers.map(p => '<option value="' + escapeHtml(p.name) + '">' + escapeHtml(p.name) + '</option>').join('');
@@ -3094,6 +2264,7 @@
           '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:0.84rem;color:#0A2647;">' +
             '<input type="checkbox" class="game-roster-cb" data-idx="' + idx + '"' + (p.present ? ' checked' : '') + '>' +
             '<span>' + escapeHtml(p.name) + '</span>' +
+            ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
           '</label>' +
           '<button type="button" class="btn btn-danger btn-sm remove-game-player-btn" data-idx="' + idx + '" style="padding:2px 7px;">&times;</button>' +
         '</div>'
@@ -3157,10 +2328,9 @@
     }
 
     /* =========================================================
-       CALENDAR RENDERING
+       CALENDAR, DRILL & VIDEO LIBRARIES, SESSION BUILDER & AUTH
        ========================================================= */
     let calendarCursorDate = new Date();
-    let calendarViewMode = 'month';
 
     function renderCalendar() {
       const grid = document.getElementById('calendarGrid');
@@ -3174,8 +2344,8 @@
       if (label) label.textContent = monthNames[month] + ' ' + year;
 
       const allEvents = [];
-      savedSessions.forEach(s => allEvents.push({ kind: 'session', date: s.date, title: s.title, team: s.team || activeTeamName, data: s }));
-      savedGames.forEach(g => allEvents.push({ kind: 'game', date: g.date, title: 'vs ' + g.opponent, team: g.team || activeTeamName, data: g }));
+      savedSessions.forEach(s => allEvents.push({ kind: 'session', date: s.date, title: s.title, team: s.team || activeTeamName }));
+      savedGames.forEach(g => allEvents.push({ kind: 'game', date: g.date, title: 'vs ' + g.opponent, team: g.team || activeTeamName }));
 
       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let html = weekdays.map(d => '<div class="calendar-weekday">' + d + '</div>').join('');
@@ -3184,47 +2354,261 @@
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const todayIso = getLocalTodayIso();
 
-      for (let i = 0; i < firstDay; i++) {
-        html += '<div class="calendar-day empty"></div>';
-      }
-
+      for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
       for (let day = 1; day <= daysInMonth; day++) {
         const iso = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         const dayEvents = allEvents.filter(ev => ev.date === iso);
         html += '<div class="calendar-day' + (iso === todayIso ? ' today-cell' : '') + '">' +
           '<div class="calendar-day-num">' + day + '</div>' +
-          dayEvents.map(ev =>
-            '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '">' +
-              escapeHtml(ev.title) +
-            '</div>'
-          ).join('') +
+          dayEvents.map(ev => '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '">' + escapeHtml(ev.title) + '</div>').join('') +
         '</div>';
       }
-
       grid.innerHTML = html;
 
       if (listEl) {
-        if (allEvents.length === 0) {
-          listEl.innerHTML = '<div style="font-size:0.8rem;color:#64748b;">No saved sessions or games yet. Save a session or game to see it on your calendar.</div>';
-        } else {
-          listEl.innerHTML = allEvents.map(ev =>
-            '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;">' +
-              '<span class="badge ' + (ev.kind === 'game' ? 'badge-emerald' : 'badge-navy') + '">' + escapeHtml(ev.team) + '</span>' +
-              '<div style="font-weight:800;font-size:0.86rem;color:#0A2647;margin-top:4px;">' + escapeHtml(ev.title) + '</div>' +
-              '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(ev.date || 'Unscheduled') + '</div>' +
-            '</div>'
-          ).join('');
-        }
+        listEl.innerHTML = allEvents.length === 0
+          ? '<div style="font-size:0.8rem;color:#64748b;">No saved sessions or games yet.</div>'
+          : allEvents.map(ev =>
+              '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;">' +
+                '<span class="badge ' + (ev.kind === 'game' ? 'badge-emerald' : 'badge-navy') + '">' + escapeHtml(ev.team) + '</span>' +
+                '<div style="font-weight:800;font-size:0.86rem;color:#0A2647;margin-top:4px;">' + escapeHtml(ev.title) + '</div>' +
+                '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(ev.date || 'Unscheduled') + '</div>' +
+              '</div>'
+            ).join('');
       }
     }
 
-    /* =========================================================
-       SETTINGS & VERSION TRACKER
-       ========================================================= */
+    function openEnlargedDiagramModal(title, imgUrl, coachingPoints) {
+      const modal = document.getElementById('enlargedDiagramModal');
+      const titleEl = document.getElementById('enlargedDiagramTitle');
+      const imgEl = document.getElementById('enlargedDiagramImg');
+      const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
+      const ptsText = document.getElementById('enlargedDiagramPointsText');
+      if (!modal || !imgEl) return;
+      if (titleEl) titleEl.textContent = title || 'Drill GIF';
+      imgEl.src = resolveDrillMediaUrl(imgUrl);
+      if (ptsWrap && ptsText) {
+        if (coachingPoints && coachingPoints.trim()) {
+          ptsText.textContent = coachingPoints;
+          ptsWrap.style.display = 'block';
+        } else {
+          ptsWrap.style.display = 'none';
+        }
+      }
+      modal.classList.add('open');
+    }
+
+    function renderDrillLibrary() {
+      const grid = document.getElementById('drillLibraryGrid');
+      const searchEl = document.getElementById('drillSearchInput');
+      const catEl = document.getElementById('drillCategoryFilter');
+      if (!grid) return;
+
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+      const cat = catEl ? catEl.value : 'ALL';
+      const filtered = drillLibrary.filter(d => {
+        if (cat !== 'ALL' && d.category !== cat) return false;
+        if (!query) return true;
+        return [d.title, d.category, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      grid.innerHTML = filtered.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No drills match your filter.</div>'
+        : filtered.map((d, idx) => {
+            const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
+            const tagsHtml = (Array.isArray(d.tags) ? d.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+            return '<div class="lib-card">' +
+              '<div class="lib-card-body">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                  '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                  '<span style="font-size:0.74rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
+                '</div>' +
+                '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title) + '</h3>' +
+                (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" alt="' + escapeHtml(d.title) + '" class="gif-preview-img enlarge-drill-gif-btn" data-drill-idx="' + idx + '" title="Click to enlarge GIF">' : '') +
+                (d.coachingPoints ? '<div style="font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border-radius:8px;padding:8px;margin-bottom:8px;white-space:pre-line;">' + escapeHtml(d.coachingPoints) + '</div>' : '') +
+                (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
+              '</div>' +
+              '<div class="lib-card-footer">' +
+                '<button type="button" class="btn btn-primary btn-sm add-drill-to-session-btn" data-drill-idx="' + idx + '">+ Add to Session</button>' +
+                (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' : '') +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+      grid.querySelectorAll('.enlarge-drill-gif-btn').forEach(img => {
+        img.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
+          if (d) openEnlargedDiagramModal(d.title, d.gifUrl, d.coachingPoints);
+        };
+      });
+      grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
+        btn.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
+          if (d) {
+            currentSessionParts.push({
+              id: 'part_' + Date.now(),
+              type: (d.category || 'technical').toLowerCase(),
+              title: d.title,
+              duration: d.duration || 15,
+              gifUrl: d.gifUrl || '',
+              coachingPoints: d.coachingPoints || '',
+              notes: d.notes || ''
+            });
+            renderSessionParts();
+            switchTab('builder');
+            showToast('Added "' + d.title + '" to Session Builder!');
+          }
+        };
+      });
+      grid.querySelectorAll('.delete-drill-btn').forEach(btn => {
+        btn.onclick = function() {
+          const id = this.getAttribute('data-drill-id');
+          drillLibrary = drillLibrary.filter(item => item.id !== id);
+          persistCurrentTeamState();
+          renderDrillLibrary();
+        };
+      });
+    }
+
+    async function syncDrillsFromGitHubRepo(showFeedback) {
+      try {
+        const fileNames = new Set();
+        const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills?t=' + Date.now();
+        const resp = await fetch(apiUrl, { cache: 'no-store' });
+        if (resp.ok) {
+          const files = await resp.json();
+          if (Array.isArray(files)) {
+            files.forEach(f => {
+              if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) fileNames.add(f.name);
+            });
+          }
+        }
+        const existingPaths = new Set(drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^.*\/drills\//, 'drills/')));
+        let added = 0;
+        fileNames.forEach(fileName => {
+          const relPath = 'drills/' + fileName;
+          if (!existingPaths.has(relPath.toLowerCase())) {
+            existingPaths.add(relPath.toLowerCase());
+            drillLibrary.unshift({
+              id: 'gh_drill_' + fileName.replace(/[^a-z0-9]/gi, '_'),
+              title: fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()),
+              category: 'Technical',
+              duration: 15,
+              tags: ['github-sync', 'gif'],
+              gifUrl: relPath,
+              coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
+              notes: 'Synced from GitHub drills/' + fileName
+            });
+            added++;
+          }
+        });
+        if (added > 0) {
+          persistCurrentTeamState();
+          renderDrillLibrary();
+          showToast('Imported ' + added + ' new drill(s) from GitHub!');
+        } else if (showFeedback) {
+          showToast('All GitHub drills/ GIFs are already up to date.');
+        }
+      } catch (e) {}
+    }
+
+    function renderVideoLibrary() {
+      const grid = document.getElementById('videoLibraryGrid');
+      const searchEl = document.getElementById('videoSearchInput');
+      const catSel = document.getElementById('videoCategoryFilter');
+      if (!grid) return;
+
+      const selectedCat = catSel ? catSel.value : 'ALL';
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+      if (catSel) {
+        const cats = Array.from(new Set(videoLibrary.map(v => v.category || 'General'))).sort();
+        catSel.innerHTML = '<option value="ALL">All Categories (' + videoLibrary.length + ')</option>' +
+          cats.map(c => '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
+      }
+
+      const filtered = videoLibrary.filter(v => {
+        if (selectedCat !== 'ALL' && (v.category || 'General') !== selectedCat) return false;
+        if (!query) return true;
+        return [v.title, v.category, v.subCategory, ...(Array.isArray(v.tags) ? v.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      grid.innerHTML = filtered.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No videos loaded yet.</div>'
+        : filtered.map((vid, idx) =>
+            '<div class="lib-card">' +
+              '<div class="lib-card-body">' +
+                '<span class="badge badge-navy">' + escapeHtml(vid.category || 'General') + '</span>' +
+                '<h3 style="margin:6px 0 8px;font-size:0.94rem;font-weight:900;color:#0A2647;">' + escapeHtml(vid.title || 'Training Video') + '</h3>' +
+              '</div>' +
+              '<div class="lib-card-footer">' +
+                '<button type="button" class="btn btn-emerald btn-sm watch-lib-video-btn" data-vid-idx="' + idx + '">&#9654; Watch Video</button>' +
+              '</div>' +
+            '</div>'
+          ).join('');
+
+      grid.querySelectorAll('.watch-lib-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const item = filtered[parseInt(this.getAttribute('data-vid-idx'), 10)];
+          const modal = document.getElementById('embeddedVideoModal');
+          const stage = document.getElementById('embeddedVideoStage');
+          const titleEl = document.getElementById('embeddedVideoTitle');
+          if (item && modal && stage) {
+            if (titleEl) titleEl.textContent = item.title || 'Training Video';
+            stage.innerHTML = '<iframe src="' + escapeHtml(item.url) + '" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+            modal.classList.add('open');
+          }
+        };
+      });
+    }
+
+    let currentSessionParts = [
+      {
+        id: 'part_1',
+        type: 'technical',
+        title: '3-Player Give & Go Combination (4-Pole Line)',
+        duration: 15,
+        gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
+        coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
+        notes: '4 central poles spaced 6 yards apart with left and right passing lanes.'
+      }
+    ];
+
+    function renderSessionParts() {
+      const container = document.getElementById('sessionPartsContainer');
+      const totalEl = document.getElementById('totalSessionMinutes');
+      if (!container) return;
+      let totalMins = 0;
+      container.innerHTML = currentSessionParts.map((part, idx) => {
+        totalMins += Number(part.duration || 0);
+        const resolvedGif = resolveDrillMediaUrl(part.gifUrl);
+        return '<div class="session-part-card">' +
+          '<div class="part-header">' +
+            '<div class="part-header-left">' +
+              '<span class="badge badge-navy">' + escapeHtml(part.type || 'Activity') + '</span>' +
+              '<input type="text" class="part-title-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.title) + '">' +
+            '</div>' +
+            '<div class="part-header-right">' +
+              '<label class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</label>' +
+              '<button type="button" class="btn btn-danger btn-sm remove-part-btn" data-part-idx="' + idx + '">Remove</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="part-body">' +
+            '<div class="gif-drop-box">' +
+              (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" alt="Drill GIF" class="gif-preview-img session-part-gif-img" data-part-idx="' + idx + '">' : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;gap:10px;">' +
+              '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
+              '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      if (totalEl) totalEl.textContent = String(totalMins);
+    }
+
     function renderSettingsPanel() {
       const nameEl = document.getElementById('settingsCoachNameText');
       const emailEl = document.getElementById('settingsCoachEmailText');
-      const roleEl = document.getElementById('settingsRoleBadge');
       const verBadge = document.getElementById('appVersionBadge');
       const verCurr = document.getElementById('adminVersionCurrentText');
       const verList = document.getElementById('adminVersionHistoryList');
@@ -3232,11 +2616,7 @@
 
       if (nameEl) nameEl.textContent = (currentUser && currentUser.displayName) || 'Coach';
       if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Preview Admin Session';
-      if (roleEl) roleEl.textContent = isClubAdmin ? 'Club Admin / Head Coach' : 'Team Coach';
-      if (verBadge) {
-        verBadge.style.display = isClubAdmin ? 'inline-block' : 'none';
-        verBadge.textContent = 'v' + APP_VERSION;
-      }
+      if (verBadge) { verBadge.style.display = 'inline-block'; verBadge.textContent = 'v' + APP_VERSION; }
       if (verCurr) verCurr.textContent = 'v' + APP_VERSION;
 
       if (teamsList) {
@@ -3248,6 +2628,7 @@
         ).join('');
         teamsList.querySelectorAll('.switch-team-btn').forEach(btn => {
           btn.onclick = function() {
+            persistCurrentTeamState();
             loadTeamStateFromStorage(this.getAttribute('data-team'));
             showToast('Switched active team to ' + activeTeamName);
           };
@@ -3258,16 +2639,12 @@
         verList.innerHTML = versionHistoryLog.map(item =>
           '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:7px 10px;font-size:0.76rem;">' +
             '<strong style="color:#0A2647;font-family:monospace;">v' + escapeHtml(item.version) + '</strong> ' +
-            '<span style="color:#64748b;">(' + escapeHtml(item.date) + ')</span>: ' +
-            escapeHtml(item.note) +
+            '<span style="color:#64748b;">(' + escapeHtml(item.date) + ')</span>: ' + escapeHtml(item.note) +
           '</div>'
         ).join('');
       }
     }
 
-    /* =========================================================
-       TAB NAVIGATION & AUTH ENTRY
-       ========================================================= */
     function switchTab(tabName) {
       document.querySelectorAll('.nav-tab').forEach(t => {
         t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
@@ -3276,15 +2653,10 @@
         sec.classList.toggle('active', sec.id === 'tab-' + tabName);
       });
       if (tabName === 'calendar') renderCalendar();
-      if (tabName === 'videos') {
-        renderVideoLibrary();
-        syncClubVideosFromGoogleSheetAndCloud(false);
-      }
-      if (tabName === 'drills') {
-        renderDrillLibrary();
-        syncDrillsFromGitHubRepo(false);
-      }
+      if (tabName === 'videos') renderVideoLibrary();
+      if (tabName === 'drills') { renderDrillLibrary(); syncDrillsFromGitHubRepo(false); }
       if (tabName === 'gameday') { renderGamePitch(); renderGameRoster(); }
+      if (tabName === 'roster') renderRoster();
       if (tabName === 'settings') renderSettingsPanel();
     }
 
@@ -3293,7 +2665,6 @@
       isDemoUser = Boolean(demoMode);
       const email = (userObj && userObj.email ? userObj.email : '').trim().toLowerCase();
       const displayName = (userObj && userObj.displayName) || (email ? email.split('@')[0] : 'Coach');
-
       isClubAdmin = Boolean(demoMode) || (email === CLUB_ADMIN_EMAIL.toLowerCase());
 
       const authGate = document.getElementById('authGateOverlay');
@@ -3311,13 +2682,9 @@
       renderDrillLibrary();
       renderVideoLibrary();
       renderSettingsPanel();
-      syncClubVideosFromGoogleSheetAndCloud(false);
       syncDrillsFromGitHubRepo(false);
     }
 
-    /* =========================================================
-       DOM READY EVENT WIRING
-       ========================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       const todayIso = getLocalTodayIso();
       const sDate = document.getElementById('sessionDateInput');
@@ -3338,19 +2705,7 @@
 
       const googleBtn = document.getElementById('googleSignInBtn');
       if (googleBtn) {
-        googleBtn.onclick = async () => {
-          if (auth && typeof firebase !== 'undefined' && !isSandboxedOrIframeEnvironment()) {
-            try {
-              const provider = new firebase.auth.GoogleAuthProvider();
-              const res = await auth.signInWithPopup(provider);
-              if (res && res.user) {
-                enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName }, false);
-                return;
-              }
-            } catch (err) {
-              // Fall back cleanly to account selector modal
-            }
-          }
+        googleBtn.onclick = () => {
           const modal = document.getElementById('googleAccountPickerModal');
           if (modal) modal.classList.add('open');
         };
@@ -3366,196 +2721,161 @@
           enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
         };
       }
-
-      const pickerRetryPopupBtn = document.getElementById('pickerRetryPopupBtn');
-      if (pickerRetryPopupBtn) {
-        pickerRetryPopupBtn.onclick = async () => {
-          if (auth && typeof firebase !== 'undefined') {
-            try {
-              const provider = new firebase.auth.GoogleAuthProvider();
-              const res = await auth.signInWithPopup(provider);
-              if (res && res.user) {
-                document.getElementById('googleAccountPickerModal').classList.remove('open');
-                enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName }, false);
-                return;
-              }
-            } catch (err) {
-              showToast('Popup blocked by browser/iframe — enter your Google email above to continue.');
-            }
-          }
-        };
-      }
-
       const pickerCloseBtn = document.getElementById('pickerCloseBtn');
-      if (pickerCloseBtn) {
-        pickerCloseBtn.onclick = () => document.getElementById('googleAccountPickerModal').classList.remove('open');
-      }
+      if (pickerCloseBtn) pickerCloseBtn.onclick = () => document.getElementById('googleAccountPickerModal').classList.remove('open');
 
       const emailForm = document.getElementById('emailPasswordForm');
       if (emailForm) {
-        emailForm.onsubmit = async (e) => {
+        emailForm.onsubmit = (e) => {
           e.preventDefault();
           const em = (document.getElementById('authEmailInput').value || '').trim();
-          const pw = (document.getElementById('authPasswordInput').value || '').trim();
           if (!em) return;
-          if (auth && pw) {
-            try {
-              const cred = await auth.signInWithEmailAndPassword(em, pw);
-              if (cred && cred.user) {
-                enterWorkspaceAsCoach({ email: cred.user.email, displayName: cred.user.displayName || em.split('@')[0] }, false);
-                return;
-              }
-            } catch (err) {
-              const st = document.getElementById('authStatusText');
-              if (st) st.textContent = err.message || 'Sign-in failed.';
-              return;
-            }
-          }
           enterWorkspaceAsCoach({ email: em, displayName: em.split('@')[0] }, true);
         };
       }
 
-      // Navigation Tabs
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
       });
 
-      // Video Player & Enlarged Diagram Modals
       const closeVidBtn = document.getElementById('closeEmbeddedVideoBtn');
       const doneVidBtn = document.getElementById('doneEmbeddedVideoBtn');
-      if (closeVidBtn) closeVidBtn.onclick = closeEmbeddedVideoModal;
-      if (doneVidBtn) doneVidBtn.onclick = closeEmbeddedVideoModal;
+      const closeVidFn = () => {
+        const stage = document.getElementById('embeddedVideoStage');
+        if (stage) stage.innerHTML = '';
+        document.getElementById('embeddedVideoModal').classList.remove('open');
+      };
+      if (closeVidBtn) closeVidBtn.onclick = closeVidFn;
+      if (doneVidBtn) doneVidBtn.onclick = closeVidFn;
 
       const closeDiagBtn = document.getElementById('closeEnlargedDiagramBtn');
       const doneDiagBtn = document.getElementById('doneEnlargedDiagramBtn');
       if (closeDiagBtn) closeDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
       if (doneDiagBtn) doneDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
 
-      // Video Library Controls
-      const vSearch = document.getElementById('videoSearchInput');
-      const vCat = document.getElementById('videoCategoryFilter');
-      const vSub = document.getElementById('videoSubCategoryFilter');
-      if (vSearch) vSearch.oninput = renderVideoLibrary;
-      if (vCat) vCat.onchange = renderVideoLibrary;
-      if (vSub) vSub.onchange = renderVideoLibrary;
+      const syncGhBtn = document.getElementById('syncGitHubDrillsBtn');
+      if (syncGhBtn) syncGhBtn.onclick = () => syncDrillsFromGitHubRepo(true);
 
-      syncClubVideosFromGoogleSheetAndCloud(false);
-      setInterval(() => {
-        if (!document.hidden) syncClubVideosFromGoogleSheetAndCloud(false);
-      }, 5 * 60 * 1000);
-
-      const clearVideosBtn = document.getElementById('clearVideosBtn');
-      if (clearVideosBtn) {
-        clearVideosBtn.onclick = () => {
-          videoLibrary = [];
-          localStorage.removeItem('afc_videos_shared');
-          renderVideoLibrary();
-          updateWorkspaceBadges();
-          syncClubVideosFromGoogleSheetAndCloud(true);
+      const formSel = document.getElementById('gameFormationSelect');
+      if (formSel) {
+        formSel.onchange = () => {
+          const slots = FORMATIONS[formSel.value] || FORMATIONS['4-2-2'];
+          gameLineups[activeHalf] = slots.map((s, i) => ({
+            id: 'h' + activeHalf + '_' + i,
+            pos: s.pos,
+            x: s.x,
+            y: s.y,
+            playerName: (gameLineups[activeHalf][i] && gameLineups[activeHalf][i].playerName) || ''
+          }));
+          renderGamePitch();
         };
       }
 
-      // Drill Library Controls
-      const dSearch = document.getElementById('drillSearchInput');
-      const dCat = document.getElementById('drillCategoryFilter');
-      if (dSearch) dSearch.oninput = renderDrillLibrary;
-      if (dCat) dCat.onchange = renderDrillLibrary;
-
-      syncDrillsFromGitHubRepo(false);
-
-      const toggleNewDrillBtn = document.getElementById('toggleNewDrillDrawerBtn');
-      const cancelNewDrillBtn = document.getElementById('cancelNewDrillBtn');
-      const newDrillDrawer = document.getElementById('newDrillDrawer');
-      if (toggleNewDrillBtn && newDrillDrawer) {
-        toggleNewDrillBtn.onclick = () => {
-          newDrillDrawer.style.display = newDrillDrawer.style.display === 'none' ? 'block' : 'none';
-        };
-      }
-      if (cancelNewDrillBtn && newDrillDrawer) {
-        cancelNewDrillBtn.onclick = () => { newDrillDrawer.style.display = 'none'; };
+      const h1Btn = document.getElementById('selectHalf1Btn');
+      const h2Btn = document.getElementById('selectHalf2Btn');
+      if (h1Btn && h2Btn) {
+        h1Btn.onclick = () => { activeHalf = 1; h1Btn.className = 'btn btn-primary btn-sm'; h2Btn.className = 'btn btn-outline btn-sm'; renderGamePitch(); };
+        h2Btn.onclick = () => { activeHalf = 2; h2Btn.className = 'btn btn-primary btn-sm'; h1Btn.className = 'btn btn-outline btn-sm'; renderGamePitch(); };
       }
 
-      const saveNewDrillBtn = document.getElementById('saveNewDrillBtn');
-      if (saveNewDrillBtn) {
-        saveNewDrillBtn.onclick = () => {
-          const title = (document.getElementById('newDrillTitle').value || '').trim();
-          if (!title) return showToast('Please enter a drill title.');
-          const drillObj = {
-            id: 'drill_' + Date.now(),
-            title: title,
-            category: document.getElementById('newDrillCategory').value,
-            duration: parseInt(document.getElementById('newDrillDuration').value, 10) || 15,
-            tags: (document.getElementById('newDrillTags').value || '').split(',').map(t => t.trim()).filter(Boolean),
-            gifUrl: (document.getElementById('newDrillGifPathInput').value || '').trim(),
-            coachingPoints: document.getElementById('newDrillCoachingPoints').value || '',
-            notes: document.getElementById('newDrillNotes').value || ''
-          };
-          saveDrillToFirestore(drillObj);
-          if (newDrillDrawer) newDrillDrawer.style.display = 'none';
-        };
-      }
-
-      // Session Builder Controls
-      const addPartBtn = document.getElementById('addSessionPartBtn');
-      if (addPartBtn) {
-        addPartBtn.onclick = () => {
-          const typeVal = document.getElementById('newPartTypeSelect').value;
-          currentSessionParts.push({
-            id: 'part_' + Date.now(),
-            type: typeVal,
-            title: typeVal.charAt(0).toUpperCase() + typeVal.slice(1) + ' Activity',
-            duration: 15,
-            gifUrl: '',
-            coachingPoints: '',
-            notes: ''
+      const autoFillBtn = document.getElementById('autoFillGameHalfBtn');
+      if (autoFillBtn) {
+        autoFillBtn.onclick = () => {
+          const avail = gameRosterPlayers.filter(p => p.present);
+          (gameLineups[activeHalf] || []).forEach((slot, i) => {
+            slot.playerName = avail[i] ? avail[i].name : '';
           });
-          renderSessionParts();
+          renderGamePitch();
         };
       }
 
-      const saveSessionBtn = document.getElementById('saveSessionBtn');
-      if (saveSessionBtn) {
-        saveSessionBtn.onclick = () => {
-          const title = (document.getElementById('sessionTitleInput').value || '').trim() || 'Training Session';
-          const date = document.getElementById('sessionDateInput').value || getLocalTodayIso();
-          const team = document.getElementById('sessionTeamSelect').value || activeTeamName;
-          savedSessions.push({ id: 'sess_' + Date.now(), title, date, team, parts: JSON.parse(JSON.stringify(currentSessionParts)) });
+      const copyH1H2Btn = document.getElementById('copyHalf1ToHalf2Btn');
+      if (copyH1H2Btn) {
+        copyH1H2Btn.onclick = () => {
+          gameLineups[2] = JSON.parse(JSON.stringify(gameLineups[1]));
+          showToast('Copied 1st Half lineup to 2nd Half.');
+        };
+      }
+
+      const copyRosterToGameBtn = document.getElementById('copyTrainingRosterToGameBtn');
+      if (copyRosterToGameBtn) {
+        copyRosterToGameBtn.onclick = () => {
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
           persistCurrentTeamState();
-          renderCalendar();
-          showToast('Saved "' + title + '" to Calendar!');
+          renderGameRoster();
+          renderGamePitch();
+          showToast('Copied ' + gameRosterPlayers.length + ' players from Training Roster!');
         };
       }
 
-      const toggleCleanBtn = document.getElementById('toggleCleanPreviewBtn');
-      const exitCleanBtn = document.getElementById('exitCleanPreviewBtn');
-      if (toggleCleanBtn) toggleCleanBtn.onclick = () => document.body.classList.add('clean-preview-mode');
-      if (exitCleanBtn) exitCleanBtn.onclick = () => document.body.classList.remove('clean-preview-mode');
+      // Game Day & Session Builder Team Dropdown Switchers
+      function handleActiveTeamSwitch(newTeamName) {
+        if (!newTeamName || newTeamName === activeTeamName) return;
+        persistCurrentTeamState();
+        loadTeamStateFromStorage(newTeamName);
+        // Reset pitch slots to clean position placeholders for the newly selected team
+        const formVal = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
+        const slots = FORMATIONS[formVal] || FORMATIONS['4-2-2'];
+        gameLineups = {
+          1: slots.map((s, i) => ({ id: 'h1_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' })),
+          2: slots.map((s, i) => ({ id: 'h2_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }))
+        };
+        gameSubLogs = [];
+        const subLogList = document.getElementById('subLogList');
+        if (subLogList) subLogList.innerHTML = '';
+        const gameRosterTitleEl = document.getElementById('gameRosterTitle');
+        if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
+        renderGamePitch();
+        renderGameRoster();
+        showToast('Switched to ' + activeTeamName);
+      }
 
-      // Roster & Bulk Copy/Paste Controls
+      const gameTeamSel = document.getElementById('gameTeamSelect');
+      if (gameTeamSel) {
+        gameTeamSel.onchange = function() {
+          handleActiveTeamSwitch(this.value);
+        };
+      }
+
+      const sessionTeamSel = document.getElementById('sessionTeamSelect');
+      if (sessionTeamSel) {
+        sessionTeamSel.onchange = function() {
+          handleActiveTeamSwitch(this.value);
+        };
+      }
+
+      // Roster Tab Team Switcher, Add Player, Bulk Copy/Paste, and Sync Controls
+      const rosterTeamSel = document.getElementById('rosterTeamSelect');
+      if (rosterTeamSel) {
+        rosterTeamSel.onchange = function() {
+          handleActiveTeamSwitch(this.value);
+        };
+      }
+
+      const masterAddBtn = document.getElementById('masterAddPlayerBtn');
+      const masterNameInput = document.getElementById('masterNewPlayerNameInput');
+      if (masterAddBtn && masterNameInput) {
+        masterAddBtn.onclick = () => {
+          const parsed = parseSingleRosterEntry(masterNameInput.value);
+          if (!parsed) return showToast('Enter a player name (e.g. Lucas Miller (GK)).');
+          rosterPlayers.push(parsed);
+          masterNameInput.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+          showToast('Added ' + parsed.name + ' to ' + activeTeamName);
+        };
+      }
+
       const addPlayerBtn = document.getElementById('addPlayerBtn');
-      if (addPlayerBtn) {
+      const newPlayerInput = document.getElementById('newPlayerNameInput');
+      if (addPlayerBtn && newPlayerInput) {
         addPlayerBtn.onclick = () => {
-          const inp = document.getElementById('newPlayerNameInput');
-          const parsed = parseBulkRosterText(inp.value);
-          if (!parsed.length) return;
-          rosterPlayers.push(...parsed);
-          inp.value = '';
+          const parsed = parseSingleRosterEntry(newPlayerInput.value);
+          if (!parsed) return;
+          rosterPlayers.push(parsed);
+          newPlayerInput.value = '';
           persistCurrentTeamState();
           renderRoster();
-        };
-      }
-
-      const masterAddPlayerBtn = document.getElementById('masterAddPlayerBtn');
-      if (masterAddPlayerBtn) {
-        masterAddPlayerBtn.onclick = () => {
-          const inp = document.getElementById('masterNewPlayerNameInput');
-          const parsed = parseBulkRosterText(inp.value);
-          if (!parsed.length) return;
-          rosterPlayers.push(...parsed);
-          inp.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-          showToast('Added ' + parsed.length + ' player(s) to ' + activeTeamName + ' roster.');
         };
       }
 
@@ -3574,28 +2894,30 @@
 
       if (bulkAppendBtn && bulkTextarea) {
         bulkAppendBtn.onclick = () => {
-          const parsed = parseBulkRosterText(bulkTextarea.value);
-          if (!parsed.length) return showToast('Paste at least one player name & position first.');
-          rosterPlayers.push(...parsed);
+          const rawLines = bulkTextarea.value.split(/\r?\n|;/).map(s => s.trim()).filter(Boolean);
+          const imported = rawLines.map(parseSingleRosterEntry).filter(Boolean);
+          if (!imported.length) return showToast('Paste at least one player line first.');
+          rosterPlayers.push(...imported);
           bulkTextarea.value = '';
           persistCurrentTeamState();
           renderRoster();
-          showToast('Imported ' + parsed.length + ' player(s) into ' + activeTeamName + '!');
+          showToast('Imported ' + imported.length + ' player(s) to ' + activeTeamName + '!');
         };
       }
+
       if (bulkReplaceBtn && bulkTextarea) {
         bulkReplaceBtn.onclick = () => {
-          const parsed = parseBulkRosterText(bulkTextarea.value);
-          if (!parsed.length) return showToast('Paste your roster list first before replacing.');
-          rosterPlayers = parsed;
-          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          const rawLines = bulkTextarea.value.split(/\r?\n|;/).map(s => s.trim()).filter(Boolean);
+          const imported = rawLines.map(parseSingleRosterEntry).filter(Boolean);
+          if (!imported.length) return showToast('Paste at least one player line first.');
+          rosterPlayers = imported;
           bulkTextarea.value = '';
           persistCurrentTeamState();
           renderRoster();
-          renderGameRoster();
-          showToast('Replaced roster with ' + parsed.length + ' imported player(s)!');
+          showToast('Replaced roster with ' + imported.length + ' player(s)!');
         };
       }
+
       if (bulkClearBtn && bulkTextarea) {
         bulkClearBtn.onclick = () => { bulkTextarea.value = ''; };
       }
@@ -3611,191 +2933,22 @@
         };
       }
 
-      const markAllPresent = () => {
-        rosterPlayers.forEach(p => { p.present = true; });
-        persistCurrentTeamState();
-        renderRoster();
-      };
-      const markAllBtn = document.getElementById('markAllPresentBtn');
       const masterMarkAllBtn = document.getElementById('masterMarkAllPresentBtn');
-      if (markAllBtn) markAllBtn.onclick = markAllPresent;
-      if (masterMarkAllBtn) masterMarkAllBtn.onclick = markAllPresent;
-
-      const rosterTeamSel = document.getElementById('rosterTeamSelect');
-      if (rosterTeamSel) {
-        rosterTeamSel.onchange = () => loadTeamStateFromStorage(rosterTeamSel.value);
-      }
-
-      // Game Day Controls & Countdown Clock
-      const toggleClockBtn = document.getElementById('toggleMatchClockBtn');
-      const resetClockBtn = document.getElementById('resetMatchClockBtn');
-      const clockInput = document.getElementById('matchClockInput');
-
-      if (clockInput) {
-        clockInput.onchange = () => {
-          stopMatchClock();
-          matchClockSeconds = parseClockInputToSeconds(clockInput.value);
-          matchClockInitialSeconds = matchClockSeconds;
-          updateMatchClockDisplay();
-        };
-      }
-
-      document.querySelectorAll('.set-preset-clock-btn').forEach(btn => {
-        btn.onclick = () => {
-          stopMatchClock();
-          const mins = parseInt(btn.getAttribute('data-preset'), 10) || 25;
-          matchClockSeconds = mins * 60;
-          matchClockInitialSeconds = matchClockSeconds;
-          updateMatchClockDisplay();
-        };
-      });
-
-      if (toggleClockBtn) {
-        toggleClockBtn.onclick = () => {
-          if (matchClockInterval) {
-            stopMatchClock();
-          } else {
-            if (clockInput) {
-              const typed = parseClockInputToSeconds(clockInput.value);
-              if (typed !== matchClockSeconds) {
-                matchClockSeconds = typed;
-                matchClockInitialSeconds = typed;
-              }
-            }
-            toggleClockBtn.textContent = 'Pause';
-            matchClockInterval = setInterval(() => {
-              if (matchClockSeconds > 0) {
-                matchClockSeconds--;
-                updateMatchClockDisplay();
-              } else {
-                stopMatchClock();
-                showToast('Half / Match Timer Reached 00:00!');
-              }
-            }, 1000);
-          }
-        };
-      }
-
-      if (resetClockBtn) {
-        resetClockBtn.onclick = () => {
-          stopMatchClock();
-          matchClockSeconds = matchClockInitialSeconds;
-          updateMatchClockDisplay();
-        };
-      }
-
-      const h1Btn = document.getElementById('selectHalf1Btn');
-      const h2Btn = document.getElementById('selectHalf2Btn');
-      if (h1Btn && h2Btn) {
-        h1Btn.onclick = () => {
-          activeHalf = 1;
-          h1Btn.className = 'btn btn-primary btn-sm';
-          h2Btn.className = 'btn btn-outline btn-sm';
-          renderGamePitch();
-        };
-        h2Btn.onclick = () => {
-          activeHalf = 2;
-          h2Btn.className = 'btn btn-primary btn-sm';
-          h1Btn.className = 'btn btn-outline btn-sm';
-          renderGamePitch();
-        };
-      }
-
-      const formSel = document.getElementById('gameFormationSelect');
-      if (formSel) {
-        formSel.onchange = () => {
-          const slots = FORMATIONS[formSel.value] || FORMATIONS['4-2-2'];
-          gameLineups[activeHalf] = slots.map((s, i) => ({
-            id: 'h' + activeHalf + '_' + i,
-            pos: s.pos,
-            x: s.x,
-            y: s.y,
-            playerName: (gameLineups[activeHalf][i] && gameLineups[activeHalf][i].playerName) || (gameRosterPlayers[i] ? gameRosterPlayers[i].name : s.pos)
-          }));
-          renderGamePitch();
-        };
-      }
-
-      const logSubBtn = document.getElementById('logSubBtn');
-      if (logSubBtn) {
-        logSubBtn.onclick = () => {
-          const minVal = (document.getElementById('subMinuteInput').value || '').trim() || "15'";
-          const offName = document.getElementById('subOffSelect').value;
-          const onName = document.getElementById('subOnSelect').value;
-          if (!offName || !onName) return;
-          const tok = (gameLineups[activeHalf] || []).find(t => t.playerName === offName);
-          if (tok) tok.playerName = onName;
-          gameSubLogs.unshift({ min: minVal, off: offName, on: onName, half: activeHalf });
-          const logList = document.getElementById('subLogList');
-          if (logList) {
-            logList.innerHTML = gameSubLogs.map(s =>
-              '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;font-size:0.78rem;">' +
-                '<strong>' + escapeHtml(s.min) + ' (H' + s.half + '):</strong> ' +
-                '<span style="color:#059669;font-weight:800;">IN ' + escapeHtml(s.on) + '</span> &larr; ' +
-                '<span style="color:#dc2626;">OUT ' + escapeHtml(s.off) + '</span>' +
-              '</div>'
-            ).join('');
-          }
-          renderGamePitch();
-        };
-      }
-
-      const saveGameBtn = document.getElementById('saveGameBtn');
-      if (saveGameBtn) {
-        saveGameBtn.onclick = () => {
-          const opp = (document.getElementById('gameOpponentInput').value || '').trim() || 'Opponent FC';
-          const date = document.getElementById('gameDateInput').value || getLocalTodayIso();
-          const team = document.getElementById('gameTeamSelect').value || activeTeamName;
-          savedGames.push({ id: 'game_' + Date.now(), opponent: opp, date, team });
+      if (masterMarkAllBtn) {
+        masterMarkAllBtn.onclick = () => {
+          rosterPlayers.forEach(p => { p.present = true; });
           persistCurrentTeamState();
-          renderCalendar();
-          showToast('Saved match vs ' + opp + ' to Calendar!');
+          renderRoster();
         };
       }
 
-      const prevMBtn = document.getElementById('prevMonthBtn');
-      const nextMBtn = document.getElementById('nextMonthBtn');
-      const todayCBtn = document.getElementById('todayCalendarBtn');
-      if (prevMBtn) prevMBtn.onclick = () => { calendarCursorDate.setMonth(calendarCursorDate.getMonth() - 1); renderCalendar(); };
-      if (nextMBtn) nextMBtn.onclick = () => { calendarCursorDate.setMonth(calendarCursorDate.getMonth() + 1); renderCalendar(); };
-      if (todayCBtn) todayCBtn.onclick = () => { calendarCursorDate = new Date(); renderCalendar(); };
-
-      const newSessCalBtn = document.getElementById('newSessionFromCalendarBtn');
-      const newGameCalBtn = document.getElementById('newGameFromCalendarBtn');
-      if (newSessCalBtn) newSessCalBtn.onclick = () => switchTab('builder');
-      if (newGameCalBtn) newGameCalBtn.onclick = () => switchTab('gameday');
-
-      const addVerNoteBtn = document.getElementById('addVersionNoteBtn');
-      if (addVerNoteBtn) {
-        addVerNoteBtn.onclick = () => {
-          const inp = document.getElementById('adminVersionNoteInput');
-          const note = (inp.value || '').trim();
-          if (!note) return;
-          versionHistoryLog.unshift({ version: APP_VERSION, date: getLocalTodayIso(), note });
-          localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog));
-          inp.value = '';
-          renderSettingsPanel();
-          showToast('Added note to version log.');
+      const markAllBtn = document.getElementById('markAllPresentBtn');
+      if (markAllBtn) {
+        markAllBtn.onclick = () => {
+          rosterPlayers.forEach(p => { p.present = true; });
+          persistCurrentTeamState();
+          renderRoster();
         };
-      }
-
-      const signOutBtn = document.getElementById('settingsSignOutBtn');
-      if (signOutBtn) {
-        signOutBtn.onclick = () => {
-          if (auth) auth.signOut().catch(() => {});
-          currentUser = null;
-          isClubAdmin = false;
-          const gate = document.getElementById('authGateOverlay');
-          if (gate) gate.style.display = 'flex';
-        };
-      }
-
-      if (auth) {
-        auth.onAuthStateChanged(user => {
-          if (user) {
-            enterWorkspaceAsCoach({ email: user.email, displayName: user.displayName }, false);
-          }
-        });
       }
     });
   </script>
