@@ -1948,14 +1948,15 @@
     let calendarVisibleTeams = new Set();
     let isClubAdmin = false;
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '1.9';
-    const APP_VERSION_RELEASED = 'Nov 21, 2026 • Direct GIF Diagram Loading (No SVG Fallback)';
+    const APP_VERSION = '2.0';
+    const APP_VERSION_RELEASED = 'Nov 21, 2026 • Admin Video Tag Editor & Auto-Sync GitHub drills/ Folder';
     let versionHistoryLog = [];
     try {
       versionHistoryLog = JSON.parse(localStorage.getItem('afc_admin_version_log') || '[]');
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.0', date: '2026-11-21', note: 'Added Admin Video Info & Tag editor modal and automatic GitHub drills/ folder sync for newly uploaded GIFs.' },
         { version: '1.9', date: '2026-11-21', note: 'Removed SVG diagram replacement so drills load the actual animated GIF directly (local or GitHub drills/ path).' },
         { version: '1.8', date: '2026-11-21', note: 'Added built-in tactical SVG diagram fallback for local drill paths so diagrams display & enlarge in preview.' },
         { version: '1.7', date: '2026-11-21', note: 'Added smooth mouse & touch drag-and-drop positioning for all player tokens on the Game Day tactical pitch.' },
@@ -3526,147 +3527,193 @@
             const itemRegex = /items\.push\(\{\s*name:\s*"([^"]+)"[^}]*?gid:\s*"(\d+)"/g;
             let m;
             while ((m = itemRegex.exec(htmlText)) !== null) {
-              const decodedName = m[1].replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
-              addTabTarget(m[2], decodedName);
-            }
-            const hrefRegex = /gid=(\d+)[^>]*>([^<]+)</g;
-            while ((m = hrefRegex.exec(htmlText)) !== null) {
-              const tabTitle = m[2].trim();
-              if (tabTitle && tabTitle.length < 60 && !tabTitle.includes('{')) {
-                addTabTarget(m[1], tabTitle);
-              }
+              addTabTarget(m[2], m[1]);
             }
           }
         } catch (e) {}
 
-        // Also check Google Sheets public worksheets JSON feed
-        try {
-          const feedResp = await fetch('https://spreadsheets.google.com/feeds/worksheets/' + sheetId + '/public/basic?alt=json', { cache: 'no-store' });
-          if (feedResp.ok) {
-            const feedJson = await feedResp.json();
-            const entries = (feedJson && feedJson.feed && feedJson.feed.entry) || [];
-            entries.forEach(ent => {
-              const title = ent.title && ent.title.$t ? ent.title.$t : '';
-              const linkObj = Array.isArray(ent.link) ? ent.link.find(l => l.href && l.href.includes('gid=')) : null;
-              const gidMatch = linkObj ? linkObj.href.match(/gid=(\d+)/) : null;
-              if (gidMatch) addTabTarget(gidMatch[1], title);
-            });
-          }
-        } catch (e) {}
+        // Fallback to primary gid if htmlview discovery was blocked by CORS
+        addTabTarget('704136561', 'General');
 
-        // Always include the primary gid=704136561 and gid=0 as guaranteed fallbacks
-        addTabTarget('704136561', '');
-        addTabTarget('0', '');
-
-        const importedAllTabs = [];
-        const seenUrls = new Set();
-
+        const importedVideos = [];
         for (const tab of tabsToImport) {
-          const csvUrls = [
-            'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv&gid=' + tab.gid,
-            'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?tqx=out:csv&gid=' + tab.gid
-          ];
+          try {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=csv&gid=' + encodeURIComponent(tab.gid);
+            const resp = await fetch(csvUrl, { cache: 'no-store' });
+            if (!resp.ok) continue;
+            const text = await resp.text();
+            const rows = parseCsvRows(text);
+            if (!rows || rows.length < 2) continue;
 
-          for (const csvUrl of csvUrls) {
-            try {
-              const resp = await fetch(csvUrl, { cache: 'no-store' });
-              if (!resp.ok) continue;
-              const csvText = await resp.text();
-              if (csvText.trim().startsWith('<!DOCTYPE') || csvText.trim().startsWith('<html')) continue;
-              const rows = parseCsvRows(csvText);
-              if (!rows || rows.length < 2) continue;
+            const headers = rows[0].map(h => h.toLowerCase());
+            const urlCol = headers.findIndex(h => h.includes('url') || h.includes('link') || h.includes('video'));
+            const titleCol = headers.findIndex(h => h.includes('title') || h.includes('name') || h.includes('drill') || h.includes('topic'));
+            const catCol = headers.findIndex(h => h === 'category' || h.includes('cat'));
+            const subCol = headers.findIndex(h => h.includes('sub'));
+            const tagCol = headers.findIndex(h => h.includes('tag') || h.includes('key'));
 
-              // Locate header row if present
-              let headerRowIdx = -1;
-              for (let i = 0; i < Math.min(4, rows.length); i++) {
-                const joined = rows[i].join(' ').toLowerCase();
-                if ((joined.includes('title') || joined.includes('drill') || joined.includes('video') || joined.includes('name')) &&
-                    !/(https?:\/\/|youtu\.be|youtube\.com|vimeo\.com|instagram\.com)/i.test(joined)) {
-                  headerRowIdx = i;
-                  break;
-                }
+            for (let r = 1; r < rows.length; r++) {
+              const cols = rows[r];
+              if (!cols || cols.length === 0) continue;
+
+              let rawUrl = urlCol >= 0 ? (cols[urlCol] || '') : '';
+              if (!rawUrl || !/(https?:\/\/|youtu\.be|youtube\.com|vimeo\.com|drive\.google\.com)/i.test(rawUrl)) {
+                rawUrl = cols.find(c => /(https?:\/\/|youtu\.be|youtube\.com|vimeo\.com|drive\.google\.com)/i.test(c || '')) || '';
               }
+              if (!rawUrl) continue;
 
-              const headers = headerRowIdx >= 0 ? rows[headerRowIdx].map(h => h.toLowerCase()) : [];
-              const findCol = (keywords, fallbackIdx) => {
-                if (!headers.length) return fallbackIdx;
-                const found = headers.findIndex(h => keywords.some(k => h.includes(k)));
-                return found >= 0 ? found : fallbackIdx;
-              };
+              const cleanUrlMatch = rawUrl.match(/(https?:\/\/[^\s"'<>]+)/i);
+              const finalUrl = cleanUrlMatch ? cleanUrlMatch[1] : ('https://' + rawUrl.trim());
 
-              const titleIdx = findCol(['title', 'name', 'drill', 'video', 'exercise'], 0);
-              const catIdx = findCol(['category', 'topic', 'phase'], -1);
-              const subIdx = findCol(['sub', 'focus', 'type'], -1);
-              const urlIdx = findCol(['url', 'link', 'youtube', 'vimeo', 'drive', 'video'], 1);
-              const tagsIdx = findCol(['tag', 'keyword'], -1);
-
-              let tabAddedCount = 0;
-              for (let r = headerRowIdx + 1; r < rows.length; r++) {
-                const cols = rows[r];
-                if (!cols || cols.length === 0) continue;
-
-                // Find video link anywhere in the row
-                const urlRegex = /((?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be|vimeo\.com|drive\.google\.com|instagram\.com|facebook\.com|fb\.watch|tiktok\.com)\S+|https?:\/\/\S+)/i;
-                let rawUrlCell = (urlIdx >= 0 && cols[urlIdx]) ? cols[urlIdx].trim() : '';
-                if (!rawUrlCell || !urlRegex.test(rawUrlCell)) {
-                  rawUrlCell = cols.find(c => urlRegex.test(c)) || '';
-                }
-                if (!rawUrlCell) continue;
-
-                const urlMatch = rawUrlCell.match(urlRegex);
-                let vidUrl = urlMatch ? urlMatch[1].trim() : rawUrlCell.trim();
-                if (!/^https?:\/\//i.test(vidUrl)) {
-                  vidUrl = 'https://' + vidUrl;
-                }
-
-                // Deduplicate identical URLs across fallback gids
-                const normUrlKey = vidUrl.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '').toLowerCase();
-                if (seenUrls.has(normUrlKey)) continue;
-                seenUrls.add(normUrlKey);
-
-                // Extract clean title without any raw URL text
-                let rawTitle = (cols[titleIdx] || '').trim();
-                if (!rawTitle || urlRegex.test(rawTitle)) {
-                  const textCol = cols.find(c => c.trim() && !urlRegex.test(c));
-                  rawTitle = textCol ? textCol.trim() : '';
-                }
-
-                const colCategory = (catIdx >= 0 && cols[catIdx] && !urlRegex.test(cols[catIdx])) ? cols[catIdx].trim() : '';
-                const category = tab.name || colCategory || 'General';
-                const subCategory = (subIdx >= 0 && cols[subIdx] && !urlRegex.test(cols[subIdx])) ? cols[subIdx].trim() : (tab.name && colCategory && colCategory !== tab.name ? colCategory : '');
-                const title = rawTitle || [category, subCategory].filter(Boolean).join(' - ') || ('Training Video ' + (importedAllTabs.length + 1));
-                const rawTags = (tagsIdx >= 0 && cols[tagsIdx] && !urlRegex.test(cols[tagsIdx])) ? cols[tagsIdx] : '';
-                const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
-
-                importedAllTabs.push({
-                  id: 'vid_tab_' + tab.gid + '_' + r,
-                  title: title,
-                  category: category,
-                  subCategory: subCategory,
-                  url: vidUrl,
-                  tags: tags
-                });
-                tabAddedCount++;
+              let rawTitle = titleCol >= 0 ? (cols[titleCol] || '') : '';
+              if (!rawTitle || rawTitle === rawUrl) {
+                rawTitle = cols.find((c, idx) => idx !== urlCol && c && !/(https?:\/\/|youtu\.be|youtube\.com|vimeo\.com|drive\.google\.com)/i.test(c)) || '';
               }
+              const cleanTitle = String(rawTitle || '').replace(/https?:\/\/\S+/gi, '').trim() || (tab.name + ' Video ' + r);
+              const category = (catCol >= 0 && cols[catCol]) ? cols[catCol] : (tab.name || 'General');
+              const subCategory = (subCol >= 0 && cols[subCol]) ? cols[subCol] : '';
+              const rawTags = (tagCol >= 0 && cols[tagCol]) ? cols[tagCol] : '';
+              const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
 
-              if (tabAddedCount > 0) break; // Parsed this tab successfully; move to next worksheet tab
-            } catch (err) {
-              console.warn('Google Sheet tab fetch warning:', tab.gid, err);
+              importedVideos.push({
+                id: 'vid_' + tab.gid + '_' + r,
+                title: cleanTitle,
+                category: category,
+                subCategory: subCategory,
+                url: finalUrl,
+                tags: tags
+              });
             }
-          }
+          } catch (err) {}
         }
 
-        if (importedAllTabs.length > 0) {
-          videoLibrary = importedAllTabs;
+        if (importedVideos.length > 0) {
+          videoLibrary = importedVideos;
           localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
-          updateWorkspaceBadges();
-          renderVideoLibrary();
           if (db && !isDemoUser) {
             db.collection('afc_club').doc('shared_libraries').set({
               videos: videoLibrary,
               updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true }).catch(() => {});
           }
+          updateWorkspaceBadges();
+          renderVideoLibrary();
+        }
+      }
+    }
+
+    function openVideoEditModal(videoObj) {
+      const backdrop = document.getElementById('customModalBackdrop');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const inputWrap = document.getElementById('modalInputWrap');
+      const vidWrap = document.getElementById('modalVideoEditWrap');
+      const vTitleInp = document.getElementById('modalVideoTitleInput');
+      const vCatInp = document.getElementById('modalVideoCategoryInput');
+      const vSubInp = document.getElementById('modalVideoSubCategoryInput');
+      const vTagsInp = document.getElementById('modalVideoTagsInput');
+      if (!backdrop || !vidWrap) return;
+
+      if (titleEl) titleEl.textContent = 'Edit Video Info & Tags';
+      if (msgEl) msgEl.textContent = 'Update the video title, category, sub-category, or comma-separated tags for club search & filtering.';
+      if (inputWrap) inputWrap.style.display = 'none';
+      vidWrap.style.display = 'block';
+
+      if (vTitleInp) vTitleInp.value = String(videoObj.title || '').replace(/https?:\/\/\S+/gi, '').trim();
+      if (vCatInp) vCatInp.value = videoObj.category || '';
+      if (vSubInp) vSubInp.value = videoObj.subCategory || '';
+      if (vTagsInp) vTagsInp.value = Array.isArray(videoObj.tags) ? videoObj.tags.join(', ') : '';
+
+      modalConfirmCallback = function() {
+        vidWrap.style.display = 'none';
+        const newTitle = (vTitleInp?.value || '').trim();
+        const newCat = (vCatInp?.value || '').trim() || 'General';
+        const newSub = (vSubInp?.value || '').trim();
+        const rawTags = (vTagsInp?.value || '').trim();
+        const newTags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
+
+        if (newTitle) videoObj.title = newTitle;
+        videoObj.category = newCat;
+        videoObj.subCategory = newSub;
+        videoObj.tags = newTags;
+
+        localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
+        if (db && !isDemoUser) {
+          db.collection('afc_club').doc('shared_libraries').set({
+            videos: videoLibrary,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(() => {});
+        }
+        renderVideoLibrary();
+        showToast('Saved video info & tags!');
+      };
+
+      backdrop.classList.add('open');
+      if (vTagsInp) setTimeout(() => vTagsInp.focus(), 50);
+    }
+
+    async function syncDrillsFromGitHubRepo() {
+      const repoApis = [
+        'https://api.github.com/repos/mmaddox-afc/ambassadors-fc-app/contents/drills',
+        'https://api.github.com/repos/mmaddox-afc/Ambassadors-FC/contents/drills'
+      ];
+
+      for (const apiUrl of repoApis) {
+        try {
+          const resp = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+          if (!resp.ok) continue;
+          const files = await resp.json();
+          if (!Array.isArray(files)) continue;
+
+          const imageFiles = files.filter(f => f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name));
+          if (imageFiles.length === 0) continue;
+
+          let addedCount = 0;
+          imageFiles.forEach(file => {
+            const relPath = 'drills/' + file.name;
+            const rawUrl = file.download_url || ('https://raw.githubusercontent.com/mmaddox-afc/ambassadors-fc-app/main/drills/' + encodeURIComponent(file.name));
+            const cleanBase = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
+
+            const alreadyExists = drillLibrary.some(d => {
+              const existingSrc = String(d.gifDataUrl || '').toLowerCase();
+              return existingSrc.includes(cleanBase) || existingSrc === relPath.toLowerCase() || existingSrc === rawUrl.toLowerCase();
+            });
+
+            if (!alreadyExists) {
+              const prettyTitle = file.name
+                .replace(/\.[^/.]+$/, '')
+                .replace(/[-_]+/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+
+              drillLibrary.push({
+                id: 'drill_gh_' + cleanBase.replace(/[^a-z0-9]+/g, '_'),
+                title: prettyTitle,
+                category: 'Technical',
+                duration: 15,
+                tags: prettyTitle.toLowerCase().split(/\s+/).filter(w => w.length > 2),
+                coachingPoints: '',
+                notes: '',
+                gifDataUrl: rawUrl
+              });
+              addedCount++;
+            }
+          });
+
+          if (addedCount > 0) {
+            localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+            if (db && !isDemoUser) {
+              db.collection('afc_club').doc('shared_libraries').set({
+                drills: drillLibrary,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              }, { merge: true }).catch(() => {});
+            }
+            updateWorkspaceBadges();
+            renderDrillLibrary();
+            showToast('Imported ' + addedCount + ' new drill(s) from GitHub drills/ folder!');
+          }
+          break;
+        } catch (err) {
+          console.warn('GitHub drills folder scan skipped:', err);
         }
       }
     }
@@ -3958,6 +4005,7 @@
       renderCoachDirectory();
       renderDrillLibrary();
       renderVideoLibrary();
+      syncDrillsFromGitHubRepo();
       syncClubVideosFromGoogleSheetAndCloud(false);
       updateWorkspaceBadges();
     }
@@ -4260,6 +4308,15 @@
       // Modal Close Handlers
       document.getElementById('modalCancelBtn')?.addEventListener('click', () => {
         document.getElementById('customModalBackdrop')?.classList.remove('open');
+        const vidWrap = document.getElementById('modalVideoEditWrap');
+        if (vidWrap) vidWrap.style.display = 'none';
+      });
+      document.getElementById('modalConfirmBtn')?.addEventListener('click', () => {
+        const val = document.getElementById('modalTextInput')?.value || '';
+        document.getElementById('customModalBackdrop')?.classList.remove('open');
+        if (typeof modalConfirmCallback === 'function') modalConfirmCallback(val);
+        const vidWrap = document.getElementById('modalVideoEditWrap');
+        if (vidWrap) vidWrap.style.display = 'none';
       });
       document.getElementById('modalConfirmBtn')?.addEventListener('click', () => {
         const val = document.getElementById('modalTextInput')?.value || '';
@@ -4617,6 +4674,7 @@
       renderSessionBuilder();
       renderDrillLibrary();
       renderVideoLibrary();
+      syncDrillsFromGitHubRepo();
       syncClubVideosFromGoogleSheetAndCloud(false);
       renderMasterRosterTab();
     });
