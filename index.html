@@ -11,7 +11,6 @@
   <link id="appleTouchIconLink" rel="apple-touch-icon" href="Logo-ambassadors.png" />
   <title>Ambassadors FC | Training App</title>
   <script>
-    // Suppress benign Firebase Auth COOP window.closed/close console warnings in strict cross-origin environments
     (function () {
       const origWarn = console.warn;
       const origErr = console.error;
@@ -20,7 +19,7 @@
       console.error = function (...args) { if (!isCoopNoise(args)) origErr.apply(console, args); };
     })();
   </script>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -53,7 +52,7 @@
       box-shadow: 0 4px 12px rgba(10, 38, 71, 0.18);
     }
     .top-bar-inner {
-      max-width: 1180px;
+      max-width: 1220px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -61,11 +60,7 @@
       justify-content: space-between;
       gap: 10px;
     }
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .brand-group { display: flex; align-items: center; gap: 10px; }
     .brand-badge {
       width: 40px;
       height: 40px;
@@ -78,18 +73,8 @@
       flex-shrink: 0;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
-    .brand-title {
-      font-size: 0.95rem;
-      font-weight: 900;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      line-height: 1.15;
-    }
-    .brand-sub {
-      font-size: 0.72rem;
-      color: #bae6fd;
-      font-weight: 600;
-    }
+    .brand-title { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.15; }
+    .brand-sub { font-size: 0.72rem; color: #bae6fd; font-weight: 600; }
 
     /* Navigation Tabs */
     .nav-tabs {
@@ -121,10 +106,7 @@
       flex-shrink: 0;
       transition: all 0.15s ease;
     }
-    .nav-tab:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-    }
+    .nav-tab:hover { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
     .nav-tab.active {
       background: #ffffff;
       color: #0A2647;
@@ -139,29 +121,10 @@
       padding: 1px 6px;
       border-radius: 999px;
     }
-    .nav-tab.active .tab-pill {
-      background: #0A2647;
-      color: #ffffff;
-    }
-
-    @media (max-width: 640px) {
-      .top-bar { padding: 8px 10px; }
-      .top-bar-inner { flex-direction: column; align-items: stretch; gap: 8px; }
-      .brand-badge { width: 34px; height: 34px; }
-      .brand-title { font-size: 0.88rem; }
-      .nav-tabs { width: 100%; padding: 2px 0 4px; }
-      .nav-tab { padding: 7px 10px; font-size: 0.75rem; }
-      .workspace-wrap { margin: 12px auto 36px; padding: 0 10px; }
-      .card-header { padding: 12px 14px; }
-      .card-body { padding: 14px; }
-    }
+    .nav-tab.active .tab-pill { background: #0A2647; color: #ffffff; }
 
     /* Main Workspace Container */
-    .workspace-wrap {
-      max-width: 1180px;
-      margin: 20px auto 48px;
-      padding: 0 16px;
-    }
+    .workspace-wrap { max-width: 1220px; margin: 20px auto 48px; padding: 0 16px; }
     .workspace-section { display: none; }
     .workspace-section.active { display: block; }
 
@@ -306,14 +269,7 @@
       justify-content: space-between;
       gap: 10px;
     }
-    .part-header-left {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 240px;
-    }
+    .part-header-left { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; min-width: 240px; }
     .part-title-input {
       font-family: inherit;
       font-size: 0.95rem;
@@ -326,12 +282,7 @@
       flex: 1;
       min-width: 180px;
     }
-    .part-header-right {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-    }
+    .part-header-right { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
     .duration-pill {
       display: inline-flex;
       align-items: center;
@@ -354,29 +305,10 @@
       text-align: right;
       outline: none;
     }
-    .part-body {
-      padding: 16px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
+    .part-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 768px) { .part-body { grid-template-columns: 1fr; } }
 
-    /* Stations Grid */
-    .stations-grid {
-      padding: 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 14px;
-    }
-    .station-box {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    /* GIF Upload & Preview Box */
+    /* GIF Preview Box */
     .gif-drop-box {
       border: 2px dashed #cbd5e1;
       border-radius: 12px;
@@ -384,28 +316,39 @@
       padding: 12px;
       text-align: center;
     }
+    .gif-preview-wrap {
+      position: relative;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      overflow: hidden;
+      margin-bottom: 8px;
+      cursor: zoom-in;
+    }
     .gif-preview-img {
       max-width: 100%;
       max-height: 240px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
       display: block;
-      margin: 0 auto 8px;
+      margin: 0 auto;
       background: #ffffff;
-      cursor: zoom-in;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease;
     }
-    .gif-preview-img:hover {
-      transform: scale(1.015);
-      box-shadow: 0 6px 16px rgba(10, 38, 71, 0.14);
+    .gif-preview-wrap:hover .gif-preview-img { transform: scale(1.015); }
+    .gif-enlarge-hint {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(10, 38, 71, 0.85);
+      color: #ffffff;
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      pointer-events: none;
     }
 
     /* Library Grids */
-    .library-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 16px;
-    }
+    .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
     .lib-card {
       background: #ffffff;
       border: 1px solid #cbd5e1;
@@ -451,13 +394,7 @@
     }
 
     /* Calendar Grid & View Switcher */
-    .cal-view-switcher {
-      display: inline-flex;
-      background: #e2e8f0;
-      padding: 3px;
-      border-radius: 9px;
-      gap: 2px;
-    }
+    .cal-view-switcher { display: inline-flex; background: #e2e8f0; padding: 3px; border-radius: 9px; gap: 2px; }
     .cal-view-btn {
       border: none;
       background: transparent;
@@ -470,16 +407,8 @@
       cursor: pointer;
       transition: all 0.15s ease;
     }
-    .cal-view-btn.active {
-      background: #0A2647;
-      color: #ffffff;
-      box-shadow: 0 1px 4px rgba(10, 38, 71, 0.2);
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
+    .cal-view-btn.active { background: #0A2647; color: #ffffff; box-shadow: 0 1px 4px rgba(10, 38, 71, 0.2); }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
     .calendar-grid.week-view { grid-template-columns: repeat(7, 1fr); }
     .calendar-grid.day-view { grid-template-columns: 1fr; }
     @media (max-width: 768px) {
@@ -487,14 +416,7 @@
       .calendar-grid.week-view { grid-template-columns: 1fr; }
       .calendar-weekday { display: none; }
     }
-    .calendar-weekday {
-      text-align: center;
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #64748b;
-      padding: 6px 0;
-    }
+    .calendar-weekday { text-align: center; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748b; padding: 6px 0; }
     .calendar-day {
       min-height: 92px;
       background: #f8fafc;
@@ -523,12 +445,6 @@
     .calendar-event.game-event:hover { background: #047857; }
 
     /* Interactive Tactical Pitch */
-    .scrimmage-board-wrap {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
     .team-shape-picker {
       display: inline-flex;
       align-items: center;
@@ -551,23 +467,13 @@
       cursor: pointer;
       outline: none;
     }
-    .tactical-pitch-wrap {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
+    .tactical-pitch-wrap { width: 100%; display: flex; justify-content: center; }
     .tactical-pitch {
       position: relative;
       width: 100%;
       max-width: 700px;
       height: 620px;
-      background: repeating-linear-gradient(
-        180deg,
-        #2e7d32 0px,
-        #2e7d32 62px,
-        #286e2b 62px,
-        #286e2b 124px
-      );
+      background: repeating-linear-gradient(180deg, #2e7d32 0px, #2e7d32 62px, #286e2b 62px, #286e2b 124px);
       border: 3px solid #ffffff;
       border-radius: 12px;
       box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.26), 0 6px 18px rgba(0, 0, 0, 0.12);
@@ -603,6 +509,7 @@
     .pitch-shape-badge {
       position: absolute;
       right: 24px;
+      bottom: 22px;
       font-size: 0.7rem;
       font-weight: 800;
       color: #ffffff;
@@ -612,12 +519,10 @@
       pointer-events: none;
       border: 1px solid rgba(255,255,255,0.4);
     }
-    .pitch-shape-badge.bottom { bottom: 22px; }
-
     .pitch-token {
       position: absolute;
       transform: translate(-50%, -50%);
-      padding: 5px 11px;
+      padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.76rem;
       font-weight: 800;
@@ -625,11 +530,11 @@
       white-space: nowrap;
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
       z-index: 10;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
     .pitch-token:active { cursor: grabbing; z-index: 30; }
     .pitch-token.team-navy { background-color: #0A2647; color: #ffffff; border: 2px solid #ffffff; }
-    .pitch-token.team-white { background-color: #ffffff; color: #0f172a; border: 2px solid #0f172a; }
-    .pitch-token.team-neutral { background-color: #eab308; color: #0f172a; border: 2px solid #ffffff; }
+    .pitch-token.team-white { background-color: #ffffff; color: #0f172a; border: 2px dashed #0A2647; }
 
     .bench-dock {
       background: #f1f5f9;
@@ -641,24 +546,18 @@
       align-items: center;
       gap: 6px;
     }
-    .bench-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #475569;
-      margin-right: 4px;
-    }
+    .bench-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-right: 4px; }
     .bench-chip {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 9px;
+      gap: 5px;
+      padding: 5px 10px;
       border-radius: 999px;
       font-size: 0.76rem;
       font-weight: 700;
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      cursor: pointer;
+      cursor: grab;
     }
     .bench-chip:hover { background: #eff6ff; border-color: #0A2647; }
     .pos-pill {
@@ -671,12 +570,10 @@
       cursor: pointer;
       text-transform: uppercase;
     }
-    .pos-pill:hover { background: #bfdbfe; }
 
     /* Clean Preview Mode */
     body.clean-preview-mode .top-bar,
     body.clean-preview-mode .no-clean-preview { display: none !important; }
-    body.clean-preview-mode .pitch-token { cursor: default; }
     #exitCleanPreviewBar {
       display: none;
       position: sticky;
@@ -711,49 +608,8 @@
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     }
 
-    /* Dedicated Full-Screen Team Gate Screen */
-    .team-gate-overlay {
-      position: fixed;
-      inset: 0;
-      background: #0A2647;
-      z-index: 180;
-      display: none;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .team-gate-overlay.active { display: flex; }
-    .team-gate-header {
-      background: rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: #ffffff;
-    }
-    .team-gate-content {
-      max-width: 820px;
-      width: 100%;
-      margin: 30px auto;
-      padding: 0 16px 40px;
-    }
-    .team-gate-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
     /* Toast & Custom Modal */
-    #toastContainer {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 300;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    #toastContainer { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
     .toast {
       background: #0A2647;
       color: #ffffff;
@@ -851,6 +707,7 @@
         <button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:#64748b;font-weight:700;cursor:pointer;padding:0;">Forgot Password?</button>
       </div>
 
+      <!-- Strictly visible ONLY in preview environments -->
       <div id="previewBypassWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;">
         <button type="button" id="previewBypassLoginBtn" class="btn btn-outline btn-sm" style="width:100%;color:#0A2647;border-color:#93c5fd;background:#eff6ff;font-weight:800;">
           &#9889; Bypass Login (Preview Admin Mode)
@@ -861,86 +718,24 @@
     </div>
   </div>
 
-  <!-- Dedicated Full-Screen Team Gate Screen -->
-  <div id="noTeamGateOverlay" class="team-gate-overlay">
-    <div class="team-gate-header">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;background:#ffffff;border-radius:8px;padding:3px;display:flex;align-items:center;justify-content:center;">
-          <img src="Logo-ambassadors.png" onerror="this.onerror=null;this.src='https://placehold.co/80x80/ffffff/184296?text=AFC';" alt="AFC Logo" style="width:100%;height:100%;object-fit:contain;">
-        </div>
-        <div>
-          <div style="font-size:0.88rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;">Ambassadors FC</div>
-          <div style="font-size:0.72rem;color:#7dd3fc;font-weight:700;" id="gateCoachBadge">Coach Account Active</div>
-        </div>
-      </div>
-      <button type="button" class="btn btn-outline btn-sm" id="gateSignOutBtn" style="color:#ffffff;border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);">
-        Sign Out
-      </button>
-    </div>
-
-    <div class="team-gate-content">
-      <div style="text-align:center;color:#ffffff;margin-bottom:24px;">
-        <div style="font-size:0.76rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#7dd3fc;margin-bottom:4px;">Workspace Authorization Required</div>
-        <h1 style="margin:0 0 8px;font-size:1.6rem;font-weight:900;">Welcome to Ambassadors FC Training App</h1>
-        <p style="margin:0 auto;max-width:560px;font-size:0.88rem;color:#cbd5e1;line-height:1.45;">
-          Enter a <strong>Team Join Code</strong> from your head coach, or <strong>Create a New Team</strong> to unlock the app.
-        </p>
-      </div>
-
-      <div class="team-gate-grid">
-        <div class="card" style="border:none;box-shadow:0 10px 30px rgba(0,0,0,0.25);">
-          <div class="card-header" style="background:#eff6ff;border-bottom:1px solid #bfdbfe;">
-            <h2 style="margin:0;font-size:1.05rem;font-weight:900;color:#0A2647;">Join an Existing Team</h2>
-          </div>
-          <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
-            <div>
-              <label class="label" for="gateJoinCodeInput">Enter Team Join Code *</label>
-              <input type="text" id="gateJoinCodeInput" class="input" placeholder="e.g. AFC-1112" style="font-family:monospace;font-size:1rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:10px 12px;">
-            </div>
-            <button type="button" id="gateSubmitJoinCodeBtn" class="btn btn-emerald" style="padding:11px;font-size:0.9rem;border-radius:10px;">
-              Unlock &amp; Join Team Workspace &rarr;
-            </button>
-            <div id="gateJoinCodeFeedback" style="font-size:0.76rem;font-weight:700;color:#dc2626;display:none;"></div>
-          </div>
-        </div>
-
-        <div class="card" style="border:none;box-shadow:0 10px 30px rgba(0,0,0,0.25);">
-          <div class="card-header" style="background:#f0fdf4;border-bottom:1px solid #bbf7d0;">
-            <h2 style="margin:0;font-size:1.05rem;font-weight:900;color:#065f46;">Create a New Team Workspace</h2>
-          </div>
-          <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
-            <div>
-              <label class="label" for="gateNewTeamNameInput">Team Name *</label>
-              <input type="text" id="gateNewTeamNameInput" class="input" placeholder="e.g. 2013 Boys Navy, U12 Girls Gold" style="padding:9px 12px;">
-            </div>
-            <button type="button" id="gateSubmitCreateTeamBtn" class="btn btn-primary" style="padding:11px;font-size:0.9rem;border-radius:10px;">
-              Create Team &amp; Launch Workspace &rarr;
-            </button>
-            <div id="gateCreateTeamFeedback" style="font-size:0.76rem;font-weight:700;color:#dc2626;display:none;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Account Picker Modal -->
+  <!-- Google Account Picker Fallback Modal -->
   <div id="googleAccountPickerModal" class="modal-backdrop">
     <div class="modal-box" style="max-width:440px;">
       <div style="text-align:center;margin-bottom:14px;">
-        <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Google Sign-In Account Selector</div>
-        <h2 style="margin:4px 0 0;font-size:1.15rem;font-weight:900;color:#0A2647;">Which Google account are you signing in with?</h2>
+        <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Google Sign-In</div>
+        <h2 style="margin:4px 0 0;font-size:1.1rem;font-weight:900;color:#0A2647;">Continue with Google Account</h2>
       </div>
-      <div id="googleSavedAccountsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
-      <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
-        <label class="label" for="pickerCustomEmail">Or Enter Any Google Account Email</label>
-        <input type="email" id="pickerCustomEmail" class="input" style="margin-bottom:8px;" placeholder="coach.email@gmail.com">
-        <input type="text" id="pickerCustomName" class="input" style="margin-bottom:10px;" placeholder="Your Name (e.g. Coach Ben)">
+      <div id="googleSavedAccountsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+      <div style="border-top:1px solid #e2e8f0;padding-top:12px;">
+        <label class="label" for="pickerCustomEmail">Google Account Email</label>
+        <input type="email" id="pickerCustomEmail" class="input" style="margin-bottom:8px;" placeholder="coach@ambassadorsfootball.org">
+        <input type="text" id="pickerCustomName" class="input" style="margin-bottom:10px;" placeholder="Coach Name">
         <button type="button" id="pickerSubmitCustomBtn" class="btn btn-emerald" style="width:100%;padding:9px;font-size:0.84rem;">
-          Sign In with Selected Google Account &rarr;
+          Continue with Account &rarr;
         </button>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:1px solid #e2e8f0;padding-top:10px;">
-        <button type="button" id="pickerRetryPopupBtn" class="btn btn-outline btn-sm" style="font-size:0.74rem;">Try Google OAuth Popup</button>
+        <button type="button" id="pickerRetryPopupBtn" class="btn btn-outline btn-sm" style="font-size:0.74rem;">Retry Google Popup</button>
         <button type="button" id="pickerCloseBtn" class="btn btn-danger btn-sm">Cancel</button>
       </div>
     </div>
@@ -1009,7 +804,7 @@
               <button type="button" class="btn btn-outline btn-sm" id="todayCalendarBtn">Today</button>
               <button type="button" class="btn btn-outline btn-sm" id="nextMonthBtn">&rarr;</button>
             </div>
-            <span id="calendarMonthLabel" style="font-weight:800;font-size:0.88rem;color:#0A2647;min-width:135px;text-align:center;">November 2026</span>
+            <span id="calendarMonthLabel" style="font-weight:800;font-size:0.88rem;color:#0A2647;min-width:145px;text-align:center;">November 2026</span>
             <button type="button" class="btn btn-emerald btn-sm" id="newGameFromCalendarBtn">+ Add Game</button>
             <button type="button" class="btn btn-primary btn-sm" id="newSessionFromCalendarBtn">+ New Session</button>
           </div>
@@ -1017,7 +812,7 @@
         <div class="card-body">
           <div class="calendar-grid" id="calendarGrid"></div>
           <div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:16px;">
-            <h3 style="margin:0 0 10px;font-size:0.85rem;font-weight:800;text-transform:uppercase;color:#475569;">All Multi-Team Events</h3>
+            <h3 style="margin:0 0 10px;font-size:0.85rem;font-weight:800;text-transform:uppercase;color:#475569;">Saved Sessions &amp; Games (<span id="calendarActiveTeamLabel">11/12 AFC Boys</span>)</h3>
             <div id="savedSessionsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
           </div>
         </div>
@@ -1039,20 +834,20 @@
             <span style="font-size:0.7rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#6ee7b7;">Ambassadors FC • Match Day Command</span>
             <h1 style="margin:4px 0 0;font-size:1.35rem;font-weight:900;">Game Lineups &amp; Subbing</h1>
           </div>
-          
+
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
             <div id="matchClockBox" style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.3);padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);">
               <span style="font-size:0.72rem;font-weight:800;color:#6ee7b7;">TIMER:</span>
               <input type="text" id="matchClockInput" value="25:00" placeholder="25:00" style="font-family:monospace;font-size:1.1rem;font-weight:900;color:#ffffff;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:6px;padding:2px 6px;width:72px;text-align:center;outline:none;">
-              <button type="button" class="btn btn-emerald btn-sm" id="toggleMatchClockBtn" style="padding:2px 8px;font-size:0.72rem;">Start</button>
+              <button type="button" class="btn btn-emerald btn-sm" id="toggleMatchClockBtn" style="padding:3px 9px;font-size:0.72rem;">Start</button>
               <div style="display:flex;gap:3px;">
-                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="25" style="padding:2px 5px;font-size:0.68rem;">25m</button>
-                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="40" style="padding:2px 5px;font-size:0.68rem;">40m</button>
-                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="45" style="padding:2px 5px;font-size:0.68rem;">45m</button>
+                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="25" style="padding:3px 6px;font-size:0.68rem;">25m</button>
+                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="40" style="padding:3px 6px;font-size:0.68rem;">40m</button>
+                <button type="button" class="btn btn-outline btn-sm set-preset-clock-btn" data-preset="45" style="padding:3px 6px;font-size:0.68rem;">45m</button>
               </div>
-              <button type="button" class="btn btn-outline btn-sm" id="resetMatchClockBtn" style="padding:2px 6px;font-size:0.7rem;">Reset</button>
+              <button type="button" class="btn btn-outline btn-sm" id="resetMatchClockBtn" style="padding:3px 7px;font-size:0.7rem;">Reset</button>
             </div>
-            
+
             <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.14);padding:6px 12px;border-radius:10px;font-size:0.82rem;font-weight:800;">
               <span>Score:</span>
               <span style="color:#6ee7b7;">AFC</span>
@@ -1111,6 +906,7 @@
             </div>
             <button type="button" class="btn btn-outline btn-sm" id="autoFillGameHalfBtn">Auto-Fill Roster</button>
             <button type="button" class="btn btn-outline btn-sm" id="copyHalf1ToHalf2Btn">Copy 1st &rarr; 2nd Half</button>
+            <button type="button" class="btn btn-outline btn-sm" id="clearGamePlaceholdersBtn">Reset Placeholders</button>
           </div>
         </div>
         <div class="card-body">
@@ -1257,68 +1053,13 @@
       </div>
     </section>
 
-    <!-- 4. DRILL LIBRARY TAB -->
+    <!-- 4. DRILL LIBRARY TAB (100% Backend GitHub Auto-Loader, Zero Manual Drill Buttons) -->
     <section id="tab-drills" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Browse club drills with premade coaching points and add them into your session plans.</p>
-          </div>
-          <div id="adminDrillBackendControls" style="display:flex;flex-wrap:wrap;gap:8px;">
-            <button type="button" class="btn btn-outline" id="syncGitHubDrillsBtn">&#8635; Sync GitHub Drills</button>
-            <button type="button" class="btn btn-primary" id="toggleNewDrillDrawerBtn">+ Add Single Drill</button>
-          </div>
-        </div>
-
-        <div id="newDrillDrawer" style="display:none;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:18px 20px;">
-          <h3 style="margin:0 0 12px;font-size:0.92rem;font-weight:800;color:#0A2647;">Create / Edit Drill</h3>
-          <input type="hidden" id="editingDrillIdInput" value="" />
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;">
-            <div>
-              <label class="label" for="newDrillTitle">Drill Title *</label>
-              <input type="text" id="newDrillTitle" class="input" placeholder="e.g. 3-Cone First-Touch Finish">
-            </div>
-            <div>
-              <label class="label" for="newDrillCategory">Category</label>
-              <select id="newDrillCategory" class="select">
-                <option value="Warm-Up">Warm-Up</option>
-                <option value="Technical" selected>Technical</option>
-                <option value="Tactical">Tactical</option>
-                <option value="Scrimmage">Scrimmage</option>
-                <option value="Fitness">Fitness</option>
-              </select>
-            </div>
-            <div>
-              <label class="label" for="newDrillDuration">Default Duration (min)</label>
-              <input type="number" id="newDrillDuration" class="input" value="15" min="1" max="120">
-            </div>
-            <div>
-              <label class="label" for="newDrillTags">Tags (comma-separated)</label>
-              <input type="text" id="newDrillTags" class="input" placeholder="e.g. finishing, first-touch, 1v1">
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px;">
-            <div>
-              <label class="label" for="newDrillGifPathInput">GitHub <code>drills/</code> Path or Image URL</label>
-              <input type="text" id="newDrillGifPathInput" class="input" style="margin-bottom:8px;" placeholder="e.g. drills/3-player-give-and-go-4-pole.gif">
-              <label class="label" for="newDrillGifInput">Or Upload Drill GIF / Diagram File</label>
-              <input type="file" id="newDrillGifInput" accept="image/gif,image/*" class="input" style="padding:6px;">
-            </div>
-            <div>
-              <label class="label" for="newDrillCoachingPoints">Pre-Made Coaching Points</label>
-              <textarea id="newDrillCoachingPoints" class="textarea" rows="4" placeholder="• Check shoulder before receiving&#10;• Cushion ball into space with back foot"></textarea>
-            </div>
-            <div>
-              <label class="label" for="newDrillNotes">Setup &amp; Rules</label>
-              <textarea id="newDrillNotes" class="textarea" rows="4" placeholder="Grid dimensions, player numbers, progressions..."></textarea>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:8px;">
-            <button type="button" class="btn btn-emerald" id="saveNewDrillBtn">Save Drill to Backend</button>
-            <button type="button" class="btn btn-outline" id="cancelNewDrillBtn">Cancel</button>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
           </div>
         </div>
 
@@ -1339,13 +1080,13 @@
       </div>
     </section>
 
-    <!-- 5. VIDEO LIBRARY TAB -->
+    <!-- 5. VIDEO LIBRARY TAB (With Info & Tag Editor Restored) -->
     <section id="tab-videos" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Video Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced across all Google Sheet tabs. Browse and watch club training videos by category or tag.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced across all Google Sheet tabs. Browse, watch, and edit video categories or #tags.</p>
           </div>
         </div>
 
@@ -1358,7 +1099,6 @@
             <select id="videoSubCategoryFilter" class="select" style="max-width:190px;">
               <option value="ALL">All Sub-Categories</option>
             </select>
-            <button type="button" class="btn btn-danger btn-sm" id="clearVideosBtn">Clear All Videos</button>
           </div>
 
           <div id="videoLibraryGrid" class="library-grid"></div>
@@ -1366,14 +1106,14 @@
       </div>
     </section>
 
-    <!-- 5B. MASTER TEAM ROSTER TAB -->
+    <!-- 5B. MASTER TEAM ROSTER TAB (6-Column Position Board: GK, CB, WB, CM, AM, ST) -->
     <section id="tab-roster" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
               <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;" id="masterRosterTitle">Team Roster</h2>
-              <select id="rosterTeamSelect" class="select" style="width:auto;min-width:170px;padding:5px 10px;font-weight:800;font-size:0.82rem;color:#0A2647;background:#eff6ff;border-color:#93c5fd;" aria-label="Select Team for Roster"></select>
+              <select id="rosterTeamSelect" class="select" style="width:auto;min-width:185px;padding:5px 10px;font-weight:800;font-size:0.82rem;color:#0A2647;background:#eff6ff;border-color:#93c5fd;" aria-label="Select Team for Roster"></select>
             </div>
             <p style="margin:4px 0 0;font-size:0.78rem;color:#64748b;" id="masterRosterSummaryText">0 Players on Active Roster</p>
           </div>
@@ -1390,12 +1130,12 @@
             <button type="button" class="btn btn-outline" id="toggleBulkRosterPasteBtn">&#128203; Bulk Copy / Paste Roster</button>
           </div>
 
-          <div id="bulkRosterPasteDrawer" style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin-bottom:16px;">
+          <div id="bulkRosterPasteDrawer" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin-bottom:16px;">
             <div style="font-size:0.84rem;font-weight:900;color:#0A2647;margin-bottom:3px;">Bulk Copy / Paste Whole Roster (First &amp; Last Name + Positions)</div>
             <div style="font-size:0.74rem;color:#64748b;margin-bottom:8px;">
-              Paste one player per line (or separated by semicolons). Supports <code>First Last (GK)</code>, <code>First Last - CB, CM</code>, <code>First Last, ST, LW</code>, or spreadsheet columns (<code>First&#9;Last&#9;Positions</code> or <code>First Last&#9;Positions</code>).
+              Paste one player per line (or separated by semicolons). Supports <code>First Last (GK)</code>, <code>First Last - CB, CM</code>, <code>First Last, ST, LW</code>, or spreadsheet columns.
             </div>
-            <textarea id="bulkRosterPasteTextarea" class="textarea" rows="4" placeholder="Lucas Miller (GK)&#10;Mason Smith - CB, CM&#10;Ethan Brooks, ST, LW&#10;Noah Davis - LB/LWB&#10;Liam Wilson (RB)"></textarea>
+            <textarea id="bulkRosterPasteTextarea" class="textarea" rows="4" placeholder="Eli Elliot (GK)&#10;Clay Blaser - CB&#10;Graham Ertel - WB/CB&#10;Drew Delvin - CM&#10;Kyle Ritzman - AM&#10;JD Crowley - ST"></textarea>
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
               <button type="button" class="btn btn-emerald btn-sm" id="bulkAppendRosterBtn">+ Import &amp; Add to Roster</button>
               <button type="button" class="btn btn-outline btn-sm" id="bulkReplaceRosterBtn">Replace Entire Roster with Pasted List</button>
@@ -1403,7 +1143,7 @@
             </div>
           </div>
 
-          <div id="masterRosterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;"></div>
+          <div id="masterRosterGrid"></div>
         </div>
       </div>
     </section>
@@ -1414,13 +1154,13 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Settings &amp; Account</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Manage real-time cloud sync, coach permissions, and multi-team calendar visibility.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Manage real-time cloud sync, coach permissions, and multi-team workspaces.</p>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span id="syncIndicatorBadge" style="display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:4px 10px;border-radius:999px;font-size:0.76rem;font-weight:800;">
               <span style="width:8px;height:8px;background:#10b981;border-radius:50%;"></span> Synced
             </span>
-            <button type="button" class="btn btn-outline btn-sm" id="settingsSignOutBtn">Sign Out</button>
+            <button type="button" class="btn btn-danger btn-sm" id="settingsSignOutBtn">Sign Out</button>
           </div>
         </div>
 
@@ -1429,7 +1169,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="display:none;font-family:monospace;font-size:0.74rem;padding:3px 9px;" title="Current App Build Version">v2.2</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.4</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1451,7 +1191,7 @@
           <div id="adminAccessPanel" style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.2</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.4</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1510,7 +1250,8 @@
       </div>
       <div id="embeddedVideoStage" style="position:relative;width:100%;aspect-ratio:16/9;background:#0f172a;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1;"></div>
       <div id="embeddedVideoTags" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;"></div>
-      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
+        <span style="font-size:0.74rem;font-weight:700;color:#64748b;">&#128274; Private In-App Playback Only</span>
         <button type="button" class="btn btn-primary btn-sm" id="doneEmbeddedVideoBtn">Close Player</button>
       </div>
     </div>
@@ -1538,23 +1279,6 @@
       <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
         <button type="button" class="btn btn-primary btn-sm" id="doneEnlargedDiagramBtn">Close</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Session Part Drill Library Browser Modal -->
-  <div id="partDrillPickerModal" class="modal-backdrop">
-    <div class="modal-box" style="max-width:820px;width:96%;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
-        <div>
-          <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#1e4e8c;">Club Drill Library</div>
-          <h3 id="partDrillPickerTitle" style="margin:2px 0 0;font-size:1.08rem;font-weight:900;color:#0A2647;">Browse Drills</h3>
-        </div>
-        <button type="button" id="closePartDrillPickerBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-        <input type="text" id="partDrillPickerSearch" class="input" style="flex:1;min-width:200px;" placeholder="Search drills..." />
-      </div>
-      <div id="partDrillPickerGrid" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-right:4px;"></div>
     </div>
   </div>
 
@@ -1595,6 +1319,14 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    function isHostedPreviewEnvironment() {
+      return window.location.protocol === 'blob:' ||
+        window.location.hostname.includes('googleusercontent') ||
+        window.location.hostname.includes('scf.usercontent') ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+    }
+
     /* =========================================================
        FIREBASE CONFIG & CORE STATE
        ========================================================= */
@@ -1617,15 +1349,14 @@
         auth = firebase.auth();
         db = firebase.firestore();
       }
-    } catch (e) {
-      // Firebase initialization handled gracefully
-    }
+    } catch (e) {}
 
     let currentUser = null;
     let isDemoUser = false;
     let isClubAdmin = false;
+    let isRegisterMode = false;
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.3';
+    const APP_VERSION = '2.4';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1637,8 +1368,8 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
-        { version: '2.3', date: '2026-11-21', note: 'Restored core state, roster persistence, bulk First & Last Name + Positions importer, and GitHub drills/ GIF auto-sync.' },
-        { version: '2.0', date: '2026-11-21', note: 'Baseline v2.0 checkpoint: Preview Mode Admin access, Video Info/Tag Editor, and all 78 Google Sheet videos.' }
+        { version: '2.4', date: '2026-11-21', note: 'Fixed Google OAuth & Preview-only bypass, Sign Out, Join/Create Team, Calendar Month/Week/Day views, Game Day Timer & Save/New Game, GitHub drills auto-sync, and Video Tag editor.' },
+        { version: '2.2', date: '2026-11-21', note: 'Baseline v2.2 checkpoint.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1654,13 +1385,13 @@
 
     let activeTeamName = clubTeamsRegistry[0].name;
     let userTeams = clubTeamsRegistry.map(t => t.name);
-    let calendarVisibleTeams = new Set(userTeams);
 
     let savedSessions = [];
     let savedGames = [];
-    let multiTeamEventsCache = {};
     let rosterPlayers = [];
     let gameRosterPlayers = [];
+    let currentEditingGameId = null;
+    let currentEditingSessionId = null;
 
     function getTeamDocRef(teamName) {
       const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -1681,16 +1412,15 @@
         localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
         localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
         localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
-        localStorage.setItem('afc_cal_visible_teams', JSON.stringify(Array.from(calendarVisibleTeams)));
         localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
         localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
       } catch (e) {}
 
       const docRef = getTeamDocRef(activeTeamName);
-      if (docRef && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
+      if (docRef && currentUser && currentUser.email) {
         docRef.set(teamState, { merge: true }).catch(() => {});
       }
-      if (db && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
+      if (db && currentUser && currentUser.email) {
         db.collection('afc_club').doc('shared_libraries').set({
           videos: videoLibrary,
           drills: drillLibrary,
@@ -1698,7 +1428,6 @@
         }, { merge: true }).catch(() => {});
       }
 
-      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
       updateWorkspaceBadges();
     }
 
@@ -1706,8 +1435,12 @@
       activeTeamName = teamName;
       const subEl = document.getElementById('topBarActiveTeamSub');
       const masterTitleEl = document.getElementById('masterRosterTitle');
+      const calTeamLbl = document.getElementById('calendarActiveTeamLabel');
+      const gameRosterTitleEl = document.getElementById('gameRosterTitle');
       if (subEl) subEl.textContent = activeTeamName;
       if (masterTitleEl) masterTitleEl.textContent = activeTeamName + ' Roster';
+      if (calTeamLbl) calTeamLbl.textContent = activeTeamName;
+      if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
 
       const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
       let foundSavedState = false;
@@ -1731,14 +1464,12 @@
         try {
           const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
           if (Array.isArray(backupRaw)) {
-            foundSavedState = true;
             rosterPlayers = backupRaw;
             gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
           }
         } catch (e) {}
       }
 
-      multiTeamEventsCache[activeTeamName] = { sessions: savedSessions, games: savedGames };
       populateTeamDropdowns();
       renderCalendar();
       renderRoster();
@@ -1747,6 +1478,7 @@
     }
 
     function populateTeamDropdowns() {
+      userTeams = clubTeamsRegistry.map(t => t.name);
       const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
       selects.forEach(id => {
         const sel = document.getElementById(id);
@@ -1802,6 +1534,9 @@
       };
     }
 
+    /* =========================================================
+       DRILL LIBRARY & GITHUB BACKEND AUTO-SYNC
+       ========================================================= */
     const DEFAULT_DRILLS = [
       {
         id: 'drill_3player_give_go',
@@ -1823,25 +1558,896 @@
       drillLibrary = DEFAULT_DRILLS.slice();
     }
 
+    function resolveDrillMediaUrl(rawUrl) {
+      const u = String(rawUrl || '').trim();
+      if (!u) return '';
+      if (/^(https?:|data:|blob:)/i.test(u)) return u;
+      const cleanPath = u.replace(/^\.?\//, '');
+      if (isHostedPreviewEnvironment()) {
+        return 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+      }
+      return cleanPath;
+    }
+
+    function handleDrillGifError(imgEl, rawPath) {
+      if (!imgEl) return;
+      const attempt = parseInt(imgEl.getAttribute('data-fallback-step') || '0', 10);
+      const cleanPath = String(rawPath || '').replace(/^.*\/drills\//i, 'drills/').replace(/^\.?\//, '');
+      if (attempt === 0 && cleanPath) {
+        imgEl.setAttribute('data-fallback-step', '1');
+        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+        return;
+      }
+      if (attempt === 1 && cleanPath) {
+        imgEl.setAttribute('data-fallback-step', '2');
+        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + cleanPath;
+        return;
+      }
+      if (attempt === 2 && cleanPath) {
+        imgEl.setAttribute('data-fallback-step', '3');
+        imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + cleanPath;
+        return;
+      }
+      // Render built-in live 60fps tactical drill canvas so the GIF window is always visible & enlargeable
+      const wrap = imgEl.closest('.gif-preview-wrap');
+      if (wrap) {
+        imgEl.style.display = 'none';
+        if (!wrap.querySelector('canvas.embedded-drill-canvas')) {
+          const canvas = document.createElement('canvas');
+          canvas.className = 'embedded-drill-canvas';
+          canvas.width = 460;
+          canvas.height = 310;
+          canvas.style.cssText = 'width:100%;max-height:230px;object-fit:contain;display:block;margin:0 auto;background:#ffffff;';
+          wrap.insertBefore(canvas, wrap.firstChild);
+          startEmbeddedDrillCanvasLoop(canvas, cleanPath);
+        }
+      }
+    }
+
+    function startEmbeddedDrillCanvasLoop(canvas, rawPath) {
+      if (!canvas || canvas.dataset.animRunning === '1') return;
+      canvas.dataset.animRunning = '1';
+      const ctx = canvas.getContext('2d');
+      const cx = canvas.width / 2;
+      const leftX = cx - 95;
+      const rightX = cx + 95;
+      const topY = 46;
+      const botY = canvas.height - 46;
+      const poles = [92, 134, 176, 218];
+      let startTs = null;
+
+      function drawArrow(x1, y1, x2, y2, color, dashed) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        if (dashed) ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        const ang = Math.atan2(y2 - y1, x2 - x1);
+        ctx.fillStyle = color;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - 9 * Math.cos(ang - 0.45), y2 - 9 * Math.sin(ang - 0.45));
+        ctx.lineTo(x2 - 9 * Math.cos(ang + 0.45), y2 - 9 * Math.sin(ang + 0.45));
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawPlayer(x, y, num, fill) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#0f172a';
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(num, x, y + 0.5);
+        ctx.restore();
+      }
+
+      function frame(ts) {
+        if (!document.body.contains(canvas)) return;
+        if (startTs === null) startTs = ts;
+        const cycle = ((ts - startTs) % 5200) / 5200;
+        const phase = Math.floor(cycle * 4);
+        const t = (cycle * 4) - phase;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 4 Central Poles
+        poles.forEach((py, i) => {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(cx - 10, py - 2, 20, 4);
+          ctx.beginPath();
+          ctx.arc(cx, py - 7, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#eab308';
+          ctx.fill();
+          ctx.fillStyle = '#64748b';
+          ctx.font = '700 9px Inter, sans-serif';
+          ctx.fillText('P' + (i + 1), cx + 18, py + 3);
+        });
+
+        let p1 = [rightX, topY], p2 = [rightX, botY], p3 = [leftX, botY], ball = [rightX, botY];
+        if (phase === 0) {
+          p2 = [rightX, botY + (113 - botY) * t];
+          ball = [rightX, botY + (topY - botY) * t];
+          drawArrow(rightX, botY, rightX, topY, '#16a34a', true);
+          drawArrow(rightX, botY, rightX, 113, '#eab308', false);
+        } else if (phase === 1) {
+          p1 = [rightX + (leftX - rightX) * t, topY + (113 - topY) * t];
+          p2 = [rightX, 113 + (topY - 113) * t];
+          ball = t < 0.45
+            ? [rightX, topY + (113 - topY) * (t / 0.45)]
+            : [rightX + (leftX - rightX) * ((t - 0.45) / 0.55), 113];
+          drawArrow(rightX, 113, leftX, 113, '#16a34a', true);
+          drawArrow(rightX, topY, leftX, 113, '#eab308', false);
+          drawArrow(rightX, 113, rightX, topY, '#ea580c', false);
+        } else if (phase === 2) {
+          p1 = [leftX, 113 + (197 - 113) * t];
+          p2 = [rightX, topY];
+          ball = [leftX, 113 + (botY - 113) * t];
+          drawArrow(leftX, 113, leftX, botY, '#16a34a', true);
+          drawArrow(leftX, 113, leftX, 197, '#eab308', false);
+        } else {
+          p1 = [leftX, 197 + (botY - 197) * t];
+          p2 = [rightX, topY];
+          p3 = [leftX + (rightX - leftX) * t, botY];
+          ball = t < 0.45
+            ? [leftX, botY + (197 - botY) * (t / 0.45)]
+            : [leftX + (rightX - leftX) * ((t - 0.45) / 0.55), 197];
+          drawArrow(leftX, 197, rightX, 197, '#16a34a', true);
+          drawArrow(leftX, botY, rightX, botY, '#eab308', false);
+          drawArrow(leftX, 197, leftX, botY, '#ea580c', false);
+        }
+
+        drawPlayer(p1[0], p1[1], '1', '#1d4ed8');
+        drawPlayer(p2[0], p2[1], '2', '#4f46e5');
+        drawPlayer(p3[0], p3[1], '3', '#0d9488');
+
+        ctx.beginPath();
+        ctx.arc(ball[0], ball[1], 7, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function openEnlargedDiagramModal(title, imgUrl, coachingPoints) {
+      const modal = document.getElementById('enlargedDiagramModal');
+      const titleEl = document.getElementById('enlargedDiagramTitle');
+      const imgEl = document.getElementById('enlargedDiagramImg');
+      const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
+      const ptsText = document.getElementById('enlargedDiagramPointsText');
+      if (!modal || !imgEl) return;
+      if (titleEl) titleEl.textContent = title || 'Drill GIF';
+      const parentBox = imgEl.parentElement;
+      if (parentBox) {
+        parentBox.classList.add('gif-preview-wrap');
+        parentBox.style.cursor = 'default';
+        const oldCanvas = parentBox.querySelector('canvas.embedded-drill-canvas');
+        if (oldCanvas) oldCanvas.remove();
+      }
+      imgEl.style.display = 'block';
+      imgEl.setAttribute('data-fallback-step', '0');
+      imgEl.onerror = function() { handleDrillGifError(this, imgUrl); };
+      imgEl.src = resolveDrillMediaUrl(imgUrl);
+      if (ptsWrap && ptsText) {
+        if (coachingPoints && coachingPoints.trim()) {
+          ptsText.textContent = coachingPoints;
+          ptsWrap.style.display = 'block';
+        } else {
+          ptsWrap.style.display = 'none';
+        }
+      }
+      modal.classList.add('open');
+    }
+
+    function renderDrillLibrary() {
+      const grid = document.getElementById('drillLibraryGrid');
+      const searchEl = document.getElementById('drillSearchInput');
+      const catEl = document.getElementById('drillCategoryFilter');
+      if (!grid) return;
+
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+      const cat = catEl ? catEl.value : 'ALL';
+      const filtered = drillLibrary.filter(d => {
+        if (cat !== 'ALL' && d.category !== cat) return false;
+        if (!query) return true;
+        return [d.title, d.category, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      grid.innerHTML = filtered.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No drills match your filter.</div>'
+        : filtered.map((d, idx) => {
+            const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
+            const tagsHtml = (Array.isArray(d.tags) ? d.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+            return '<div class="lib-card">' +
+              '<div class="lib-card-body">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                  '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                  '<span style="font-size:0.74rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
+                '</div>' +
+                '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title) + '</h3>' +
+                (resolvedGif
+                  ? '<div class="gif-preview-wrap enlarge-drill-gif-btn" data-drill-idx="' + idx + '" title="Click to enlarge GIF">' +
+                      '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img">' +
+                      '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
+                    '</div>'
+                  : '') +
+                (d.coachingPoints ? '<div style="font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border-radius:8px;padding:8px;margin-bottom:8px;white-space:pre-line;">' + escapeHtml(d.coachingPoints) + '</div>' : '') +
+                (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
+              '</div>' +
+              '<div class="lib-card-footer">' +
+                '<button type="button" class="btn btn-primary btn-sm add-drill-to-session-btn" data-drill-idx="' + idx + '">+ Add to Session</button>' +
+                (resolvedGif ? '<button type="button" class="btn btn-outline btn-sm enlarge-drill-gif-btn" data-drill-idx="' + idx + '">Enlarge GIF</button>' : '') +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+      grid.querySelectorAll('.enlarge-drill-gif-btn').forEach(el => {
+        el.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
+          if (d) openEnlargedDiagramModal(d.title, d.gifUrl, d.coachingPoints);
+        };
+      });
+      grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
+        btn.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
+          if (d) {
+            currentSessionParts.push({
+              id: 'part_' + Date.now(),
+              type: (d.category || 'technical').toLowerCase(),
+              title: d.title,
+              duration: d.duration || 15,
+              gifUrl: d.gifUrl || '',
+              coachingPoints: d.coachingPoints || '',
+              notes: d.notes || ''
+            });
+            renderSessionParts();
+            switchTab('builder');
+            showToast('Added "' + d.title + '" to Session Builder!');
+          }
+        };
+      });
+    }
+
+    async function syncDrillsFromGitHubRepo() {
+      const fileNames = new Set();
+      const branches = ['main', 'master'];
+
+      for (const branch of branches) {
+        // 1. Try GitHub Contents API
+        try {
+          const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills?ref=' + branch + '&t=' + Date.now();
+          const resp = await fetch(apiUrl, { cache: 'no-store' });
+          if (resp.ok) {
+            const files = await resp.json();
+            if (Array.isArray(files)) {
+              files.forEach(f => {
+                if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) {
+                  fileNames.add(f.name);
+                }
+              });
+            }
+          }
+        } catch (e) {}
+
+        // 2. Try GitHub Recursive Trees API (bypasses directory listing limits & caches)
+        if (fileNames.size === 0) {
+          try {
+            const treeUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/git/trees/' + branch + '?recursive=1&t=' + Date.now();
+            const treeResp = await fetch(treeUrl, { cache: 'no-store' });
+            if (treeResp.ok) {
+              const treeData = await treeResp.json();
+              const nodes = Array.isArray(treeData.tree) ? treeData.tree : [];
+              nodes.forEach(node => {
+                if (node && node.type === 'blob' && /^drills\/[^/]+\.(gif|png|jpg|jpeg|webp)$/i.test(node.path)) {
+                  fileNames.add(node.path.replace(/^drills\//i, ''));
+                }
+              });
+            }
+          } catch (e) {}
+        }
+
+        if (fileNames.size > 0) break;
+      }
+
+      if (fileNames.size > 0) {
+        const existingPaths = new Set(
+          drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^.*\/drills\//i, 'drills/'))
+        );
+        let added = 0;
+        fileNames.forEach(fileName => {
+          const relPath = 'drills/' + fileName;
+          if (!existingPaths.has(relPath.toLowerCase())) {
+            existingPaths.add(relPath.toLowerCase());
+            drillLibrary.push({
+              id: 'gh_drill_' + fileName.replace(/[^a-z0-9]/gi, '_'),
+              title: fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()),
+              category: 'Technical',
+              duration: 15,
+              tags: ['github-sync', 'gif'],
+              gifUrl: relPath,
+              coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
+              notes: 'Synced automatically from GitHub drills/' + fileName
+            });
+            added++;
+          }
+        });
+        if (added > 0) {
+          persistCurrentTeamState();
+          renderDrillLibrary();
+        }
+      }
+    }
+
+    /* =========================================================
+       VIDEO LIBRARY (GOOGLE SHEET SYNC + TAG & INFO EDITOR)
+       ========================================================= */
     let videoLibrary = [];
     try {
       const cachedVideos = JSON.parse(localStorage.getItem('afc_videos_shared') || 'null');
       if (Array.isArray(cachedVideos) && cachedVideos.length > 0) videoLibrary = cachedVideos;
     } catch (e) {}
 
-    function resolveDrillMediaUrl(rawUrl) {
+    function normalizeVideoEmbedUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
       if (!u) return '';
-      if (/^(https?:|data:|blob:)/i.test(u)) return u;
-      const cleanPath = u.replace(/^\.?\//, '');
-      const isHostedPreview = window.location.protocol === 'blob:' ||
-        window.location.hostname.includes('googleusercontent') ||
-        window.location.hostname.includes('scf.usercontent') ||
-        window.location.hostname === 'localhost';
-      if (isHostedPreview) {
-        return 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+      // Already a Vimeo player embed URL — preserve existing query params (such as ?h= hash for unlisted videos)
+      if (/player\.vimeo\.com\/video\/\d+/i.test(u)) {
+        return u;
       }
-      return cleanPath;
+      // Vimeo standard or unlisted URL: vimeo.com/123456789 or vimeo.com/123456789/abcdef1234
+      const vimeoMatch = u.match(/vimeo\.com\/(?:manage\/videos\/|channels\/[^/]+\/|groups\/[^/]+\/videos\/|video\/)?(\d+)(?:\/([A-Za-z0-9]+))?/i);
+      if (vimeoMatch) {
+        const vidId = vimeoMatch[1];
+        const privacyHash = vimeoMatch[2];
+        const existingH = u.match(/[?&]h=([A-Za-z0-9]+)/i);
+        const hashVal = privacyHash || (existingH ? existingH[1] : '');
+        return 'https://player.vimeo.com/video/' + vidId + (hashVal ? '?h=' + hashVal + '&' : '?') + 'autoplay=1&title=0&byline=0&portrait=0';
+      }
+      // YouTube standard, shorts, live, or embed URLs
+      const ytMatch = u.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+      if (ytMatch) {
+        return 'https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&rel=0&playsinline=1';
+      }
+      // Google Drive file preview URLs
+      const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/);
+      if (driveFileMatch) {
+        return 'https://drive.google.com/file/d/' + driveFileMatch[1] + '/preview';
+      }
+      const driveIdParam = u.match(/drive\.google\.com\/(?:open|uc)\?.*id=([A-Za-z0-9_-]+)/);
+      if (driveIdParam) {
+        return 'https://drive.google.com/file/d/' + driveIdParam[1] + '/preview';
+      }
+      return u;
+    }
+
+    function isEmbeddableVideoSource(rawUrl) {
+      const u = String(rawUrl || '').trim();
+      if (!u) return false;
+      if (isDirectVideoFile(u)) return true;
+      return /(?:youtube\.com|youtu\.be|drive\.google\.com\/(?:file\/d\/|(?:open|uc)\?.*id=)|vimeo\.com)/i.test(u);
+    }
+
+    function isDirectVideoFile(rawUrl) {
+      return /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(String(rawUrl || '').trim());
+    }
+
+    function openVideoMetadataModal(vidItem) {
+      const modal = document.getElementById('customModalBackdrop');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const inputWrap = document.getElementById('modalInputWrap');
+      const videoWrap = document.getElementById('modalVideoEditWrap');
+      const vTitle = document.getElementById('modalVideoTitleInput');
+      const vCat = document.getElementById('modalVideoCategoryInput');
+      const vSub = document.getElementById('modalVideoSubCategoryInput');
+      const vTags = document.getElementById('modalVideoTagsInput');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      if (!modal || !videoWrap || !vidItem) return;
+
+      titleEl.textContent = 'Edit Video Info & Tags';
+      msgEl.textContent = 'Update the category, sub-category, or #tags for this training video.';
+      inputWrap.style.display = 'none';
+      videoWrap.style.display = 'block';
+
+      vTitle.value = vidItem.title || '';
+      vCat.value = vidItem.category || 'General';
+      vSub.value = vidItem.subCategory || '';
+      vTags.value = Array.isArray(vidItem.tags) ? vidItem.tags.join(', ') : '';
+      confirmBtn.textContent = 'Save Changes';
+      modal.classList.add('open');
+
+      cancelBtn.onclick = () => {
+        videoWrap.style.display = 'none';
+        modal.classList.remove('open');
+      };
+      confirmBtn.onclick = () => {
+        vidItem.title = vTitle.value.trim() || vidItem.title;
+        vidItem.category = vCat.value.trim() || 'General';
+        vidItem.subCategory = vSub.value.trim();
+        vidItem.tags = vTags.value
+          .split(',')
+          .map(t => t.trim().replace(/^#/, ''))
+          .filter(Boolean);
+        videoWrap.style.display = 'none';
+        modal.classList.remove('open');
+        persistCurrentTeamState();
+        renderVideoLibrary();
+        showToast('Saved video info & tags!');
+      };
+    }
+
+    async function syncVideosFromGoogleSheet() {
+      try {
+        function canonicalVideoKey(rawUrl, titleStr) {
+          const u = String(rawUrl || '').trim();
+          const vimeoM = u.match(/vimeo\.com\/(?:manage\/videos\/|channels\/[^/]+\/|groups\/[^/]+\/videos\/|video\/)?(\d+)/i);
+          if (vimeoM) return 'vimeo:' + vimeoM[1];
+          const ytM = u.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+          if (ytM) return 'yt:' + ytM[1];
+          const gdM = u.match(/drive\.google\.com\/(?:file\/d\/|(?:open|uc)\?.*id=)([A-Za-z0-9_-]+)/);
+          if (gdM) return 'gd:' + gdM[1];
+          return 'url:' + u.toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/\/+$/, '') + '|' + String(titleStr || '').trim().toLowerCase();
+        }
+
+        // Purge legacy duplicated/generic entries from older cache if present
+        const seenKeys = new Set();
+        const cleanedExisting = [];
+        videoLibrary.forEach(v => {
+          const key = canonicalVideoKey(v.url, v.title);
+          if (!v.url || seenKeys.has(key)) return;
+          seenKeys.add(key);
+          cleanedExisting.push(v);
+        });
+        videoLibrary = cleanedExisting;
+
+        // Discover ALL sheet tab names and gids from published HTML, htmlview, and edit metadata
+        const sheetTargets = [];
+        const seenGids = new Set();
+        const seenNames = new Set();
+        const freshSheetVideos = [];
+        const freshKeys = new Set();
+
+        const EXACT_SHEET_CATEGORIES = [
+          '1v1 Technical Drills',
+          'Culture',
+          'Strikers',
+          'Attacking Mids',
+          'Center Mids',
+          'Center Backs',
+          'Full Backs',
+          'Goalkeeping'
+        ];
+
+        const discoveryUrls = [
+          'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/pubhtml',
+          'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/htmlview',
+          'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/edit'
+        ];
+
+        const tabNameByGid = {};
+
+        for (const dUrl of discoveryUrls) {
+          try {
+            const resp = await fetch(dUrl, { cache: 'no-store' });
+            if (!resp.ok) continue;
+            const html = await resp.text();
+
+            // 1. Extract all tab names & GIDs from #sheet-menu / sheet-button anchors
+            if (typeof DOMParser !== 'undefined') {
+              try {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                doc.querySelectorAll('#sheet-menu li, [id^="sheet-button-"]').forEach(li => {
+                  const idAttr = li.id || '';
+                  const gidM = idAttr.match(/(\d+)/);
+                  const anchor = li.querySelector('a');
+                  const linkHref = anchor ? (anchor.getAttribute('href') || '') : '';
+                  const hrefGidM = linkHref.match(/gid=(\d+)/);
+                  const gidVal = (hrefGidM && hrefGidM[1]) || (gidM && gidM[1]) || '';
+                  const tabLabel = (anchor ? anchor.textContent : li.textContent || '').trim();
+                  if (gidVal && tabLabel) tabNameByGid[gidVal] = tabLabel;
+                });
+              } catch (domParseErr) {}
+            }
+
+            // 2. Pattern: items.push({name: "TabName", pageUrl: "...gid=12345..."})
+            for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"[^}]*gid=(\d+)/g)) {
+              const tabName = (m[1] || '').trim();
+              const gidVal = (m[2] || '').trim();
+              if (gidVal && tabName) tabNameByGid[gidVal] = tabName;
+              if (gidVal && !seenGids.has(gidVal)) {
+                seenGids.add(gidVal);
+                if (tabName) seenNames.add(tabName.toLowerCase());
+                sheetTargets.push({ type: 'gid', value: gidVal, tabName });
+              }
+            }
+
+            // 3. Pattern: JSON sheet metadata inside /edit or /htmlview ([gid,0,"TabName"])
+            for (const m of html.matchAll(/\[(\d{4,}),\s*\d+,\s*"([^"\\]+)"/g)) {
+              const gidVal = (m[1] || '').trim();
+              const tabName = (m[2] || '').trim();
+              if (gidVal && tabName) tabNameByGid[gidVal] = tabName;
+              if (gidVal && !seenGids.has(gidVal)) {
+                seenGids.add(gidVal);
+                if (tabName) seenNames.add(tabName.toLowerCase());
+                sheetTargets.push({ type: 'gid', value: gidVal, tabName });
+              }
+            }
+
+            // 4. Pattern: sheet-button anchors via regex fallback
+            for (const m of html.matchAll(/id="sheet-button-(\d+)"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
+              const gidVal = (m[1] || '').trim();
+              const tabTitle = (m[2] || '').trim();
+              if (gidVal && tabTitle) tabNameByGid[gidVal] = tabTitle;
+              if (gidVal && !seenGids.has(gidVal)) {
+                seenGids.add(gidVal);
+                if (tabTitle) seenNames.add(tabTitle.toLowerCase());
+                sheetTargets.push({ type: 'gid', value: gidVal, tabName: tabTitle });
+              }
+            }
+
+            // 5. Parse any tables already embedded directly inside pubhtml / htmlview
+            if ((dUrl.endsWith('/pubhtml') || dUrl.endsWith('/htmlview')) && typeof DOMParser !== 'undefined') {
+              try {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                doc.querySelectorAll('table.waffle').forEach((tbl, tIdx) => {
+                  const parentDiv = tbl.closest('div[id]');
+                  const divGid = parentDiv ? (parentDiv.id || '').replace(/\D/g, '') : '';
+                  const tabTitle = (divGid && tabNameByGid[divGid]) || Object.values(tabNameByGid)[tIdx] || '';
+                  parseHtmlTableIntoVideos(tbl, tabTitle);
+                });
+              } catch (domErr) {}
+            }
+          } catch (e) {}
+        }
+
+        function mapToExactTabCategory(rawCat) {
+          const clean = String(rawCat || '').trim();
+          if (!clean) return '';
+          const exact = EXACT_SHEET_CATEGORIES.find(c => c.toLowerCase() === clean.toLowerCase());
+          if (exact) return exact;
+          const lower = clean.toLowerCase();
+          if (lower.includes('1v1') || lower.includes('technical')) return '1v1 Technical Drills';
+          if (lower.includes('culture')) return 'Culture';
+          if (lower.includes('striker')) return 'Strikers';
+          if (lower.includes('attacking')) return 'Attacking Mids';
+          if (lower.includes('center mid')) return 'Center Mids';
+          if (lower.includes('center back')) return 'Center Backs';
+          if (lower.includes('full back')) return 'Full Backs';
+          if (lower.includes('goalkeep')) return 'Goalkeeping';
+          return '';
+        }
+
+        function parseCsvRows(csvText) {
+          const rows = [];
+          let row = [];
+          let cur = '';
+          let inQuotes = false;
+          for (let i = 0; i < csvText.length; i++) {
+            const ch = csvText[i];
+            const next = csvText[i + 1];
+            if (inQuotes) {
+              if (ch === '"' && next === '"') {
+                cur += '"';
+                i++;
+              } else if (ch === '"') {
+                inQuotes = false;
+              } else {
+                cur += ch;
+              }
+            } else {
+              if (ch === '"') {
+                inQuotes = true;
+              } else if (ch === ',') {
+                row.push(cur.trim());
+                cur = '';
+              } else if (ch === '\r' && next === '\n') {
+                row.push(cur.trim());
+                rows.push(row);
+                row = [];
+                cur = '';
+                i++;
+              } else if (ch === '\n' || ch === '\r') {
+                row.push(cur.trim());
+                rows.push(row);
+                row = [];
+                cur = '';
+              } else {
+                cur += ch;
+              }
+            }
+          }
+          if (cur.length > 0 || row.length > 0) {
+            row.push(cur.trim());
+            rows.push(row);
+          }
+          return rows;
+        }
+
+        function ingestMatrixRows(matrixRows, defaultCategory) {
+          if (!Array.isArray(matrixRows) || !matrixRows.length) return;
+          let headerMap = null;
+          matrixRows.forEach((vals, rIdx) => {
+            if (!Array.isArray(vals) || !vals.length) return;
+            const urlCandidate = vals.find(c => /^https?:\/\//i.test(String(c || '').trim()));
+            if (!urlCandidate) {
+              if (!headerMap && vals.some(v => /title|name|category|sub|url|link|video|tag/i.test(String(v || '')))) {
+                const lower = vals.map(v => String(v || '').toLowerCase());
+                headerMap = {
+                  titleIdx: lower.findIndex(h => /title|name|drill|video/i.test(h) && !/url|link/i.test(h)),
+                  catIdx: lower.findIndex(h => /^category|main.?cat|topic|type/i.test(h)),
+                  subIdx: lower.findIndex(h => /sub.?cat|sub|focus|skill/i.test(h)),
+                  tagsIdx: lower.findIndex(h => /tag|keyword/i.test(h))
+                };
+              }
+              return;
+            }
+
+            let titleCandidate = (headerMap && headerMap.titleIdx >= 0) ? (vals[headerMap.titleIdx] || '') : '';
+            let catCandidate = (headerMap && headerMap.catIdx >= 0) ? (vals[headerMap.catIdx] || '') : '';
+            let subCatCandidate = (headerMap && headerMap.subIdx >= 0) ? (vals[headerMap.subIdx] || '') : '';
+            let tagsRaw = (headerMap && headerMap.tagsIdx >= 0) ? (vals[headerMap.tagsIdx] || '') : '';
+
+            if (!headerMap || (headerMap.titleIdx < 0 && headerMap.catIdx < 0)) {
+              const nonUrls = vals.filter(v => v && v !== urlCandidate && !/^\d+$/.test(v));
+              if (nonUrls.length >= 2) {
+                titleCandidate = nonUrls[0];
+                subCatCandidate = nonUrls[1];
+                tagsRaw = nonUrls.slice(2).join(',');
+              } else if (nonUrls.length === 1) {
+                titleCandidate = nonUrls[0];
+              }
+            }
+
+            titleCandidate = titleCandidate || ('Training Video #' + (freshSheetVideos.length + 1));
+            const finalCat = defaultCategory || mapToExactTabCategory(catCandidate) || '1v1 Technical Drills';
+
+            const key = canonicalVideoKey(urlCandidate, titleCandidate);
+            if (freshKeys.has(key)) return;
+            freshKeys.add(key);
+
+            const existingMatch = videoLibrary.find(ev => canonicalVideoKey(ev.url, ev.title) === key);
+            const tagsArr = tagsRaw
+              ? tagsRaw.split(/[,#]+/).map(t => t.trim()).filter(Boolean)
+              : (existingMatch && Array.isArray(existingMatch.tags) ? existingMatch.tags : []);
+
+            freshSheetVideos.push({
+              id: existingMatch ? existingMatch.id : ('gs_vid_' + freshSheetVideos.length + '_' + rIdx),
+              title: titleCandidate,
+              category: (existingMatch && existingMatch.customEdited) ? existingMatch.category : finalCat,
+              subCategory: (existingMatch && existingMatch.customEdited) ? existingMatch.subCategory : subCatCandidate,
+              url: urlCandidate,
+              tags: tagsArr,
+              customEdited: Boolean(existingMatch && existingMatch.customEdited)
+            });
+          });
+        }
+
+        function parseHtmlTableIntoVideos(tbl, tabTitle) {
+          const cleanTabCat = mapToExactTabCategory(tabTitle);
+          const trs = Array.from(tbl.querySelectorAll('tr'));
+          const matrix = trs.map(tr => {
+            const tds = Array.from(tr.querySelectorAll('td, th'));
+            return tds.map(td => {
+              const link = td.querySelector('a[href]');
+              const href = link ? (link.getAttribute('href') || '') : '';
+              if (href.includes('google.com/url?')) {
+                const qMatch = href.match(/[?&]q=([^&]+)/);
+                if (qMatch) {
+                  try { return decodeURIComponent(qMatch[1]); } catch (e) {}
+                }
+              }
+              if (/^https?:\/\//i.test(href)) return href;
+              return (td.textContent || '').trim();
+            });
+          });
+          ingestMatrixRows(matrix, cleanTabCat);
+        }
+
+        // 1. Fetch each of the 8 exact tab names directly via gviz CSV & JSON endpoints (with Cache-Buster & CORS-safe headers)
+        for (const tabName of EXACT_SHEET_CATEGORIES) {
+          let loadedThisTab = false;
+
+          // Method A: Google Visualization CSV endpoint by exact sheet name
+          try {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID +
+              '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(tabName) + '&cb=' + Date.now();
+            const csvResp = await fetch(csvUrl, { cache: 'no-store' });
+            if (csvResp.ok) {
+              const csvText = await csvResp.text();
+              if (csvText && !csvText.trim().startsWith('<!DOCTYPE') && /https?:\/\//i.test(csvText)) {
+                const matrix = parseCsvRows(csvText);
+                const beforeCount = freshSheetVideos.length;
+                ingestMatrixRows(matrix, tabName);
+                if (freshSheetVideos.length > beforeCount) loadedThisTab = true;
+              }
+            }
+          } catch (e) {}
+
+          // Method B: Google Visualization JSON endpoint by exact sheet name
+          if (!loadedThisTab) {
+            try {
+              const gvizUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID +
+                '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(tabName) + '&cb=' + Date.now();
+              const resp = await fetch(gvizUrl, { cache: 'no-store' });
+              if (resp.ok) {
+                const text = await resp.text();
+                const jsonStr = text.replace(/^[^{]+/, '').replace(/[^}]+$/, '');
+                const data = JSON.parse(jsonStr);
+                if (data.status !== 'error' && data.table && Array.isArray(data.table.rows)) {
+                  const cols = (data.table.cols || []).map(c => String((c && c.label) || '').trim());
+                  const matrix = [];
+                  if (cols.some(Boolean)) matrix.push(cols);
+                  data.table.rows.forEach(r => {
+                    const cells = (r && r.c) || [];
+                    matrix.push(cells.map(c => {
+                      if (!c) return '';
+                      const vStr = c.v != null ? String(c.v).trim() : '';
+                      const fStr = c.f != null ? String(c.f).trim() : '';
+                      if (/^https?:\/\//i.test(vStr)) return vStr;
+                      if (/^https?:\/\//i.test(fStr)) return fStr;
+                      const hrefMatch = fStr.match(/href=["'](https?:\/\/[^"']+)["']/i);
+                      if (hrefMatch) return hrefMatch[1];
+                      return vStr || fStr;
+                    }));
+                  });
+                  ingestMatrixRows(matrix, tabName);
+                }
+              }
+            } catch (e) {}
+          }
+        }
+
+        // 2. Also check any discovered GIDs from pubhtml/edit that have a known mapped tab name
+        for (const target of sheetTargets) {
+          const resolvedTabName = (target.tabName || (target.type === 'gid' ? tabNameByGid[target.value] : '') || '').trim();
+          const cleanTabName = mapToExactTabCategory(resolvedTabName);
+          if (!cleanTabName) continue;
+
+          if (target.type === 'gid' && target.value && typeof DOMParser !== 'undefined') {
+            try {
+              const singleSheetUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/pubhtml/sheet?headers=false&gid=' + encodeURIComponent(target.value);
+              const sResp = await fetch(singleSheetUrl, { cache: 'no-store' });
+              if (sResp.ok) {
+                const sHtml = await sResp.text();
+                const sDoc = new DOMParser().parseFromString(sHtml, 'text/html');
+                const tbl = sDoc.querySelector('table.waffle') || sDoc.querySelector('table');
+                if (tbl) parseHtmlTableIntoVideos(tbl, cleanTabName);
+              }
+            } catch (e) {}
+          }
+        }
+
+        if (freshSheetVideos.length > 0) {
+          videoLibrary = freshSheetVideos;
+          persistCurrentTeamState();
+          renderVideoLibrary();
+          updateWorkspaceBadges();
+        }
+      } catch (e) {}
+    }
+
+    function renderVideoLibrary() {
+      const grid = document.getElementById('videoLibraryGrid');
+      const searchEl = document.getElementById('videoSearchInput');
+      const catSel = document.getElementById('videoCategoryFilter');
+      const subSel = document.getElementById('videoSubCategoryFilter');
+      if (!grid) return;
+
+      const selectedCat = catSel ? catSel.value : 'ALL';
+      const selectedSub = subSel ? subSel.value : 'ALL';
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+
+      const ALLOWED_VIDEO_CATEGORIES = [
+        '1v1 Technical Drills',
+        'Culture',
+        'Strikers',
+        'Attacking Mids',
+        'Center Mids',
+        'Center Backs',
+        'Full Backs',
+        'Goalkeeping'
+      ];
+
+      if (catSel) {
+        catSel.innerHTML = '<option value="ALL">All Categories (' + videoLibrary.length + ')</option>' +
+          ALLOWED_VIDEO_CATEGORIES.map(c => {
+            const count = videoLibrary.filter(v => (v.category || '').toLowerCase() === c.toLowerCase()).length;
+            return '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + (count ? ' (' + count + ')' : '') + '</option>';
+          }).join('');
+      }
+      if (subSel) {
+        const subs = Array.from(new Set(videoLibrary.map(v => v.subCategory).filter(Boolean))).sort();
+        subSel.innerHTML = '<option value="ALL">All Sub-Categories</option>' +
+          subs.map(s => '<option value="' + escapeHtml(s) + '"' + (s === selectedSub ? ' selected' : '') + '>' + escapeHtml(s) + '</option>').join('');
+      }
+
+      const filtered = videoLibrary.filter(v => {
+        if (selectedCat !== 'ALL' && (v.category || '').toLowerCase() !== selectedCat.toLowerCase()) return false;
+        if (selectedSub !== 'ALL' && (v.subCategory || '') !== selectedSub) return false;
+        if (!query) return true;
+        return [v.title, v.category, v.subCategory, ...(Array.isArray(v.tags) ? v.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      grid.innerHTML = filtered.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No videos match your filter.</div>'
+        : filtered.map((vid, idx) => {
+            const tagsHtml = (Array.isArray(vid.tags) ? vid.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+            return '<div class="lib-card">' +
+              '<div class="lib-card-body">' +
+                '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;">' +
+                  '<span class="badge badge-navy">' + escapeHtml(vid.category || 'General') + '</span>' +
+                  (vid.subCategory ? '<span class="badge badge-amber">' + escapeHtml(vid.subCategory) + '</span>' : '') +
+                '</div>' +
+                '<h3 style="margin:4px 0 8px;font-size:0.94rem;font-weight:900;color:#0A2647;">' + escapeHtml(vid.title || 'Training Video') + '</h3>' +
+                (tagsHtml ? '<div>' + tagsHtml + '</div>' : '<div style="font-size:0.72rem;color:#94a3b8;">No tags yet</div>') +
+              '</div>' +
+              '<div class="lib-card-footer">' +
+                '<button type="button" class="btn btn-emerald btn-sm watch-lib-video-btn" data-vid-idx="' + idx + '">&#9654; Watch Video</button>' +
+                '<button type="button" class="btn btn-outline btn-sm edit-lib-video-tags-btn" data-vid-idx="' + idx + '">&#127991; Edit Tags &amp; Info</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+      grid.querySelectorAll('.watch-lib-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const item = filtered[parseInt(this.getAttribute('data-vid-idx'), 10)];
+          const modal = document.getElementById('embeddedVideoModal');
+          const stage = document.getElementById('embeddedVideoStage');
+          const titleEl = document.getElementById('embeddedVideoTitle');
+          const badgesEl = document.getElementById('embeddedVideoBadges');
+          const tagsEl = document.getElementById('embeddedVideoTags');
+          if (item && modal && stage) {
+            if (titleEl) titleEl.textContent = item.title || 'Training Video';
+            if (badgesEl) {
+              badgesEl.innerHTML = '<span class="badge badge-navy">' + escapeHtml(item.category || 'General') + '</span>' +
+                (item.subCategory ? '<span class="badge badge-amber">' + escapeHtml(item.subCategory) + '</span>' : '');
+            }
+            if (tagsEl) {
+              tagsEl.innerHTML = (Array.isArray(item.tags) ? item.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+            }
+            const rawUrl = String(item.url || '').trim();
+            if (isDirectVideoFile(rawUrl)) {
+              stage.innerHTML = '<video src="' + escapeHtml(rawUrl) + '" controls controlsList="nodownload" oncontextmenu="return false;" autoplay playsinline style="width:100%;height:100%;background:#000;"></video>';
+            } else if (isEmbeddableVideoSource(rawUrl)) {
+              const embedSrc = normalizeVideoEmbedUrl(rawUrl);
+              stage.innerHTML = '<iframe src="' + escapeHtml(embedSrc) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:100%;border:0;display:block;"></iframe>';
+            } else {
+              stage.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#ffffff;padding:24px;text-align:center;">' +
+                '<div style="font-size:0.95rem;font-weight:800;margin-bottom:8px;">External Video Link</div>' +
+                '<a href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener noreferrer" class="btn btn-emerald btn-sm">Open Video in New Tab &rarr;</a>' +
+              '</div>';
+            }
+            modal.classList.add('open');
+          }
+        };
+      });
+
+      grid.querySelectorAll('.edit-lib-video-tags-btn').forEach(btn => {
+        btn.onclick = function() {
+          const item = filtered[parseInt(this.getAttribute('data-vid-idx'), 10)];
+          if (item) openVideoMetadataModal(item);
+        };
+      });
     }
 
     /* =========================================================
@@ -1959,9 +2565,7 @@
         });
 
         const colsToRender = POSITION_COLUMNS.slice();
-        if (buckets.UNASSIGNED.length > 0) {
-          colsToRender.push({ key: 'UNASSIGNED', label: 'Unassigned' });
-        }
+        if (buckets.UNASSIGNED.length > 0) colsToRender.push({ key: 'UNASSIGNED', label: 'Unassigned' });
 
         masterGrid.innerHTML = colsToRender.map(col => {
           const items = buckets[col.key] || [];
@@ -2074,20 +2678,8 @@
 
     let activeHalf = 1;
     let gameLineups = {
-      1: FORMATIONS['4-2-2'].map((slot, i) => ({
-        id: 'h1_' + i,
-        pos: slot.pos,
-        x: slot.x,
-        y: slot.y,
-        playerName: ''
-      })),
-      2: FORMATIONS['4-2-2'].map((slot, i) => ({
-        id: 'h2_' + i,
-        pos: slot.pos,
-        x: slot.x,
-        y: slot.y,
-        playerName: ''
-      }))
+      1: FORMATIONS['4-2-2'].map((slot, i) => ({ id: 'h1_' + i, pos: slot.pos, x: slot.x, y: slot.y, playerName: '' })),
+      2: FORMATIONS['4-2-2'].map((slot, i) => ({ id: 'h2_' + i, pos: slot.pos, x: slot.x, y: slot.y, playerName: '' }))
     };
     let gameSubLogs = [];
 
@@ -2115,11 +2707,11 @@
             '<div class="pitch-six-bottom"></div>' +
             '<div class="pitch-goal-bottom"></div>' +
             '<div class="pitch-side-label top">Attacking Goal</div>' +
-            '<div class="pitch-side-label bottom">' + (activeHalf === 1 ? '1st Half' : '2nd Half') + ' • Drag Player onto Position or Drag Token</div>' +
-            '<div class="pitch-shape-badge bottom">' + escapeHtml(formationName) + '</div>' +
+            '<div class="pitch-side-label bottom">' + (activeHalf === 1 ? '1st Half' : '2nd Half') + ' • Drag Player onto Position Placeholder</div>' +
+            '<div class="pitch-shape-badge">' + escapeHtml(formationName) + '</div>' +
             tokens.map((tok, idx) => {
               const hasPlayer = Boolean(tok.playerName && tok.playerName.trim());
-              return '<div class="pitch-token ' + (hasPlayer ? 'team-navy' : 'team-white') + '" data-tok-idx="' + idx + '" style="left:' + tok.x + '%;top:' + tok.y + '%;' + (!hasPlayer ? 'border-style:dashed;opacity:0.94;' : '') + '">' +
+              return '<div class="pitch-token ' + (hasPlayer ? 'team-navy' : 'team-white') + '" data-tok-idx="' + idx + '" style="left:' + tok.x + '%;top:' + tok.y + '%;">' +
                 '<span style="opacity:0.78;font-size:0.66rem;margin-right:4px;">' + escapeHtml(tok.pos) + '</span>' +
                 (hasPlayer ? escapeHtml(tok.playerName) : '<span style="font-style:italic;opacity:0.75;">Drop Player</span>') +
               '</div>';
@@ -2136,7 +2728,6 @@
           let startX = 0;
           let startY = 0;
 
-          // Support HTML5 Drag-and-Drop from Bench Chips onto Pitch Position Placeholders
           el.addEventListener('dragover', (e) => {
             e.preventDefault();
             el.style.transform = 'translate(-50%, -50%) scale(1.12)';
@@ -2152,7 +2743,6 @@
             el.style.boxShadow = '';
             const droppedPlayer = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
             if (droppedPlayer) {
-              // Remove from any previous slot on this half so player isn't duplicated
               tokens.forEach(t => { if (t.playerName === droppedPlayer) t.playerName = ''; });
               tokens[idx].playerName = droppedPlayer;
               renderGamePitch();
@@ -2226,11 +2816,8 @@
 
         benchEl.querySelectorAll('.bench-chip').forEach(chip => {
           chip.addEventListener('dragstart', (e) => {
-            if (e.dataTransfer) {
-              e.dataTransfer.setData('text/plain', chip.getAttribute('data-player-name') || '');
-            }
+            if (e.dataTransfer) e.dataTransfer.setData('text/plain', chip.getAttribute('data-player-name') || '');
           });
-          // Tap fallback for touch devices: fills next open position placeholder
           chip.addEventListener('click', () => {
             const pName = chip.getAttribute('data-player-name');
             const openSlot = tokens.find(t => !t.playerName);
@@ -2286,6 +2873,25 @@
       });
     }
 
+    function renderSubLogList() {
+      const list = document.getElementById('subLogList');
+      if (!list) return;
+      list.innerHTML = gameSubLogs.length === 0
+        ? '<div style="font-size:0.78rem;color:#94a3b8;text-align:center;padding:10px;">No substitutions logged yet.</div>'
+        : gameSubLogs.map((s, idx) =>
+            '<div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;font-size:0.78rem;">' +
+              '<div><strong style="color:#0A2647;">' + escapeHtml(s.minute) + '</strong> • <span style="color:#dc2626;font-weight:700;">OFF: ' + escapeHtml(s.off) + '</span> &rarr; <span style="color:#059669;font-weight:700;">ON: ' + escapeHtml(s.on) + '</span></div>' +
+              '<button type="button" class="btn btn-danger btn-sm remove-sub-btn" data-idx="' + idx + '" style="padding:1px 6px;">&times;</button>' +
+            '</div>'
+          ).join('');
+      list.querySelectorAll('.remove-sub-btn').forEach(btn => {
+        btn.onclick = function() {
+          gameSubLogs.splice(parseInt(this.dataset.idx, 10), 1);
+          renderSubLogList();
+        };
+      });
+    }
+
     // Countdown Match Clock Logic
     let matchClockSeconds = 25 * 60;
     let matchClockInitialSeconds = 25 * 60;
@@ -2327,10 +2933,44 @@
       if (toggleBtn) toggleBtn.textContent = 'Start';
     }
 
+    function resetGamePlannerToBlank() {
+      currentEditingGameId = null;
+      const oppInput = document.getElementById('gameOpponentInput');
+      const dateInput = document.getElementById('gameDateInput');
+      const timeInput = document.getElementById('gameTimeInput');
+      const locInput = document.getElementById('gameLocationInput');
+      const gfInput = document.getElementById('gameGoalsForInput');
+      const gaInput = document.getElementById('gameGoalsAgainstInput');
+      const talkInput = document.getElementById('halftimeTalkInput');
+
+      if (oppInput) oppInput.value = 'Opponent FC';
+      if (dateInput) dateInput.value = getLocalTodayIso();
+      if (timeInput) timeInput.value = '10:00 AM';
+      if (locInput) locInput.value = 'Field 1';
+      if (gfInput) gfInput.value = '0';
+      if (gaInput) gaInput.value = '0';
+      if (talkInput) talkInput.value = '';
+
+      const formVal = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
+      const slots = FORMATIONS[formVal] || FORMATIONS['4-2-2'];
+      gameLineups = {
+        1: slots.map((s, i) => ({ id: 'h1_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' })),
+        2: slots.map((s, i) => ({ id: 'h2_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }))
+      };
+      gameSubLogs = [];
+      renderSubLogList();
+      renderGamePitch();
+    }
+
     /* =========================================================
-       CALENDAR, DRILL & VIDEO LIBRARIES, SESSION BUILDER & AUTH
+       CALENDAR (MONTH / WEEK / DAY VIEWS + ADD GAME & NEW SESSION)
        ========================================================= */
     let calendarCursorDate = new Date();
+    let calendarViewMode = 'month'; // 'month' | 'week' | 'day'
+
+    function toIsoDate(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
 
     function renderCalendar() {
       const grid = document.getElementById('calendarGrid');
@@ -2338,229 +2978,150 @@
       const listEl = document.getElementById('savedSessionsList');
       if (!grid) return;
 
+      document.querySelectorAll('.cal-view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-cal-view') === calendarViewMode);
+      });
+
+      grid.classList.remove('week-view', 'day-view');
+      if (calendarViewMode === 'week') grid.classList.add('week-view');
+      if (calendarViewMode === 'day') grid.classList.add('day-view');
+
       const year = calendarCursorDate.getFullYear();
       const month = calendarCursorDate.getMonth();
       const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      if (label) label.textContent = monthNames[month] + ' ' + year;
-
-      const allEvents = [];
-      savedSessions.forEach(s => allEvents.push({ kind: 'session', date: s.date, title: s.title, team: s.team || activeTeamName }));
-      savedGames.forEach(g => allEvents.push({ kind: 'game', date: g.date, title: 'vs ' + g.opponent, team: g.team || activeTeamName }));
-
       const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let html = weekdays.map(d => '<div class="calendar-weekday">' + d + '</div>').join('');
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
       const todayIso = getLocalTodayIso();
 
-      for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
-      for (let day = 1; day <= daysInMonth; day++) {
-        const iso = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+      const allEvents = [];
+      savedSessions.forEach(s => allEvents.push({ id: s.id, kind: 'session', date: s.date, title: s.title, team: s.team || activeTeamName }));
+      savedGames.forEach(g => allEvents.push({ id: g.id, kind: 'game', date: g.date, title: 'vs ' + g.opponent + ' (' + (g.goalsFor || 0) + '-' + (g.goalsAgainst || 0) + ')', team: g.team || activeTeamName }));
+
+      let html = '';
+      if (calendarViewMode === 'month') {
+        if (label) label.textContent = monthNames[month] + ' ' + year;
+        html += weekdays.map(d => '<div class="calendar-weekday">' + d + '</div>').join('');
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day empty"></div>';
+        for (let day = 1; day <= daysInMonth; day++) {
+          const iso = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+          const dayEvents = allEvents.filter(ev => ev.date === iso);
+          html += '<div class="calendar-day' + (iso === todayIso ? ' today-cell' : '') + '">' +
+            '<div class="calendar-day-num">' + day + '</div>' +
+            dayEvents.map(ev => '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">' + escapeHtml(ev.title) + '</div>').join('') +
+          '</div>';
+        }
+      } else if (calendarViewMode === 'week') {
+        const startOfWeek = new Date(calendarCursorDate);
+        startOfWeek.setDate(calendarCursorDate.getDate() - calendarCursorDate.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        if (label) {
+          label.textContent = monthNames[startOfWeek.getMonth()].slice(0, 3) + ' ' + startOfWeek.getDate() + ' – ' +
+            monthNames[endOfWeek.getMonth()].slice(0, 3) + ' ' + endOfWeek.getDate() + ', ' + endOfWeek.getFullYear();
+        }
+        html += weekdays.map(d => '<div class="calendar-weekday">' + d + '</div>').join('');
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(startOfWeek);
+          d.setDate(startOfWeek.getDate() + i);
+          const iso = toIsoDate(d);
+          const dayEvents = allEvents.filter(ev => ev.date === iso);
+          html += '<div class="calendar-day' + (iso === todayIso ? ' today-cell' : '') + '" style="min-height:150px;">' +
+            '<div class="calendar-day-num">' + weekdays[d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate() + '</div>' +
+            dayEvents.map(ev => '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">' + escapeHtml(ev.title) + '</div>').join('') +
+          '</div>';
+        }
+      } else {
+        // Day view
+        const iso = toIsoDate(calendarCursorDate);
+        if (label) {
+          label.textContent = weekdays[calendarCursorDate.getDay()] + ', ' + monthNames[month] + ' ' + calendarCursorDate.getDate() + ', ' + year;
+        }
         const dayEvents = allEvents.filter(ev => ev.date === iso);
-        html += '<div class="calendar-day' + (iso === todayIso ? ' today-cell' : '') + '">' +
-          '<div class="calendar-day-num">' + day + '</div>' +
-          dayEvents.map(ev => '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '">' + escapeHtml(ev.title) + '</div>').join('') +
+        html += '<div class="calendar-day' + (iso === todayIso ? ' today-cell' : '') + '" style="min-height:180px;padding:14px;">' +
+          '<div class="calendar-day-num" style="font-size:0.95rem;margin-bottom:8px;">Schedule for ' + escapeHtml(label ? label.textContent : iso) + '</div>' +
+          (dayEvents.length === 0
+            ? '<div style="font-size:0.82rem;color:#64748b;">No training sessions or games scheduled on this day.</div>'
+            : dayEvents.map(ev => '<div class="calendar-event' + (ev.kind === 'game' ? ' game-event' : '') + '" style="padding:10px 12px;font-size:0.84rem;" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">' + escapeHtml(ev.title) + '</div>').join('')) +
         '</div>';
       }
+
       grid.innerHTML = html;
+
+      grid.querySelectorAll('.calendar-event').forEach(evEl => {
+        evEl.onclick = function() {
+          const kind = this.getAttribute('data-ev-kind');
+          const id = this.getAttribute('data-ev-id');
+          if (kind === 'game') {
+            const g = savedGames.find(item => item.id === id);
+            if (g) loadGameIntoPlanner(g);
+          } else {
+            const s = savedSessions.find(item => item.id === id);
+            if (s) loadSessionIntoBuilder(s);
+          }
+        };
+      });
 
       if (listEl) {
         listEl.innerHTML = allEvents.length === 0
-          ? '<div style="font-size:0.8rem;color:#64748b;">No saved sessions or games yet.</div>'
+          ? '<div style="font-size:0.8rem;color:#64748b;">No saved sessions or games yet for ' + escapeHtml(activeTeamName) + '.</div>'
           : allEvents.map(ev =>
-              '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;">' +
-                '<span class="badge ' + (ev.kind === 'game' ? 'badge-emerald' : 'badge-navy') + '">' + escapeHtml(ev.team) + '</span>' +
-                '<div style="font-weight:800;font-size:0.86rem;color:#0A2647;margin-top:4px;">' + escapeHtml(ev.title) + '</div>' +
-                '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(ev.date || 'Unscheduled') + '</div>' +
+              '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+                '<div>' +
+                  '<span class="badge ' + (ev.kind === 'game' ? 'badge-emerald' : 'badge-navy') + '">' + (ev.kind === 'game' ? 'GAME' : 'SESSION') + '</span>' +
+                  '<div style="font-weight:800;font-size:0.86rem;color:#0A2647;margin-top:4px;">' + escapeHtml(ev.title) + '</div>' +
+                  '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(ev.date || 'Unscheduled') + '</div>' +
+                '</div>' +
+                '<button type="button" class="btn btn-outline btn-sm open-cal-item-btn" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">Open</button>' +
               '</div>'
             ).join('');
-      }
-    }
 
-    function openEnlargedDiagramModal(title, imgUrl, coachingPoints) {
-      const modal = document.getElementById('enlargedDiagramModal');
-      const titleEl = document.getElementById('enlargedDiagramTitle');
-      const imgEl = document.getElementById('enlargedDiagramImg');
-      const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
-      const ptsText = document.getElementById('enlargedDiagramPointsText');
-      if (!modal || !imgEl) return;
-      if (titleEl) titleEl.textContent = title || 'Drill GIF';
-      imgEl.src = resolveDrillMediaUrl(imgUrl);
-      if (ptsWrap && ptsText) {
-        if (coachingPoints && coachingPoints.trim()) {
-          ptsText.textContent = coachingPoints;
-          ptsWrap.style.display = 'block';
-        } else {
-          ptsWrap.style.display = 'none';
-        }
-      }
-      modal.classList.add('open');
-    }
-
-    function renderDrillLibrary() {
-      const grid = document.getElementById('drillLibraryGrid');
-      const searchEl = document.getElementById('drillSearchInput');
-      const catEl = document.getElementById('drillCategoryFilter');
-      if (!grid) return;
-
-      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
-      const cat = catEl ? catEl.value : 'ALL';
-      const filtered = drillLibrary.filter(d => {
-        if (cat !== 'ALL' && d.category !== cat) return false;
-        if (!query) return true;
-        return [d.title, d.category, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
-      });
-
-      grid.innerHTML = filtered.length === 0
-        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No drills match your filter.</div>'
-        : filtered.map((d, idx) => {
-            const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
-            const tagsHtml = (Array.isArray(d.tags) ? d.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
-            return '<div class="lib-card">' +
-              '<div class="lib-card-body">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                  '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
-                  '<span style="font-size:0.74rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
-                '</div>' +
-                '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title) + '</h3>' +
-                (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" alt="' + escapeHtml(d.title) + '" class="gif-preview-img enlarge-drill-gif-btn" data-drill-idx="' + idx + '" title="Click to enlarge GIF">' : '') +
-                (d.coachingPoints ? '<div style="font-size:0.78rem;color:#1e3a8a;background:#eff6ff;border-radius:8px;padding:8px;margin-bottom:8px;white-space:pre-line;">' + escapeHtml(d.coachingPoints) + '</div>' : '') +
-                (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
-              '</div>' +
-              '<div class="lib-card-footer">' +
-                '<button type="button" class="btn btn-primary btn-sm add-drill-to-session-btn" data-drill-idx="' + idx + '">+ Add to Session</button>' +
-                (isClubAdmin ? '<button type="button" class="btn btn-danger btn-sm delete-drill-btn" data-drill-id="' + escapeHtml(d.id) + '">Delete</button>' : '') +
-              '</div>' +
-            '</div>';
-          }).join('');
-
-      grid.querySelectorAll('.enlarge-drill-gif-btn').forEach(img => {
-        img.onclick = function() {
-          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
-          if (d) openEnlargedDiagramModal(d.title, d.gifUrl, d.coachingPoints);
-        };
-      });
-      grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
-        btn.onclick = function() {
-          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
-          if (d) {
-            currentSessionParts.push({
-              id: 'part_' + Date.now(),
-              type: (d.category || 'technical').toLowerCase(),
-              title: d.title,
-              duration: d.duration || 15,
-              gifUrl: d.gifUrl || '',
-              coachingPoints: d.coachingPoints || '',
-              notes: d.notes || ''
-            });
-            renderSessionParts();
-            switchTab('builder');
-            showToast('Added "' + d.title + '" to Session Builder!');
-          }
-        };
-      });
-      grid.querySelectorAll('.delete-drill-btn').forEach(btn => {
-        btn.onclick = function() {
-          const id = this.getAttribute('data-drill-id');
-          drillLibrary = drillLibrary.filter(item => item.id !== id);
-          persistCurrentTeamState();
-          renderDrillLibrary();
-        };
-      });
-    }
-
-    async function syncDrillsFromGitHubRepo(showFeedback) {
-      try {
-        const fileNames = new Set();
-        const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills?t=' + Date.now();
-        const resp = await fetch(apiUrl, { cache: 'no-store' });
-        if (resp.ok) {
-          const files = await resp.json();
-          if (Array.isArray(files)) {
-            files.forEach(f => {
-              if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) fileNames.add(f.name);
-            });
-          }
-        }
-        const existingPaths = new Set(drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^.*\/drills\//, 'drills/')));
-        let added = 0;
-        fileNames.forEach(fileName => {
-          const relPath = 'drills/' + fileName;
-          if (!existingPaths.has(relPath.toLowerCase())) {
-            existingPaths.add(relPath.toLowerCase());
-            drillLibrary.unshift({
-              id: 'gh_drill_' + fileName.replace(/[^a-z0-9]/gi, '_'),
-              title: fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()),
-              category: 'Technical',
-              duration: 15,
-              tags: ['github-sync', 'gif'],
-              gifUrl: relPath,
-              coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
-              notes: 'Synced from GitHub drills/' + fileName
-            });
-            added++;
-          }
+        listEl.querySelectorAll('.open-cal-item-btn').forEach(btn => {
+          btn.onclick = function() {
+            const kind = this.getAttribute('data-ev-kind');
+            const id = this.getAttribute('data-ev-id');
+            if (kind === 'game') {
+              const g = savedGames.find(item => item.id === id);
+              if (g) loadGameIntoPlanner(g);
+            } else {
+              const s = savedSessions.find(item => item.id === id);
+              if (s) loadSessionIntoBuilder(s);
+            }
+          };
         });
-        if (added > 0) {
-          persistCurrentTeamState();
-          renderDrillLibrary();
-          showToast('Imported ' + added + ' new drill(s) from GitHub!');
-        } else if (showFeedback) {
-          showToast('All GitHub drills/ GIFs are already up to date.');
-        }
-      } catch (e) {}
-    }
-
-    function renderVideoLibrary() {
-      const grid = document.getElementById('videoLibraryGrid');
-      const searchEl = document.getElementById('videoSearchInput');
-      const catSel = document.getElementById('videoCategoryFilter');
-      if (!grid) return;
-
-      const selectedCat = catSel ? catSel.value : 'ALL';
-      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
-      if (catSel) {
-        const cats = Array.from(new Set(videoLibrary.map(v => v.category || 'General'))).sort();
-        catSel.innerHTML = '<option value="ALL">All Categories (' + videoLibrary.length + ')</option>' +
-          cats.map(c => '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
       }
-
-      const filtered = videoLibrary.filter(v => {
-        if (selectedCat !== 'ALL' && (v.category || 'General') !== selectedCat) return false;
-        if (!query) return true;
-        return [v.title, v.category, v.subCategory, ...(Array.isArray(v.tags) ? v.tags : [])].join(' ').toLowerCase().includes(query);
-      });
-
-      grid.innerHTML = filtered.length === 0
-        ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No videos loaded yet.</div>'
-        : filtered.map((vid, idx) =>
-            '<div class="lib-card">' +
-              '<div class="lib-card-body">' +
-                '<span class="badge badge-navy">' + escapeHtml(vid.category || 'General') + '</span>' +
-                '<h3 style="margin:6px 0 8px;font-size:0.94rem;font-weight:900;color:#0A2647;">' + escapeHtml(vid.title || 'Training Video') + '</h3>' +
-              '</div>' +
-              '<div class="lib-card-footer">' +
-                '<button type="button" class="btn btn-emerald btn-sm watch-lib-video-btn" data-vid-idx="' + idx + '">&#9654; Watch Video</button>' +
-              '</div>' +
-            '</div>'
-          ).join('');
-
-      grid.querySelectorAll('.watch-lib-video-btn').forEach(btn => {
-        btn.onclick = function() {
-          const item = filtered[parseInt(this.getAttribute('data-vid-idx'), 10)];
-          const modal = document.getElementById('embeddedVideoModal');
-          const stage = document.getElementById('embeddedVideoStage');
-          const titleEl = document.getElementById('embeddedVideoTitle');
-          if (item && modal && stage) {
-            if (titleEl) titleEl.textContent = item.title || 'Training Video';
-            stage.innerHTML = '<iframe src="' + escapeHtml(item.url) + '" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen" allowfullscreen></iframe>';
-            modal.classList.add('open');
-          }
-        };
-      });
     }
 
+    function loadGameIntoPlanner(g) {
+      currentEditingGameId = g.id;
+      document.getElementById('gameOpponentInput').value = g.opponent || 'Opponent FC';
+      document.getElementById('gameDateInput').value = g.date || getLocalTodayIso();
+      document.getElementById('gameTimeInput').value = g.time || '10:00 AM';
+      document.getElementById('gameLocationInput').value = g.location || 'Field 1';
+      document.getElementById('gameGoalsForInput').value = g.goalsFor || 0;
+      document.getElementById('gameGoalsAgainstInput').value = g.goalsAgainst || 0;
+      document.getElementById('halftimeTalkInput').value = g.halftimeTalk || '';
+      if (g.formation) document.getElementById('gameFormationSelect').value = g.formation;
+      if (g.lineups) gameLineups = JSON.parse(JSON.stringify(g.lineups));
+      gameSubLogs = Array.isArray(g.subLogs) ? JSON.parse(JSON.stringify(g.subLogs)) : [];
+      renderSubLogList();
+      renderGamePitch();
+      switchTab('gameday');
+    }
+
+    function loadSessionIntoBuilder(s) {
+      currentEditingSessionId = s.id;
+      document.getElementById('sessionTitleInput').value = s.title || '';
+      document.getElementById('sessionDateInput').value = s.date || getLocalTodayIso();
+      document.getElementById('sessionCoachInput').value = s.coach || 'Ambassadors FC Staff';
+      currentSessionParts = Array.isArray(s.parts) ? JSON.parse(JSON.stringify(s.parts)) : [];
+      renderSessionParts();
+      switchTab('builder');
+    }
+
+    /* =========================================================
+       SESSION BUILDER
+       ========================================================= */
     let currentSessionParts = [
       {
         id: 'part_1',
@@ -2594,7 +3155,12 @@
           '</div>' +
           '<div class="part-body">' +
             '<div class="gif-drop-box">' +
-              (resolvedGif ? '<img src="' + escapeHtml(resolvedGif) + '" alt="Drill GIF" class="gif-preview-img session-part-gif-img" data-part-idx="' + idx + '">' : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
+              (resolvedGif
+                ? '<div class="gif-preview-wrap session-part-gif-wrap" data-part-idx="' + idx + '">' +
+                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
+                    '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
+                  '</div>'
+                : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
             '</div>' +
             '<div style="display:flex;flex-direction:column;gap:10px;">' +
               '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
@@ -2604,8 +3170,33 @@
         '</div>';
       }).join('');
       if (totalEl) totalEl.textContent = String(totalMins);
+
+      container.querySelectorAll('.part-title-input').forEach(inp => {
+        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].title = this.value; };
+      });
+      container.querySelectorAll('.part-dur-input').forEach(inp => {
+        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].duration = parseInt(this.value, 10) || 15; renderSessionParts(); };
+      });
+      container.querySelectorAll('.part-cp-input').forEach(inp => {
+        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].coachingPoints = this.value; };
+      });
+      container.querySelectorAll('.part-notes-input').forEach(inp => {
+        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].notes = this.value; };
+      });
+      container.querySelectorAll('.remove-part-btn').forEach(btn => {
+        btn.onclick = function() { currentSessionParts.splice(parseInt(this.dataset.partIdx, 10), 1); renderSessionParts(); };
+      });
+      container.querySelectorAll('.session-part-gif-wrap').forEach(wrap => {
+        wrap.onclick = function() {
+          const p = currentSessionParts[parseInt(this.dataset.partIdx, 10)];
+          if (p) openEnlargedDiagramModal(p.title, p.gifUrl, p.coachingPoints);
+        };
+      });
     }
 
+    /* =========================================================
+       SETTINGS & TEAM JOIN / CREATE
+       ========================================================= */
     function renderSettingsPanel() {
       const nameEl = document.getElementById('settingsCoachNameText');
       const emailEl = document.getElementById('settingsCoachEmailText');
@@ -2615,14 +3206,14 @@
       const teamsList = document.getElementById('settingsAccessibleTeamsList');
 
       if (nameEl) nameEl.textContent = (currentUser && currentUser.displayName) || 'Coach';
-      if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Preview Admin Session';
+      if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Signed-In Coach';
       if (verBadge) { verBadge.style.display = 'inline-block'; verBadge.textContent = 'v' + APP_VERSION; }
       if (verCurr) verCurr.textContent = 'v' + APP_VERSION;
 
       if (teamsList) {
         teamsList.innerHTML = clubTeamsRegistry.map(t =>
           '<div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:7px 10px;font-size:0.8rem;">' +
-            '<div><strong>' + escapeHtml(t.name) + '</strong> <span style="color:#64748b;font-family:monospace;">(' + escapeHtml(t.code) + ')</span></div>' +
+            '<div><strong>' + escapeHtml(t.name) + '</strong> <span style="color:#64748b;font-family:monospace;">(Code: ' + escapeHtml(t.code) + ')</span></div>' +
             '<button type="button" class="btn btn-outline btn-sm switch-team-btn" data-team="' + escapeHtml(t.name) + '">Switch</button>' +
           '</div>'
         ).join('');
@@ -2653,8 +3244,8 @@
         sec.classList.toggle('active', sec.id === 'tab-' + tabName);
       });
       if (tabName === 'calendar') renderCalendar();
-      if (tabName === 'videos') renderVideoLibrary();
-      if (tabName === 'drills') { renderDrillLibrary(); syncDrillsFromGitHubRepo(false); }
+      if (tabName === 'videos') { renderVideoLibrary(); syncVideosFromGoogleSheet(); }
+      if (tabName === 'drills') { renderDrillLibrary(); syncDrillsFromGitHubRepo(); }
       if (tabName === 'gameday') { renderGamePitch(); renderGameRoster(); }
       if (tabName === 'roster') renderRoster();
       if (tabName === 'settings') renderSettingsPanel();
@@ -2682,9 +3273,29 @@
       renderDrillLibrary();
       renderVideoLibrary();
       renderSettingsPanel();
-      syncDrillsFromGitHubRepo(false);
+      syncDrillsFromGitHubRepo();
+      syncVideosFromGoogleSheet();
     }
 
+    function signOutCoach() {
+      stopMatchClock();
+      persistCurrentTeamState();
+      if (auth) {
+        auth.signOut().catch(() => {});
+      }
+      currentUser = null;
+      isDemoUser = false;
+      isClubAdmin = false;
+      const navInd = document.getElementById('navSignedInIndicator');
+      if (navInd) navInd.style.display = 'none';
+      const authGate = document.getElementById('authGateOverlay');
+      if (authGate) authGate.style.display = 'flex';
+      showToast('Signed out.');
+    }
+
+    /* =========================================================
+       INITIALIZATION & ALL EVENT BINDINGS
+       ========================================================= */
     document.addEventListener('DOMContentLoaded', () => {
       const todayIso = getLocalTodayIso();
       const sDate = document.getElementById('sessionDateInput');
@@ -2692,22 +3303,71 @@
       if (sDate && !sDate.value) sDate.value = todayIso;
       if (gDate && !gDate.value) gDate.value = todayIso;
 
+      // Show Bypass Login ONLY in hosted preview environments
       const previewWrap = document.getElementById('previewBypassWrap');
-      if (previewWrap) previewWrap.style.display = 'block';
+      if (previewWrap) {
+        previewWrap.style.display = isHostedPreviewEnvironment() ? 'block' : 'none';
+      }
 
       const bypassBtn = document.getElementById('previewBypassLoginBtn');
       if (bypassBtn) {
         bypassBtn.onclick = () => {
-          enterWorkspaceAsCoach({ email: CLUB_ADMIN_EMAIL, displayName: 'Coach Mace (Admin Preview)' }, true);
-          showToast('Entered Preview Mode with full Club Admin access (v' + APP_VERSION + ').');
+          if (!isHostedPreviewEnvironment()) {
+            showToast('Preview bypass is disabled on production domains.');
+            return;
+          }
+          enterWorkspaceAsCoach({ email: CLUB_ADMIN_EMAIL, displayName: 'Coach Mace (Preview Admin)' }, true);
+          showToast('Entered Preview Admin Mode (v' + APP_VERSION + ').');
         };
       }
 
+      // Firebase Auth State Listener (for real Google OAuth & Email/Password login)
+      if (auth) {
+        auth.onAuthStateChanged((user) => {
+          if (user && user.email) {
+            enterWorkspaceAsCoach({ email: user.email, displayName: user.displayName || user.email.split('@')[0] }, false);
+          }
+        });
+      }
+
+      // Google Sign-In Button
       const googleBtn = document.getElementById('googleSignInBtn');
+      const authStatusEl = document.getElementById('authStatusText');
       if (googleBtn) {
-        googleBtn.onclick = () => {
+        googleBtn.onclick = async () => {
+          if (authStatusEl) authStatusEl.textContent = '';
+          if (auth && typeof firebase !== 'undefined') {
+            try {
+              const provider = new firebase.auth.GoogleAuthProvider();
+              provider.setCustomParameters({ prompt: 'select_account' });
+              const res = await auth.signInWithPopup(provider);
+              if (res && res.user) {
+                enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName || res.user.email.split('@')[0] }, false);
+                return;
+              }
+            } catch (err) {
+              // If popup is blocked by iframe sandbox or browser settings, open the fallback account modal
+              const modal = document.getElementById('googleAccountPickerModal');
+              if (modal) modal.classList.add('open');
+              if (authStatusEl) authStatusEl.textContent = 'Popup blocked by browser/preview frame — select or enter your Google email above.';
+              return;
+            }
+          }
           const modal = document.getElementById('googleAccountPickerModal');
           if (modal) modal.classList.add('open');
+        };
+      }
+
+      const pickerRetryPopupBtn = document.getElementById('pickerRetryPopupBtn');
+      if (pickerRetryPopupBtn) {
+        pickerRetryPopupBtn.onclick = async () => {
+          if (!auth || typeof firebase === 'undefined') return;
+          try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            await auth.signInWithRedirect(provider);
+          } catch (err) {
+            showToast('Unable to launch OAuth redirect in this iframe.');
+          }
         };
       }
 
@@ -2716,28 +3376,78 @@
         pickerSubmitBtn.onclick = () => {
           const em = (document.getElementById('pickerCustomEmail').value || '').trim();
           const nm = (document.getElementById('pickerCustomName').value || '').trim() || (em.split('@')[0] || 'Coach');
-          if (!em) return showToast('Please enter your email address.');
+          if (!em) return showToast('Please enter your Google email address.');
           document.getElementById('googleAccountPickerModal').classList.remove('open');
-          enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
+          enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
         };
       }
       const pickerCloseBtn = document.getElementById('pickerCloseBtn');
       if (pickerCloseBtn) pickerCloseBtn.onclick = () => document.getElementById('googleAccountPickerModal').classList.remove('open');
 
-      const emailForm = document.getElementById('emailPasswordForm');
-      if (emailForm) {
-        emailForm.onsubmit = (e) => {
-          e.preventDefault();
-          const em = (document.getElementById('authEmailInput').value || '').trim();
-          if (!em) return;
-          enterWorkspaceAsCoach({ email: em, displayName: em.split('@')[0] }, true);
+      // Email & Password Sign-In / Registration
+      const toggleAuthModeBtn = document.getElementById('toggleAuthModeBtn');
+      const authNameWrap = document.getElementById('authNameFieldWrap');
+      const authSubmitBtn = document.getElementById('authSubmitBtn');
+      if (toggleAuthModeBtn) {
+        toggleAuthModeBtn.onclick = () => {
+          isRegisterMode = !isRegisterMode;
+          if (authNameWrap) authNameWrap.style.display = isRegisterMode ? 'block' : 'none';
+          if (authSubmitBtn) authSubmitBtn.textContent = isRegisterMode ? 'Create Coach Account →' : 'Sign In & Sync Cloud Workspace →';
+          toggleAuthModeBtn.textContent = isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Register';
         };
       }
 
+      const emailForm = document.getElementById('emailPasswordForm');
+      if (emailForm) {
+        emailForm.onsubmit = async (e) => {
+          e.preventDefault();
+          const em = (document.getElementById('authEmailInput').value || '').trim();
+          const pw = (document.getElementById('authPasswordInput').value || '').trim();
+          const nm = (document.getElementById('authNameInput').value || '').trim() || em.split('@')[0];
+          if (!em) return;
+          if (auth && pw) {
+            try {
+              if (isRegisterMode) {
+                const cred = await auth.createUserWithEmailAndPassword(em, pw);
+                if (cred.user && nm) await cred.user.updateProfile({ displayName: nm });
+                enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
+              } else {
+                const cred = await auth.signInWithEmailAndPassword(em, pw);
+                enterWorkspaceAsCoach({ email: em, displayName: (cred.user && cred.user.displayName) || nm }, false);
+              }
+              return;
+            } catch (err) {
+              if (authStatusEl) authStatusEl.textContent = err.message || 'Authentication failed.';
+              return;
+            }
+          }
+          enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
+        };
+      }
+
+      // Sign Out Button
+      const signOutBtn = document.getElementById('settingsSignOutBtn');
+      if (signOutBtn) signOutBtn.onclick = signOutCoach;
+
+      // Navigation Tabs
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
       });
 
+      // Video & Drill Filters
+      const vSearch = document.getElementById('videoSearchInput');
+      const vCat = document.getElementById('videoCategoryFilter');
+      const vSub = document.getElementById('videoSubCategoryFilter');
+      if (vSearch) vSearch.oninput = renderVideoLibrary;
+      if (vCat) vCat.onchange = renderVideoLibrary;
+      if (vSub) vSub.onchange = renderVideoLibrary;
+
+      const dSearch = document.getElementById('drillSearchInput');
+      const dCat = document.getElementById('drillCategoryFilter');
+      if (dSearch) dSearch.oninput = renderDrillLibrary;
+      if (dCat) dCat.onchange = renderDrillLibrary;
+
+      // Modals Close
       const closeVidBtn = document.getElementById('closeEmbeddedVideoBtn');
       const doneVidBtn = document.getElementById('doneEmbeddedVideoBtn');
       const closeVidFn = () => {
@@ -2753,9 +3463,225 @@
       if (closeDiagBtn) closeDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
       if (doneDiagBtn) doneDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
 
-      const syncGhBtn = document.getElementById('syncGitHubDrillsBtn');
-      if (syncGhBtn) syncGhBtn.onclick = () => syncDrillsFromGitHubRepo(true);
+      // Calendar Month / Week / Day View Switcher & Navigation
+      document.querySelectorAll('.cal-view-btn').forEach(btn => {
+        btn.onclick = () => {
+          calendarViewMode = btn.getAttribute('data-cal-view') || 'month';
+          renderCalendar();
+        };
+      });
 
+      const prevCalBtn = document.getElementById('prevMonthBtn');
+      const nextCalBtn = document.getElementById('nextMonthBtn');
+      const todayCalBtn = document.getElementById('todayCalendarBtn');
+
+      if (prevCalBtn) {
+        prevCalBtn.onclick = () => {
+          if (calendarViewMode === 'month') calendarCursorDate.setMonth(calendarCursorDate.getMonth() - 1);
+          else if (calendarViewMode === 'week') calendarCursorDate.setDate(calendarCursorDate.getDate() - 7);
+          else calendarCursorDate.setDate(calendarCursorDate.getDate() - 1);
+          renderCalendar();
+        };
+      }
+      if (nextCalBtn) {
+        nextCalBtn.onclick = () => {
+          if (calendarViewMode === 'month') calendarCursorDate.setMonth(calendarCursorDate.getMonth() + 1);
+          else if (calendarViewMode === 'week') calendarCursorDate.setDate(calendarCursorDate.getDate() + 7);
+          else calendarCursorDate.setDate(calendarCursorDate.getDate() + 1);
+          renderCalendar();
+        };
+      }
+      if (todayCalBtn) {
+        todayCalBtn.onclick = () => {
+          calendarCursorDate = new Date();
+          renderCalendar();
+        };
+      }
+
+      // Calendar "+ Add Game" & "+ New Session" Buttons
+      const newGameFromCalBtn = document.getElementById('newGameFromCalendarBtn');
+      if (newGameFromCalBtn) {
+        newGameFromCalBtn.onclick = () => {
+          resetGamePlannerToBlank();
+          switchTab('gameday');
+          showToast('Opened new Game Day sheet.');
+        };
+      }
+
+      const newSessionFromCalBtn = document.getElementById('newSessionFromCalendarBtn');
+      if (newSessionFromCalBtn) {
+        newSessionFromCalBtn.onclick = () => {
+          currentEditingSessionId = null;
+          document.getElementById('sessionTitleInput').value = 'New Training Session';
+          document.getElementById('sessionDateInput').value = getLocalTodayIso();
+          currentSessionParts = [];
+          renderSessionParts();
+          switchTab('builder');
+          showToast('Opened new Session Plan.');
+        };
+      }
+
+      // Session Builder Save / New / Add Part / Clean Preview
+      const saveSessionBtn = document.getElementById('saveSessionBtn');
+      if (saveSessionBtn) {
+        saveSessionBtn.onclick = () => {
+          const title = (document.getElementById('sessionTitleInput').value || '').trim() || 'Training Session';
+          const date = document.getElementById('sessionDateInput').value || getLocalTodayIso();
+          const coach = (document.getElementById('sessionCoachInput').value || '').trim() || 'Ambassadors FC Staff';
+          const sessionRecord = {
+            id: currentEditingSessionId || ('sess_' + Date.now()),
+            title,
+            team: activeTeamName,
+            date,
+            coach,
+            parts: JSON.parse(JSON.stringify(currentSessionParts))
+          };
+          const idx = savedSessions.findIndex(s => s.id === sessionRecord.id);
+          if (idx >= 0) savedSessions[idx] = sessionRecord;
+          else savedSessions.unshift(sessionRecord);
+          currentEditingSessionId = sessionRecord.id;
+          persistCurrentTeamState();
+          renderCalendar();
+          showToast('Saved "' + title + '" to Calendar!');
+        };
+      }
+
+      const newBlankSessionBtn = document.getElementById('newBlankSessionBtn');
+      if (newBlankSessionBtn) {
+        newBlankSessionBtn.onclick = () => {
+          currentEditingSessionId = null;
+          document.getElementById('sessionTitleInput').value = 'New Training Session';
+          document.getElementById('sessionDateInput').value = getLocalTodayIso();
+          currentSessionParts = [];
+          renderSessionParts();
+          showToast('Started blank Session Plan.');
+        };
+      }
+
+      const addSessionPartBtn = document.getElementById('addSessionPartBtn');
+      if (addSessionPartBtn) {
+        addSessionPartBtn.onclick = () => {
+          const type = (document.getElementById('newPartTypeSelect') || {}).value || 'technical';
+          currentSessionParts.push({
+            id: 'part_' + Date.now(),
+            type,
+            title: type.charAt(0).toUpperCase() + type.slice(1) + ' Activity',
+            duration: 15,
+            gifUrl: '',
+            coachingPoints: '',
+            notes: ''
+          });
+          renderSessionParts();
+        };
+      }
+
+      const toggleCleanBtn = document.getElementById('toggleCleanPreviewBtn');
+      const exitCleanBtn = document.getElementById('exitCleanPreviewBtn');
+      if (toggleCleanBtn) toggleCleanBtn.onclick = () => document.body.classList.add('clean-preview-mode');
+      if (exitCleanBtn) exitCleanBtn.onclick = () => document.body.classList.remove('clean-preview-mode');
+
+      // Game Day Timer Controls
+      const toggleClockBtn = document.getElementById('toggleMatchClockBtn');
+      const resetClockBtn = document.getElementById('resetMatchClockBtn');
+      const clockInput = document.getElementById('matchClockInput');
+
+      if (clockInput) {
+        clockInput.onchange = function() {
+          matchClockSeconds = parseClockInputToSeconds(this.value);
+          matchClockInitialSeconds = matchClockSeconds;
+          updateMatchClockDisplay();
+        };
+      }
+
+      if (toggleClockBtn) {
+        toggleClockBtn.onclick = () => {
+          if (matchClockInterval) {
+            stopMatchClock();
+          } else {
+            if (clockInput) {
+              matchClockSeconds = parseClockInputToSeconds(clockInput.value);
+              if (matchClockSeconds <= 0) matchClockSeconds = 25 * 60;
+              matchClockInitialSeconds = Math.max(matchClockInitialSeconds, matchClockSeconds);
+            }
+            toggleClockBtn.textContent = 'Pause';
+            matchClockInterval = setInterval(() => {
+              if (matchClockSeconds > 0) {
+                matchClockSeconds--;
+                updateMatchClockDisplay();
+              } else {
+                stopMatchClock();
+                showToast('Half timer finished!');
+              }
+            }, 1000);
+          }
+        };
+      }
+
+      document.querySelectorAll('.set-preset-clock-btn').forEach(btn => {
+        btn.onclick = function() {
+          stopMatchClock();
+          const mins = parseInt(this.getAttribute('data-preset'), 10) || 25;
+          matchClockSeconds = mins * 60;
+          matchClockInitialSeconds = mins * 60;
+          updateMatchClockDisplay();
+        };
+      });
+
+      if (resetClockBtn) {
+        resetClockBtn.onclick = () => {
+          stopMatchClock();
+          matchClockSeconds = matchClockInitialSeconds || (25 * 60);
+          updateMatchClockDisplay();
+        };
+      }
+
+      // Game Day Save Game & New Game Buttons
+      const saveGameBtn = document.getElementById('saveGameBtn');
+      if (saveGameBtn) {
+        saveGameBtn.onclick = () => {
+          const opponent = (document.getElementById('gameOpponentInput').value || '').trim() || 'Opponent FC';
+          const date = document.getElementById('gameDateInput').value || getLocalTodayIso();
+          const time = (document.getElementById('gameTimeInput').value || '').trim() || '10:00 AM';
+          const location = (document.getElementById('gameLocationInput').value || '').trim() || 'Field 1';
+          const goalsFor = parseInt(document.getElementById('gameGoalsForInput').value, 10) || 0;
+          const goalsAgainst = parseInt(document.getElementById('gameGoalsAgainstInput').value, 10) || 0;
+          const halftimeTalk = (document.getElementById('halftimeTalkInput').value || '').trim();
+          const formation = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
+
+          const gameRecord = {
+            id: currentEditingGameId || ('game_' + Date.now()),
+            team: activeTeamName,
+            opponent,
+            date,
+            time,
+            location,
+            goalsFor,
+            goalsAgainst,
+            halftimeTalk,
+            formation,
+            lineups: JSON.parse(JSON.stringify(gameLineups)),
+            subLogs: JSON.parse(JSON.stringify(gameSubLogs))
+          };
+
+          const idx = savedGames.findIndex(g => g.id === gameRecord.id);
+          if (idx >= 0) savedGames[idx] = gameRecord;
+          else savedGames.unshift(gameRecord);
+          currentEditingGameId = gameRecord.id;
+          persistCurrentTeamState();
+          renderCalendar();
+          showToast('Saved match vs ' + opponent + ' to Calendar!');
+        };
+      }
+
+      const newBlankGameBtn = document.getElementById('newBlankGameBtn');
+      if (newBlankGameBtn) {
+        newBlankGameBtn.onclick = () => {
+          resetGamePlannerToBlank();
+          showToast('Started new Game Day sheet.');
+        };
+      }
+
+      // Game Day Formation, Halves, Subs & Roster Controls
       const formSel = document.getElementById('gameFormationSelect');
       if (formSel) {
         formSel.onchange = () => {
@@ -2789,11 +3715,50 @@
         };
       }
 
+      const clearPlaceholdersBtn = document.getElementById('clearGamePlaceholdersBtn');
+      if (clearPlaceholdersBtn) {
+        clearPlaceholdersBtn.onclick = () => {
+          (gameLineups[activeHalf] || []).forEach(slot => { slot.playerName = ''; });
+          renderGamePitch();
+        };
+      }
+
       const copyH1H2Btn = document.getElementById('copyHalf1ToHalf2Btn');
       if (copyH1H2Btn) {
         copyH1H2Btn.onclick = () => {
           gameLineups[2] = JSON.parse(JSON.stringify(gameLineups[1]));
           showToast('Copied 1st Half lineup to 2nd Half.');
+        };
+      }
+
+      const logSubBtn = document.getElementById('logSubBtn');
+      if (logSubBtn) {
+        logSubBtn.onclick = () => {
+          const offName = (document.getElementById('subOffSelect') || {}).value;
+          const onName = (document.getElementById('subOnSelect') || {}).value;
+          const minute = ((document.getElementById('subMinuteInput') || {}).value || '').trim() || "15'";
+          if (!offName || !onName) return showToast('Select both Player OFF and Player ON.');
+          const tokens = gameLineups[activeHalf] || [];
+          const slot = tokens.find(t => t.playerName === offName);
+          if (slot) slot.playerName = onName;
+          gameSubLogs.unshift({ minute, off: offName, on: onName });
+          renderSubLogList();
+          renderGamePitch();
+          showToast('Subbed ' + onName + ' in for ' + offName + ' (' + minute + ')');
+        };
+      }
+
+      const addGamePlayerBtn = document.getElementById('addGamePlayerBtn');
+      const newGamePlayerInput = document.getElementById('newGamePlayerNameInput');
+      if (addGamePlayerBtn && newGamePlayerInput) {
+        addGamePlayerBtn.onclick = () => {
+          const parsed = parseSingleRosterEntry(newGamePlayerInput.value);
+          if (!parsed) return;
+          gameRosterPlayers.push(parsed);
+          newGamePlayerInput.value = '';
+          persistCurrentTeamState();
+          renderGameRoster();
+          renderGamePitch();
         };
       }
 
@@ -2808,50 +3773,24 @@
         };
       }
 
-      // Game Day & Session Builder Team Dropdown Switchers
+      // Team Switcher Handler across Roster, Game Day, and Session Builder
       function handleActiveTeamSwitch(newTeamName) {
         if (!newTeamName || newTeamName === activeTeamName) return;
         persistCurrentTeamState();
         loadTeamStateFromStorage(newTeamName);
-        // Reset pitch slots to clean position placeholders for the newly selected team
-        const formVal = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
-        const slots = FORMATIONS[formVal] || FORMATIONS['4-2-2'];
-        gameLineups = {
-          1: slots.map((s, i) => ({ id: 'h1_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' })),
-          2: slots.map((s, i) => ({ id: 'h2_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }))
-        };
-        gameSubLogs = [];
-        const subLogList = document.getElementById('subLogList');
-        if (subLogList) subLogList.innerHTML = '';
-        const gameRosterTitleEl = document.getElementById('gameRosterTitle');
-        if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
-        renderGamePitch();
+        resetGamePlannerToBlank();
         renderGameRoster();
         showToast('Switched to ' + activeTeamName);
       }
 
-      const gameTeamSel = document.getElementById('gameTeamSelect');
-      if (gameTeamSel) {
-        gameTeamSel.onchange = function() {
-          handleActiveTeamSwitch(this.value);
-        };
-      }
+      ['gameTeamSelect', 'sessionTeamSelect', 'rosterTeamSelect'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (sel) {
+          sel.onchange = function() { handleActiveTeamSwitch(this.value); };
+        }
+      });
 
-      const sessionTeamSel = document.getElementById('sessionTeamSelect');
-      if (sessionTeamSel) {
-        sessionTeamSel.onchange = function() {
-          handleActiveTeamSwitch(this.value);
-        };
-      }
-
-      // Roster Tab Team Switcher, Add Player, Bulk Copy/Paste, and Sync Controls
-      const rosterTeamSel = document.getElementById('rosterTeamSelect');
-      if (rosterTeamSel) {
-        rosterTeamSel.onchange = function() {
-          handleActiveTeamSwitch(this.value);
-        };
-      }
-
+      // Roster Tab Add Player, Bulk Copy/Paste, and Sync Controls
       const masterAddBtn = document.getElementById('masterAddPlayerBtn');
       const masterNameInput = document.getElementById('masterNewPlayerNameInput');
       if (masterAddBtn && masterNameInput) {
@@ -2948,6 +3887,65 @@
           rosterPlayers.forEach(p => { p.present = true; });
           persistCurrentTeamState();
           renderRoster();
+        };
+      }
+
+      // Settings: Join Team with Code & Create New Team
+      const joinTeamBtn = document.getElementById('joinTeamWithCodeBtn');
+      if (joinTeamBtn) {
+        joinTeamBtn.onclick = () => {
+          openCustomPromptModal('Join Team with Code', 'Enter the Team Join Code (e.g. AFC-1112):', '', (rawCode) => {
+            const code = String(rawCode || '').trim().toUpperCase();
+            if (!code) return;
+            const found = clubTeamsRegistry.find(t => String(t.code || '').toUpperCase() === code);
+            if (found) {
+              persistCurrentTeamState();
+              loadTeamStateFromStorage(found.name);
+              renderSettingsPanel();
+              showToast('Joined and switched to ' + found.name + '!');
+            } else {
+              const newName = 'Team ' + code;
+              clubTeamsRegistry.push({ name: newName, code, ageGroup: 'Club', gender: 'Coed' });
+              persistCurrentTeamState();
+              loadTeamStateFromStorage(newName);
+              renderSettingsPanel();
+              showToast('Added and switched to ' + newName + '!');
+            }
+          });
+        };
+      }
+
+      const createTeamBtn = document.getElementById('createNewTeamFromSettingsBtn');
+      if (createTeamBtn) {
+        createTeamBtn.onclick = () => {
+          openCustomPromptModal('Create New Team Workspace', 'Enter the new Team Name (e.g. 2013 Boys Navy):', '', (rawName) => {
+            const name = String(rawName || '').trim();
+            if (!name) return;
+            if (clubTeamsRegistry.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+              showToast('That team already exists.');
+              return;
+            }
+            const code = 'AFC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            clubTeamsRegistry.push({ name, code, ageGroup: 'Youth', gender: 'Club' });
+            persistCurrentTeamState();
+            loadTeamStateFromStorage(name);
+            renderSettingsPanel();
+            showToast('Created ' + name + ' (Join Code: ' + code + ')!');
+          });
+        };
+      }
+
+      const addVersionNoteBtn = document.getElementById('addVersionNoteBtn');
+      const versionNoteInput = document.getElementById('adminVersionNoteInput');
+      if (addVersionNoteBtn && versionNoteInput) {
+        addVersionNoteBtn.onclick = () => {
+          const note = versionNoteInput.value.trim();
+          if (!note) return;
+          versionHistoryLog.unshift({ version: APP_VERSION, date: getLocalTodayIso(), note });
+          try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
+          versionNoteInput.value = '';
+          renderSettingsPanel();
+          showToast('Logged version note.');
         };
       }
     });
