@@ -1199,6 +1199,42 @@
           </div>
 
           <div id="adminAccessPanel" style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+                <div>
+                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Invite Coach by Email &amp; Team Access</h3>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Grant assistant coaches or staff access to specific Ambassadors FC teams via email.</p>
+                </div>
+                <span class="badge badge-emerald" id="invitedCoachesCountBadge">0 Coaches</span>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;align-items:end;margin-bottom:12px;">
+                <div>
+                  <label class="label" for="inviteCoachEmailInput">Coach Email Address *</label>
+                  <input type="email" id="inviteCoachEmailInput" class="input" placeholder="assistant@ambassadorsfootball.org" />
+                </div>
+                <div>
+                  <label class="label" for="inviteCoachNameInput">Coach Name</label>
+                  <input type="text" id="inviteCoachNameInput" class="input" placeholder="e.g. Coach Jordan" />
+                </div>
+                <div>
+                  <label class="label" for="inviteCoachTeamSelect">Assign Team Access</label>
+                  <select id="inviteCoachTeamSelect" class="select"></select>
+                </div>
+                <div>
+                  <label class="label" for="inviteCoachRoleSelect">Role</label>
+                  <select id="inviteCoachRoleSelect" class="select">
+                    <option value="Assistant Coach">Assistant Coach</option>
+                    <option value="Head Coach">Head Coach</option>
+                    <option value="Club Admin">Club Admin</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-emerald" id="sendCoachInviteBtn" style="height:37px;">&#9993; Invite Coach</button>
+              </div>
+
+              <div id="invitedCoachesList" style="display:flex;flex-direction:column;gap:6px;"></div>
+            </div>
+
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
               <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.4</strong></p>
@@ -1284,6 +1320,16 @@
         <div id="enlargedDiagramPointsWrap" style="display:none;width:100%;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;">
           <div style="font-size:0.68rem;font-weight:900;text-transform:uppercase;color:#0A2647;margin-bottom:4px;">Coaching Points</div>
           <div id="enlargedDiagramPointsText" style="font-size:0.8rem;color:#1e3a8a;line-height:1.45;white-space:pre-line;"></div>
+        </div>
+        <div id="gifBannerCropperBox" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+            <div>
+              <div style="font-size:0.74rem;font-weight:900;color:#0A2647;">Export Banner-Free Animated GIF (All Frames Preserved)</div>
+              <div style="font-size:0.7rem;color:#64748b;">Crops the top/bottom session plan banners off every frame of your original animated GIF so you can upload it straight to GitHub.</div>
+            </div>
+            <button type="button" class="btn btn-emerald btn-sm" id="exportCroppedGifBtn">&#11015; Download Banner-Free .GIF</button>
+          </div>
+          <div id="gifCropStatusText" style="font-size:0.72rem;font-weight:700;color:#1e4e8c;margin-top:6px;display:none;"></div>
         </div>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
@@ -1402,6 +1448,13 @@
     let gameRosterPlayers = [];
     let currentEditingGameId = null;
     let currentEditingSessionId = null;
+    let unsubscribeTeamCloudListener = null;
+    let unsubscribeSharedLibsListener = null;
+    let coachInvitesRegistry = [];
+    try {
+      const storedInvites = JSON.parse(localStorage.getItem('afc_coach_invites') || '[]');
+      if (Array.isArray(storedInvites)) coachInvitesRegistry = storedInvites;
+    } catch (e) {}
 
     function getTeamDocRef(teamName) {
       const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -1422,6 +1475,7 @@
         localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
         localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
         localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
+        localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry));
         localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
         localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
       } catch (e) {}
@@ -1434,11 +1488,75 @@
         db.collection('afc_club').doc('shared_libraries').set({
           videos: videoLibrary,
           drills: drillLibrary,
+          clubTeams: clubTeamsRegistry,
+          coachInvites: coachInvitesRegistry,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true }).catch(() => {});
       }
 
       updateWorkspaceBadges();
+    }
+
+    function attachFirestoreTeamSync(teamName) {
+      if (typeof unsubscribeTeamCloudListener === 'function') {
+        unsubscribeTeamCloudListener();
+        unsubscribeTeamCloudListener = null;
+      }
+      const docRef = getTeamDocRef(teamName);
+      if (!docRef) return;
+
+      unsubscribeTeamCloudListener = docRef.onSnapshot((snap) => {
+        if (!snap.exists || activeTeamName !== teamName) return;
+        const cloud = snap.data() || {};
+        const localRaw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null');
+        const localUpdated = (localRaw && localRaw.updatedAt) || 0;
+        const cloudUpdated = cloud.updatedAt || 0;
+
+        // Hydrate from Firestore whenever cloud has newer data or local device (e.g. mobile) is empty
+        if (cloudUpdated > localUpdated || rosterPlayers.length === 0) {
+          if (Array.isArray(cloud.sessions)) savedSessions = cloud.sessions;
+          if (Array.isArray(cloud.games)) savedGames = cloud.games;
+          if (Array.isArray(cloud.roster) && cloud.roster.length > 0) rosterPlayers = cloud.roster;
+          if (Array.isArray(cloud.gameRoster) && cloud.gameRoster.length > 0) {
+            gameRosterPlayers = cloud.gameRoster;
+          } else if (rosterPlayers.length > 0 && gameRosterPlayers.length === 0) {
+            gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          }
+          try {
+            localStorage.setItem('afc_team_state_' + teamName, JSON.stringify({
+              teamName,
+              sessions: savedSessions,
+              games: savedGames,
+              roster: rosterPlayers,
+              gameRoster: gameRosterPlayers,
+              updatedAt: cloudUpdated || Date.now()
+            }));
+          } catch (e) {}
+          renderCalendar();
+          renderRoster();
+          renderGameRoster();
+          renderGamePitch();
+          updateWorkspaceBadges();
+        }
+      }, () => {});
+    }
+
+    function attachFirestoreClubSync() {
+      if (!db || typeof unsubscribeSharedLibsListener === 'function') return;
+      unsubscribeSharedLibsListener = db.collection('afc_club').doc('shared_libraries').onSnapshot((snap) => {
+        if (!snap.exists) return;
+        const data = snap.data() || {};
+        if (Array.isArray(data.clubTeams) && data.clubTeams.length > 0) {
+          clubTeamsRegistry = data.clubTeams;
+          try { localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry)); } catch (e) {}
+          populateTeamDropdowns();
+        }
+        if (Array.isArray(data.coachInvites)) {
+          coachInvitesRegistry = data.coachInvites;
+          try { localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry)); } catch (e) {}
+          renderSettingsPanel();
+        }
+      }, () => {});
     }
 
     function loadTeamStateFromStorage(teamName) {
@@ -1485,15 +1603,17 @@
       renderRoster();
       renderGameRoster();
       updateWorkspaceBadges();
+      attachFirestoreTeamSync(teamName);
     }
 
     function populateTeamDropdowns() {
       userTeams = clubTeamsRegistry.map(t => t.name);
-      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
+      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect', 'inviteCoachTeamSelect'];
       selects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
-        sel.innerHTML = userTeams.map(t =>
+        const allOption = id === 'inviteCoachTeamSelect' ? '<option value="ALL_TEAMS">All Club Teams</option>' : '';
+        sel.innerHTML = allOption + userTeams.map(t =>
           '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
         ).join('');
       });
@@ -1770,11 +1890,13 @@
       const imgEl = document.getElementById('enlargedDiagramImg');
       const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
       const ptsText = document.getElementById('enlargedDiagramPointsText');
+      const exportBtn = document.getElementById('exportCroppedGifBtn');
+      const statusEl = document.getElementById('gifCropStatusText');
       if (!modal || !imgEl) return;
       if (titleEl) titleEl.textContent = title || 'Drill GIF';
       const parentBox = imgEl.parentElement;
       if (parentBox) {
-        parentBox.classList.add('gif-preview-wrap');
+        parentBox.classList.remove('enlarged-crop-banner-box');
         parentBox.style.cursor = 'default';
         const oldCanvas = parentBox.querySelector('canvas.embedded-drill-canvas');
         if (oldCanvas) oldCanvas.remove();
@@ -1782,7 +1904,13 @@
       imgEl.style.display = 'block';
       imgEl.setAttribute('data-fallback-step', '0');
       imgEl.onerror = function() { handleDrillGifError(this, imgUrl); };
-      imgEl.src = resolveDrillMediaUrl(imgUrl);
+      const resolvedSrc = resolveDrillMediaUrl(imgUrl);
+      imgEl.src = resolvedSrc;
+      if (statusEl) { statusEl.style.display = 'none'; statusEl.textContent = ''; }
+      if (exportBtn) {
+        exportBtn.disabled = false;
+        exportBtn.onclick = () => exportBannerFreeAnimatedGif(resolvedSrc, title || 'drill-animation');
+      }
       if (ptsWrap && ptsText) {
         if (coachingPoints && coachingPoints.trim()) {
           ptsText.textContent = coachingPoints;
@@ -1792,6 +1920,98 @@
         }
       }
       modal.classList.add('open');
+    }
+
+    async function exportBannerFreeAnimatedGif(gifUrl, baseTitle) {
+      const statusEl = document.getElementById('gifCropStatusText');
+      const btn = document.getElementById('exportCroppedGifBtn');
+      const setStatus = (msg) => {
+        if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = msg; }
+      };
+      try {
+        if (btn) btn.disabled = true;
+        setStatus('Loading animated GIF frames...');
+        const resp = await fetch(gifUrl);
+        if (!resp.ok) throw new Error('Could not fetch GIF file (' + resp.status + ')');
+        const arrayBuf = await resp.arrayBuffer();
+
+        if (typeof ImageDecoder === 'undefined') {
+          throw new Error('Please open in Chrome or Edge to decode multi-frame GIFs directly.');
+        }
+
+        // Load gif.js encoder + same-origin Blob worker
+        if (!window.GIF) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js';
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('Failed to load GIF encoder library.'));
+            document.head.appendChild(s);
+          });
+        }
+        const workerResp = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
+        const workerBlobUrl = URL.createObjectURL(await workerResp.blob());
+
+        const decoder = new ImageDecoder({ data: arrayBuf, type: 'image/gif' });
+        await decoder.tracks.ready;
+        const frameCount = decoder.tracks.selectedTrack.frameCount || 1;
+        setStatus('Decoding & cropping ' + frameCount + ' animation frames...');
+
+        let gifEncoder = null;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        for (let i = 0; i < frameCount; i++) {
+          const result = await decoder.decode({ frameIndex: i });
+          const frame = result.image;
+          const fullW = frame.displayWidth;
+          const fullH = frame.displayHeight;
+
+          // Crop off top header/title (~18.2%) and bottom footer banner (~6.8%) + outer frame (~6.5% sides)
+          const cropX = Math.round(fullW * 0.068);
+          const cropY = Math.round(fullH * 0.182);
+          const cropW = Math.round(fullW * (1 - 0.136));
+          const cropH = Math.round(fullH * (1 - 0.182 - 0.068));
+
+          if (!gifEncoder) {
+            canvas.width = cropW;
+            canvas.height = cropH;
+            gifEncoder = new window.GIF({
+              workers: 2,
+              quality: 8,
+              width: cropW,
+              height: cropH,
+              workerScript: workerBlobUrl
+            });
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, cropW, cropH);
+          ctx.drawImage(frame, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+          const delayMs = frame.duration ? Math.max(20, Math.round(frame.duration / 1000)) : 50;
+          gifEncoder.addFrame(ctx, { copy: true, delay: delayMs });
+          frame.close();
+        }
+
+        setStatus('Encoding clean animated .GIF...');
+        gifEncoder.on('finished', (blob) => {
+          URL.revokeObjectURL(workerBlobUrl);
+          const dlUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const safeName = String(baseTitle || '5-person get angle triangle').toLowerCase().replace(/[^a-z0-9\- ]+/g, '').trim() || '5-person get angle triangle';
+          a.href = dlUrl;
+          a.download = safeName + '.gif';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setStatus('Done! Downloaded "' + safeName + '.gif" with all ' + frameCount + ' frames and original positions intact.');
+          if (btn) btn.disabled = false;
+        });
+        gifEncoder.render();
+      } catch (err) {
+        setStatus('Error: ' + (err && err.message ? err.message : 'Unable to crop GIF.'));
+        if (btn) btn.disabled = false;
+      }
     }
 
     function renderDrillLibrary() {
@@ -3287,11 +3507,66 @@
       const verCurr = document.getElementById('adminVersionCurrentText');
       const verList = document.getElementById('adminVersionHistoryList');
       const teamsList = document.getElementById('settingsAccessibleTeamsList');
+      const invitesList = document.getElementById('invitedCoachesList');
+      const invitesBadge = document.getElementById('invitedCoachesCountBadge');
 
       if (nameEl) nameEl.textContent = (currentUser && currentUser.displayName) || 'Coach';
       if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Signed-In Coach';
       if (verBadge) { verBadge.style.display = 'inline-block'; verBadge.textContent = 'v' + APP_VERSION; }
       if (verCurr) verCurr.textContent = 'v' + APP_VERSION;
+
+      if (invitesBadge) {
+        invitesBadge.textContent = coachInvitesRegistry.length + ' Coach' + (coachInvitesRegistry.length === 1 ? '' : 'es');
+      }
+
+      if (invitesList) {
+        invitesList.innerHTML = coachInvitesRegistry.length === 0
+          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Enter a coach email above to grant team access.</div>'
+          : coachInvitesRegistry.map((inv, idx) =>
+              '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid #cbd5e1;border-radius:9px;padding:8px 11px;font-size:0.8rem;">' +
+                '<div>' +
+                  '<strong style="color:#0A2647;">' + escapeHtml(inv.name || inv.email) + '</strong> ' +
+                  '<span style="color:#64748b;">(' + escapeHtml(inv.email) + ')</span>' +
+                  '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">' +
+                    '<span class="badge badge-navy">' + escapeHtml(inv.role || 'Assistant Coach') + '</span>' +
+                    '<span class="badge badge-emerald">' + escapeHtml(inv.team === 'ALL_TEAMS' ? 'All Club Teams' : (inv.team || activeTeamName)) + '</span>' +
+                    '<span style="font-size:0.7rem;color:#64748b;">Invited ' + escapeHtml(inv.invitedAt || '') + '</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:6px;">' +
+                  '<button type="button" class="btn btn-outline btn-sm copy-invite-link-btn" data-idx="' + idx + '">Copy Invite</button>' +
+                  '<button type="button" class="btn btn-danger btn-sm remove-coach-invite-btn" data-idx="' + idx + '">Revoke</button>' +
+                '</div>' +
+              '</div>'
+            ).join('');
+
+        invitesList.querySelectorAll('.copy-invite-link-btn').forEach(btn => {
+          btn.onclick = function() {
+            const inv = coachInvitesRegistry[parseInt(this.getAttribute('data-idx'), 10)];
+            if (!inv) return;
+            const teamObj = clubTeamsRegistry.find(t => t.name === inv.team) || clubTeamsRegistry[0];
+            const codeHint = teamObj ? ' (Join Code: ' + teamObj.code + ')' : '';
+            const inviteMsg = 'You have been invited as ' + inv.role + ' for ' + (inv.team === 'ALL_TEAMS' ? 'Ambassadors FC' : inv.team) + codeHint + '. Sign in with ' + inv.email + ' at ' + window.location.origin + window.location.pathname;
+            const tmp = document.createElement('textarea');
+            tmp.value = inviteMsg;
+            document.body.appendChild(tmp);
+            tmp.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(tmp);
+            showToast('Copied invite message & join code for ' + inv.email + '!');
+          };
+        });
+
+        invitesList.querySelectorAll('.remove-coach-invite-btn').forEach(btn => {
+          btn.onclick = function() {
+            const idx = parseInt(this.getAttribute('data-idx'), 10);
+            const removed = coachInvitesRegistry.splice(idx, 1)[0];
+            persistCurrentTeamState();
+            renderSettingsPanel();
+            if (removed) showToast('Revoked access for ' + removed.email);
+          };
+        });
+      }
 
       if (teamsList) {
         teamsList.innerHTML = clubTeamsRegistry.map(t =>
@@ -3352,6 +3627,7 @@
       }
 
       loadTeamStateFromStorage(activeTeamName);
+      attachFirestoreClubSync();
       renderSessionParts();
       renderDrillLibrary();
       renderVideoLibrary();
@@ -4015,6 +4291,54 @@
             renderSettingsPanel();
             showToast('Created ' + name + ' (Join Code: ' + code + ')!');
           });
+        };
+      }
+
+      // Settings: Invite Coach by Email
+      const sendCoachInviteBtn = document.getElementById('sendCoachInviteBtn');
+      if (sendCoachInviteBtn) {
+        sendCoachInviteBtn.onclick = () => {
+          const emailInput = document.getElementById('inviteCoachEmailInput');
+          const nameInput = document.getElementById('inviteCoachNameInput');
+          const teamSel = document.getElementById('inviteCoachTeamSelect');
+          const roleSel = document.getElementById('inviteCoachRoleSelect');
+
+          const email = (emailInput && emailInput.value || '').trim().toLowerCase();
+          if (!email || !email.includes('@')) {
+            showToast('Please enter a valid coach email address.');
+            return;
+          }
+          const name = (nameInput && nameInput.value || '').trim() || email.split('@')[0];
+          const team = (teamSel && teamSel.value) || activeTeamName;
+          const role = (roleSel && roleSel.value) || 'Assistant Coach';
+
+          const existingIdx = coachInvitesRegistry.findIndex(c => c.email.toLowerCase() === email && c.team === team);
+          const record = {
+            email,
+            name,
+            team,
+            role,
+            invitedBy: (currentUser && currentUser.email) || CLUB_ADMIN_EMAIL,
+            invitedAt: getLocalTodayIso()
+          };
+          if (existingIdx >= 0) coachInvitesRegistry[existingIdx] = record;
+          else coachInvitesRegistry.unshift(record);
+
+          if (emailInput) emailInput.value = '';
+          if (nameInput) nameInput.value = '';
+          persistCurrentTeamState();
+          renderSettingsPanel();
+
+          const teamObj = clubTeamsRegistry.find(t => t.name === team) || clubTeamsRegistry[0];
+          const subject = encodeURIComponent('Ambassadors FC Training App Invitation (' + (team === 'ALL_TEAMS' ? 'All Teams' : team) + ')');
+          const body = encodeURIComponent(
+            'Hi ' + name + ',\n\n' +
+            'You have been invited as ' + role + ' for ' + (team === 'ALL_TEAMS' ? 'Ambassadors FC' : team) + '.\n' +
+            (teamObj ? 'Team Join Code: ' + teamObj.code + '\n\n' : '\n') +
+            'Sign in using your email (' + email + ') at:\n' + window.location.origin + window.location.pathname
+          );
+          try { window.open('mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body, '_blank'); } catch (e) {}
+          showToast('Saved coach invite for ' + email + '!');
         };
       }
 
