@@ -1573,29 +1573,31 @@
       if (!u) return '';
       if (/^(https?:|data:|blob:)/i.test(u)) return u;
       const cleanPath = u.replace(/^\.?\//, '');
+      const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
       if (isHostedPreviewEnvironment()) {
-        return 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+        return 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
       }
-      return cleanPath;
+      return encodedPath;
     }
 
     function handleDrillGifError(imgEl, rawPath) {
       if (!imgEl) return;
       const attempt = parseInt(imgEl.getAttribute('data-fallback-step') || '0', 10);
-      const cleanPath = String(rawPath || '').replace(/^.*\/drills\//i, 'drills/').replace(/^\.?\//, '');
-      if (attempt === 0 && cleanPath) {
+      const cleanPath = String(rawPath || '').replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, '');
+      const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
+      if (attempt === 0 && encodedPath) {
         imgEl.setAttribute('data-fallback-step', '1');
-        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
         return;
       }
-      if (attempt === 1 && cleanPath) {
+      if (attempt === 1 && encodedPath) {
         imgEl.setAttribute('data-fallback-step', '2');
-        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + cleanPath;
+        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + encodedPath;
         return;
       }
-      if (attempt === 2 && cleanPath) {
+      if (attempt === 2 && encodedPath) {
         imgEl.setAttribute('data-fallback-step', '3');
-        imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + cleanPath;
+        imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + encodedPath;
         return;
       }
       // Render built-in live 60fps tactical drill canvas so the GIF window is always visible & enlargeable
@@ -1838,64 +1840,110 @@
     }
 
     async function syncDrillsFromGitHubRepo() {
-      const fileNames = new Set();
-      const branches = ['main', 'master'];
+      const discoveredPaths = new Set();
+      const branchesToTry = new Set(['main', 'master']);
 
-      for (const branch of branches) {
-        // 1. Try GitHub Contents API
+      // 0. Query repo metadata first to discover the exact default_branch
+      try {
+        const repoMetaResp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME, { cache: 'no-store' });
+        if (repoMetaResp.ok) {
+          const repoMeta = await repoMetaResp.json();
+          if (repoMeta && repoMeta.default_branch) {
+            branchesToTry.add(repoMeta.default_branch);
+          }
+        }
+      } catch (e) {}
+
+      const orderedBranches = Array.from(branchesToTry);
+
+      for (const branch of orderedBranches) {
+        // 1. Try GitHub Recursive Trees API across the entire repo (finds drills/, Drills/, nested subfolders, etc.)
         try {
-          const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills?ref=' + branch + '&t=' + Date.now();
-          const resp = await fetch(apiUrl, { cache: 'no-store' });
-          if (resp.ok) {
-            const files = await resp.json();
-            if (Array.isArray(files)) {
-              files.forEach(f => {
-                if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) {
-                  fileNames.add(f.name);
+          const treeUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/git/trees/' + encodeURIComponent(branch) + '?recursive=1';
+          const treeResp = await fetch(treeUrl, { cache: 'no-store' });
+          if (treeResp.ok) {
+            const treeData = await treeResp.json();
+            const nodes = Array.isArray(treeData.tree) ? treeData.tree : [];
+            nodes.forEach(node => {
+              if (!node || node.type !== 'blob') return;
+              const p = String(node.path || '');
+              if (/\.(gif|png|jpg|jpeg|webp)$/i.test(p) && !/^Logo-ambassadors/i.test(p)) {
+                if (/drill/i.test(p) || !p.includes('/')) {
+                  discoveredPaths.add(p);
                 }
-              });
-            }
+              }
+            });
           }
         } catch (e) {}
 
-        // 2. Try GitHub Recursive Trees API (bypasses directory listing limits & caches)
-        if (fileNames.size === 0) {
-          try {
-            const treeUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/git/trees/' + branch + '?recursive=1&t=' + Date.now();
-            const treeResp = await fetch(treeUrl, { cache: 'no-store' });
-            if (treeResp.ok) {
-              const treeData = await treeResp.json();
-              const nodes = Array.isArray(treeData.tree) ? treeData.tree : [];
-              nodes.forEach(node => {
-                if (node && node.type === 'blob' && /^drills\/[^/]+\.(gif|png|jpg|jpeg|webp)$/i.test(node.path)) {
-                  fileNames.add(node.path.replace(/^drills\//i, ''));
+        // 2. Try GitHub Contents API on common drill folder names
+        if (discoveredPaths.size === 0) {
+          for (const folder of ['drills', 'Drills', 'assets/drills', 'images/drills']) {
+            try {
+              const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/' + folder + '?ref=' + encodeURIComponent(branch);
+              const resp = await fetch(apiUrl, { cache: 'no-store' });
+              if (resp.ok) {
+                const files = await resp.json();
+                if (Array.isArray(files)) {
+                  files.forEach(f => {
+                    if (f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name)) {
+                      discoveredPaths.add(f.path || (folder + '/' + f.name));
+                    }
+                  });
                 }
-              });
-            }
-          } catch (e) {}
+              }
+            } catch (e) {}
+          }
         }
 
-        if (fileNames.size > 0) break;
+        // 3. Fallback: Parse public GitHub HTML directory page (works even if GitHub API hits 60/hr rate limit)
+        if (discoveredPaths.size === 0) {
+          for (const folder of ['drills', 'Drills']) {
+            try {
+              const htmlUrl = 'https://github.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/tree/' + encodeURIComponent(branch) + '/' + folder;
+              const htmlResp = await fetch(htmlUrl, { cache: 'no-store' });
+              if (htmlResp.ok) {
+                const htmlText = await htmlResp.text();
+                const regex = new RegExp('(?:' + folder + '|drills)\\/[^"\'<>\\\\\\s]+\\.(?:gif|png|jpg|jpeg|webp)', 'gi');
+                for (const m of htmlText.matchAll(regex)) {
+                  discoveredPaths.add(decodeURIComponent(m[0]));
+                }
+              }
+            } catch (e) {}
+          }
+        }
+
+        if (discoveredPaths.size > 0) break;
       }
 
-      if (fileNames.size > 0) {
-        const existingPaths = new Set(
-          drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^.*\/drills\//i, 'drills/'))
+      if (discoveredPaths.size > 0) {
+        const existingNormalized = new Set(
+          drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, ''))
         );
         let added = 0;
-        fileNames.forEach(fileName => {
-          const relPath = 'drills/' + fileName;
-          if (!existingPaths.has(relPath.toLowerCase())) {
-            existingPaths.add(relPath.toLowerCase());
+        discoveredPaths.forEach(relPath => {
+          const cleanPath = String(relPath || '').replace(/^\.?\//, '');
+          const normKey = cleanPath.toLowerCase();
+          if (!existingNormalized.has(normKey)) {
+            existingNormalized.add(normKey);
+            const fileName = cleanPath.split('/').pop() || cleanPath;
+            const pathParts = cleanPath.split('/');
+            const subFolderCat = pathParts.length >= 3 ? pathParts[pathParts.length - 2] : '';
+            const mappedCategory = /warm/i.test(subFolderCat) ? 'Warm-Up'
+              : /tactic/i.test(subFolderCat) ? 'Tactical'
+              : /scrim/i.test(subFolderCat) ? 'Scrimmage'
+              : /fit/i.test(subFolderCat) ? 'Fitness'
+              : 'Technical';
+
             drillLibrary.push({
-              id: 'gh_drill_' + fileName.replace(/[^a-z0-9]/gi, '_'),
+              id: 'gh_drill_' + cleanPath.replace(/[^a-z0-9]/gi, '_'),
               title: fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()),
-              category: 'Technical',
+              category: mappedCategory,
               duration: 15,
-              tags: ['github-sync', 'gif'],
-              gifUrl: relPath,
+              tags: ['github-sync', 'gif'].concat(subFolderCat ? [subFolderCat.toLowerCase()] : []),
+              gifUrl: cleanPath,
               coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
-              notes: 'Synced automatically from GitHub drills/' + fileName
+              notes: 'Synced automatically from GitHub (' + cleanPath + ')'
             });
             added++;
           }
@@ -1903,6 +1951,8 @@
         if (added > 0) {
           persistCurrentTeamState();
           renderDrillLibrary();
+          updateWorkspaceBadges();
+          showToast('Synced ' + added + ' drill' + (added === 1 ? '' : 's') + ' from GitHub!');
         }
       }
     }
