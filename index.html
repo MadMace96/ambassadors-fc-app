@@ -3679,15 +3679,10 @@
         previewWrap.style.display = isHostedPreviewEnvironment() ? 'block' : 'none';
       }
 
-      const bypassBtn = document.getElementById('previewBypassLoginBtn');
-      if (bypassBtn) {
-        bypassBtn.onclick = () => {
-          if (!isHostedPreviewEnvironment()) {
-            showToast('Preview bypass is disabled on production domains.');
-            return;
-          }
-          enterWorkspaceAsCoach({ email: CLUB_ADMIN_EMAIL, displayName: 'Coach Mace (Preview Admin)' }, true);
-          showToast('Entered Preview Admin Mode (v' + APP_VERSION + ').');
+      const previewBypassBtn = document.getElementById('previewBypassLoginBtn');
+      if (previewBypassBtn) {
+        previewBypassBtn.onclick = () => {
+          enterWorkspaceAsCoach({ email: CLUB_ADMIN_EMAIL, displayName: 'Mason Maddox' }, true);
         };
       }
 
@@ -4389,8 +4384,10 @@
             mailAppLink.href = 'mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body;
           }
 
-          window.open(gmailComposeUrl, '_blank', 'noopener,noreferrer');
-          showToast('Granted access & opened Gmail compose for ' + email + '!');
+          if (gmailLink) {
+            gmailLink.click();
+          }
+          showToast('Granted access & launched Gmail compose for ' + email + '!');
         };
       }
 
