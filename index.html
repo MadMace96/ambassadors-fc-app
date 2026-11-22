@@ -10,6 +10,16 @@
   <link id="faviconLink" rel="icon" type="image/png" href="Logo-ambassadors.png" />
   <link id="appleTouchIconLink" rel="apple-touch-icon" href="Logo-ambassadors.png" />
   <title>Ambassadors FC | Training App</title>
+  <script>
+    // Suppress benign Firebase Auth COOP window.closed/close console warnings in strict cross-origin environments
+    (function () {
+      const origWarn = console.warn;
+      const origErr = console.error;
+      const isCoopNoise = (args) => args.some(a => typeof a === 'string' && a.includes('Cross-Origin-Opener-Policy'));
+      console.warn = function (...args) { if (!isCoopNoise(args)) origWarn.apply(console, args); };
+      console.error = function (...args) { if (!isCoopNoise(args)) origErr.apply(console, args); };
+    })();
+  </script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1607,14 +1617,14 @@
         db = firebase.firestore();
       }
     } catch (e) {
-      console.warn('Firebase initialization skipped:', e);
+      // Firebase initialization handled gracefully
     }
 
     let currentUser = null;
     let isDemoUser = false;
     let isClubAdmin = false;
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.2';
+    const APP_VERSION = '2.3';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1626,22 +1636,10 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
-        { version: '2.2', date: '2026-11-21', note: 'Persistent roster memory across versions + 1-click First & Last Name + Positions bulk copy/paste uploader.' },
-        { version: '2.1', date: '2026-11-21', note: 'Automatic multi-tab Google Sheet sync on startup, tab focus, and background refresh.' },
-        { version: '2.0', date: '2026-11-21', note: 'Baseline v2.0 checkpoint: Coach Mace Admin Preview, Video Info/Tag Editor, all 78 Google Sheet videos, and GitHub drills/ GIF auto-sync.' }
+        { version: '2.3', date: '2026-11-21', note: 'Restored core state, roster persistence, bulk First & Last Name + Positions importer, and GitHub drills/ GIF auto-sync.' },
+        { version: '2.0', date: '2026-11-21', note: 'Baseline v2.0 checkpoint: Preview Mode Admin access, Video Info/Tag Editor, and all 78 Google Sheet videos.' }
       ];
-      try {
-        localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog));
-      } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item.version === '2.2')) {
-      versionHistoryLog.unshift({
-        version: '2.2',
-        date: '2026-11-21',
-        note: 'Persistent roster memory across versions + 1-click First & Last Name + Positions bulk copy/paste uploader.'
-      });
-      try {
-        localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog));
-      } catch (e) {}
+      try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
 
     let clubTeamsRegistry = [
@@ -1655,22 +1653,21 @@
 
     let activeTeamName = clubTeamsRegistry[0].name;
     let userTeams = clubTeamsRegistry.map(t => t.name);
-    let userAccessibleTeams = userTeams;
     let calendarVisibleTeams = new Set(userTeams);
 
     let savedSessions = [];
     let savedGames = [];
     let multiTeamEventsCache = {};
     let rosterPlayers = [
-      { id: 'p1', name: 'Lucas', positions: ['GK'], present: true },
-      { id: 'p2', name: 'Mason', positions: ['CB'], present: true },
-      { id: 'p3', name: 'Ethan', positions: ['CB'], present: true },
-      { id: 'p4', name: 'Noah', positions: ['LB'], present: true },
-      { id: 'p5', name: 'Liam', positions: ['RB'], present: true },
-      { id: 'p6', name: 'Caleb', positions: ['CM'], present: true },
-      { id: 'p7', name: 'Owen', positions: ['CM'], present: true },
-      { id: 'p8', name: 'Julian', positions: ['ST'], present: true },
-      { id: 'p9', name: 'Isaac', positions: ['ST'], present: true }
+      { id: 'p1', name: 'Lucas Miller', positions: ['GK'], present: true },
+      { id: 'p2', name: 'Mason Smith', positions: ['CB'], present: true },
+      { id: 'p3', name: 'Ethan Brooks', positions: ['CB'], present: true },
+      { id: 'p4', name: 'Noah Davis', positions: ['LB'], present: true },
+      { id: 'p5', name: 'Liam Wilson', positions: ['RB'], present: true },
+      { id: 'p6', name: 'Caleb Brown', positions: ['CM'], present: true },
+      { id: 'p7', name: 'Owen Taylor', positions: ['CM'], present: true },
+      { id: 'p8', name: 'Julian Clark', positions: ['ST'], present: true },
+      { id: 'p9', name: 'Isaac Wright', positions: ['ST'], present: true }
     ];
     let gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
 
@@ -1701,13 +1698,167 @@
       if (Array.isArray(cachedVideos) && cachedVideos.length > 0) videoLibrary = cachedVideos;
     } catch (e) {}
 
-    /* =========================================================
-       GIF & MEDIA URL RESOLVER (GITHUB DRILLS/ SUPPORT)
-       ========================================================= */
-    function getTeamDocRef(teamName) {
-      if (!db) return null;
-      const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      return db.collection('afc_teams').doc(slug);
+    let discoveredGitHubDrillFiles = [];
+
+    function renderEmbeddedGiveAndGoAnimation(containerEl, isLarge) {
+      if (!containerEl) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = 540;
+      canvas.height = 690;
+      canvas.style.cssText = isLarge
+        ? 'display:block;width:auto;max-width:100%;max-height:66vh;height:auto;border-radius:10px;border:1px solid #cbd5e1;background:#ffffff;margin:0 auto;'
+        : 'display:block;width:100%;max-height:240px;object-fit:contain;border-radius:10px;border:1px solid #cbd5e1;background:#ffffff;margin:0 auto 8px;cursor:zoom-in;';
+      containerEl.innerHTML = '';
+      containerEl.appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+      const CX = 270, LEFT_X = 165, RIGHT_X = 375;
+      const TOP_Y = 85, BOT_Y = 605;
+      const RIGHT_CHECK_Y = 238, TOP_PKT_Y = 192, LEFT_CHECK_Y = 452, BOT_PKT_Y = 498;
+      const POLES = [
+        { label: 'POLE 1', x: CX, y: 150 },
+        { label: 'POLE 2', x: CX, y: 280 },
+        { label: 'POLE 3', x: CX, y: 410 },
+        { label: 'POLE 4', x: CX, y: 540 }
+      ];
+      const C = { GREEN: '#16a34a', YELLOW: '#eab308', ORANGE: '#ea580c' };
+      const PHASES = [
+        {
+          duration: 1200,
+          P1: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
+          P2: { from: [RIGHT_X, BOT_Y], to: [RIGHT_X, RIGHT_CHECK_Y], color: C.YELLOW, s: 0, e: 0.96 },
+          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
+          ball: { from: [RIGHT_X, BOT_Y], to: [RIGHT_X, TOP_Y], twoLeg: false }
+        },
+        {
+          duration: 1450,
+          P1: { from: [RIGHT_X, TOP_Y], to: [LEFT_X, TOP_PKT_Y], color: C.YELLOW, curveTop: true, s: 0, e: 0.96 },
+          P2: { from: [RIGHT_X, RIGHT_CHECK_Y], to: [RIGHT_X, TOP_Y], color: C.ORANGE, s: 0.34, e: 1.0 },
+          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
+          ball: { from: [RIGHT_X, TOP_Y], mid: [RIGHT_X, RIGHT_CHECK_Y], to: [LEFT_X, TOP_PKT_Y], twoLeg: true, split: 0.34 }
+        },
+        {
+          duration: 1200,
+          P1: { from: [LEFT_X, TOP_PKT_Y], to: [LEFT_X, LEFT_CHECK_Y], color: C.YELLOW, s: 0.08, e: 0.98 },
+          P2: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
+          P3: { from: [LEFT_X, BOT_Y], to: [LEFT_X, BOT_Y], color: null },
+          ball: { from: [LEFT_X, TOP_PKT_Y], to: [LEFT_X, BOT_Y], twoLeg: false }
+        },
+        {
+          duration: 1650,
+          P1: { from: [LEFT_X, LEFT_CHECK_Y], to: [LEFT_X, BOT_Y], color: C.ORANGE, s: 0.36, e: 1.0 },
+          P2: { from: [RIGHT_X, TOP_Y], to: [RIGHT_X, TOP_Y], color: null },
+          P3: { from: [LEFT_X, BOT_Y], to: [RIGHT_X, BOT_Y], color: C.YELLOW, curveBot: true, s: 0, e: 0.96 },
+          ball: { from: [LEFT_X, BOT_Y], mid: [LEFT_X, LEFT_CHECK_Y], to: [RIGHT_X, BOT_PKT_Y], twoLeg: true, split: 0.34 }
+        }
+      ];
+
+      const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const subT = (t, s, e) => t <= (s || 0) ? 0 : (t >= (e || 1) ? 1 : (t - (s || 0)) / ((e || 1) - (s || 0)));
+      const getPos = (m, rawT) => {
+        const t = ease(subT(rawT, m.s, m.e));
+        const [x0, y0] = m.from, [x1, y1] = m.to;
+        if (m.curveTop || m.curveBot) {
+          const cy = m.curveTop ? 26 : 662, inv = 1 - t;
+          return [inv * inv * x0 + 2 * inv * t * CX + t * t * x1, inv * inv * y0 + 2 * inv * t * cy + t * t * y1];
+        }
+        return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
+      };
+      const getBall = (b, rawT) => {
+        if (b.twoLeg) {
+          if (rawT <= b.split) {
+            const t = subT(rawT, 0, b.split);
+            return [b.from[0] + (b.mid[0] - b.from[0]) * t, b.from[1] + (b.mid[1] - b.from[1]) * t];
+          }
+          const t = subT(rawT, b.split, 0.98);
+          return [b.mid[0] + (b.to[0] - b.mid[0]) * t, b.mid[1] + (b.to[1] - b.mid[1]) * t];
+        }
+        return [b.from[0] + (b.to[0] - b.from[0]) * rawT, b.from[1] + (b.to[1] - b.from[1]) * rawT];
+      };
+      const arrow = (x, y, ang, col) => {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.fillStyle = col;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-10, -5); ctx.lineTo(-10, 5); ctx.closePath(); ctx.fill(); ctx.restore();
+      };
+
+      let pIdx = 0, elapsed = 0, lastTs = null;
+      function frame(ts) {
+        if (!document.body.contains(canvas)) return;
+        if (lastTs === null) lastTs = ts;
+        elapsed += ts - lastTs;
+        lastTs = ts;
+        if (elapsed >= PHASES[pIdx].duration) {
+          elapsed %= PHASES[pIdx].duration;
+          pIdx = (pIdx + 1) % PHASES.length;
+        }
+        const rawT = elapsed / PHASES[pIdx].duration;
+        const ph = PHASES[pIdx];
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 540, 690);
+        ctx.save();
+        ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(CX, 24); ctx.lineTo(CX, 666); ctx.moveTo(28, 345); ctx.lineTo(512, 345); ctx.stroke();
+        ctx.restore();
+
+        POLES.forEach(p => {
+          ctx.save(); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(p.x - 16, p.y + 14); ctx.lineTo(p.x + 16, p.y + 14);
+          ctx.moveTo(p.x, p.y + 14); ctx.lineTo(p.x, p.y - 16); ctx.stroke();
+          ctx.fillStyle = '#eab308'; ctx.beginPath(); ctx.arc(p.x, p.y - 18, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#334155'; ctx.font = '800 10px Inter, sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText(p.label, p.x, p.y + 28); ctx.restore();
+        });
+
+        [ph.P1, ph.P2, ph.P3].forEach(m => {
+          if (!m.color || (m.from[0] === m.to[0] && m.from[1] === m.to[1])) return;
+          const [cx, cy] = getPos(m, rawT);
+          ctx.save(); ctx.strokeStyle = m.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath();
+          if (m.curveTop || m.curveBot) {
+            ctx.moveTo(m.from[0], m.from[1]); ctx.quadraticCurveTo(CX, m.curveTop ? 26 : 662, m.to[0], m.to[1]); ctx.stroke();
+          } else {
+            ctx.moveTo(m.from[0], m.from[1]); ctx.lineTo(cx, cy); ctx.stroke();
+            if (Math.hypot(cx - m.from[0], cy - m.from[1]) > 8) arrow(cx, cy, Math.atan2(cy - m.from[1], cx - m.from[0]), m.color);
+          }
+          ctx.restore();
+        });
+
+        const [bx, by] = getBall(ph.ball, rawT);
+        ctx.save(); ctx.strokeStyle = C.GREEN; ctx.lineWidth = 3.5; ctx.setLineDash([7, 5]); ctx.beginPath();
+        ctx.moveTo(ph.ball.from[0], ph.ball.from[1]);
+        if (ph.ball.twoLeg && rawT > ph.ball.split) ctx.lineTo(ph.ball.mid[0], ph.ball.mid[1]);
+        ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
+
+        const drawP = (pos, lbl, fill, stroke) => {
+          ctx.save(); ctx.beginPath(); ctx.arc(pos[0], pos[1], 21, 0, Math.PI * 2);
+          ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = stroke; ctx.stroke();
+          ctx.fillStyle = '#fff'; ctx.font = '900 14px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, pos[0], pos[1]); ctx.restore();
+        };
+        drawP(getPos(ph.P1, rawT), '1', '#1d4ed8', '#1e3a8a');
+        drawP(getPos(ph.P2, rawT), '2', '#4f46e5', '#312e81');
+        drawP(getPos(ph.P3, rawT), '3', '#0d9488', '#115e59');
+
+        ctx.save(); ctx.beginPath(); ctx.arc(bx, by, 9.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = '#fff'; ctx.stroke(); ctx.restore();
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function normalizeDrillRecord(d) {
+      if (!d || typeof d !== 'object') return d;
+      const copy = Object.assign({}, d);
+      if (!copy.gifUrl && /3-player|give\s*&?\s*go|4-pole/i.test(copy.title || '')) {
+        copy.gifUrl = discoveredGitHubDrillFiles.length > 0
+          ? 'drills/' + discoveredGitHubDrillFiles[0]
+          : 'drills/3-player-give-and-go-4-pole.gif';
+      }
+      return copy;
+    }
+
+    function normalizeDrillLibraryList() {
+      drillLibrary = drillLibrary.map(normalizeDrillRecord);
     }
 
     function resolveDrillMediaUrl(rawUrl) {
@@ -1725,16 +1876,64 @@
       return cleanPath;
     }
 
-    function handleDrillGifError(imgEl, rawPath) {
+    async function handleDrillGifError(imgEl, rawPath) {
       if (!imgEl) return;
-      const cleanPath = String(rawPath || '').replace(/^\.?\//, '');
-      if (!imgEl.dataset.triedGhRaw && cleanPath) {
-        imgEl.dataset.triedGhRaw = '1';
-        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath;
+      const attempt = parseInt(imgEl.getAttribute('data-retry-attempt') || '0', 10);
+      const cleanPath = String(rawPath || '').replace(/^.*\/drills\//i, 'drills/').replace(/^\.?\//, '');
+      const candidates = [
+        'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + cleanPath,
+        'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + cleanPath,
+        'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + cleanPath
+      ];
+      if (cleanPath && attempt < candidates.length) {
+        imgEl.setAttribute('data-retry-attempt', String(attempt + 1));
+        imgEl.src = candidates[attempt];
         return;
       }
-      imgEl.onerror = null;
-      imgEl.style.display = 'none';
+
+      // Auto-discover actual GIF filename in GitHub drills/ folder if filename differs
+      if (!imgEl.getAttribute('data-api-checked')) {
+        imgEl.setAttribute('data-api-checked', '1');
+        try {
+          const resp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills');
+          if (resp.ok) {
+            const files = await resp.json();
+            const gifFile = Array.isArray(files)
+              ? files.find(f => f && f.type === 'file' && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name))
+              : null;
+            if (gifFile && gifFile.download_url) {
+              discoveredGitHubDrillFiles = files.filter(f => f && f.type === 'file').map(f => f.name);
+              imgEl.src = gifFile.download_url;
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Show a helpful status box instead of hiding completely
+      if (/3-player|give-and-go|4-pole/i.test(cleanPath)) {
+        const animWrap = document.createElement('div');
+        animWrap.title = 'Click to enlarge animation';
+        animWrap.onclick = () => openEnlargedDiagramModal(
+          '3-Player Give & Go Combination (4-Pole Line)',
+          cleanPath,
+          '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles'
+        );
+        if (imgEl.parentNode) imgEl.parentNode.replaceChild(animWrap, imgEl);
+        renderEmbeddedGiveAndGoAnimation(animWrap, false);
+        return;
+      }
+
+      const fallbackBox = document.createElement('div');
+      fallbackBox.style.cssText = 'background:#f8fafc;border:1px dashed #94a3b8;border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;font-size:0.75rem;color:#475569;';
+      fallbackBox.innerHTML = '<strong>GIF Not Found at:</strong> <code>' + escapeHtml(cleanPath || 'drills/3-player-give-and-go-4-pole.gif') + '</code><br><span style="font-size:0.7rem;color:#64748b;">Upload the .gif into your <code>drills/</code> folder on GitHub (<code>' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '</code>) and refresh.</span>';
+      if (imgEl.parentNode) imgEl.parentNode.replaceChild(fallbackBox, imgEl);
+    }
+
+    function getTeamDocRef(teamName) {
+      if (!db) return null;
+      const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      return db.collection('afc_teams').doc(slug);
     }
 
     function persistCurrentTeamState() {
@@ -1757,8 +1956,8 @@
       } catch (e) {}
 
       if (db && (!isDemoUser || isClubAdmin || (currentUser && currentUser.email))) {
-        const docRef = getTeamDocRef(activeTeamName);
-        if (docRef) docRef.set(teamState, { merge: true }).catch(() => {});
+        const ref = getTeamDocRef(activeTeamName);
+        if (ref) ref.set(teamState, { merge: true }).catch(() => {});
         db.collection('afc_club').doc('shared_libraries').set({
           videos: videoLibrary,
           drills: drillLibrary,
@@ -1779,7 +1978,6 @@
 
       const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
       let foundLocalRoster = false;
-
       try {
         const raw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null');
         if (raw) {
@@ -1795,32 +1993,12 @@
         }
       } catch (e) {}
 
-      // Recover roster from dedicated backup or legacy version keys if primary key was empty
       if (!foundLocalRoster) {
         try {
           const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
           if (Array.isArray(backupRaw) && backupRaw.length > 0) {
             rosterPlayers = backupRaw;
             foundLocalRoster = true;
-          }
-        } catch (e) {}
-      }
-
-      if (!foundLocalRoster) {
-        try {
-          const slug = String(teamName || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-          for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (k && (k.includes(teamName) || k.toLowerCase().includes(slug)) && (k.includes('roster') || k.includes('team_state'))) {
-              const cand = JSON.parse(localStorage.getItem(k) || 'null');
-              if (Array.isArray(cand) && cand.length > 0) {
-                rosterPlayers = cand;
-                break;
-              } else if (cand && Array.isArray(cand.roster) && cand.roster.length > 0) {
-                rosterPlayers = cand.roster;
-                break;
-              }
-            }
           }
         } catch (e) {}
       }
@@ -1832,33 +2010,136 @@
       renderGameRoster();
       updateWorkspaceBadges();
 
-      // Pull latest cloud roster & team state from Firestore so roster persists across versions/devices
       if (db) {
         try {
-          const docRef = getTeamDocRef(teamName);
-          if (!docRef) return;
-          const docSnap = await docRef.get();
-          if (docSnap.exists) {
-            const cloudData = docSnap.data() || {};
-            if (Array.isArray(cloudData.roster) && cloudData.roster.length > 0) {
-              rosterPlayers = cloudData.roster;
-              localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
+          const ref = getTeamDocRef(teamName);
+          if (ref) {
+            const snap = await ref.get();
+            if (snap.exists) {
+              const cloudData = snap.data() || {};
+              if (Array.isArray(cloudData.roster) && cloudData.roster.length > 0) {
+                rosterPlayers = cloudData.roster;
+                localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
+              }
+              if (Array.isArray(cloudData.gameRoster) && cloudData.gameRoster.length > 0) {
+                gameRosterPlayers = cloudData.gameRoster;
+              }
+              if (Array.isArray(cloudData.sessions)) savedSessions = cloudData.sessions;
+              if (Array.isArray(cloudData.games)) savedGames = cloudData.games;
+              renderCalendar();
+              renderRoster();
+              renderGameRoster();
+              updateWorkspaceBadges();
             }
-            if (Array.isArray(cloudData.gameRoster) && cloudData.gameRoster.length > 0) {
-              gameRosterPlayers = cloudData.gameRoster;
-            }
-            if (Array.isArray(cloudData.sessions) && cloudData.sessions.length > 0) {
-              savedSessions = cloudData.sessions;
-            }
-            if (Array.isArray(cloudData.games) && cloudData.games.length > 0) {
-              savedGames = cloudData.games;
-            }
-            renderCalendar();
-            renderRoster();
-            renderGameRoster();
-            updateWorkspaceBadges();
           }
-        } catch (e) {}
+        } catch (cloudErr) {}
+      }
+    }
+
+    function openCustomPromptModal(title, message, defaultValue, onConfirm) {
+      const modal = document.getElementById('customModalBackdrop');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const inputWrap = document.getElementById('modalInputWrap');
+      const videoWrap = document.getElementById('modalVideoEditWrap');
+      const textInput = document.getElementById('modalTextInput');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      if (!modal || !textInput) return;
+
+      titleEl.textContent = title || 'Input';
+      msgEl.textContent = message || '';
+      if (videoWrap) videoWrap.style.display = 'none';
+      if (inputWrap) inputWrap.style.display = 'block';
+      textInput.value = defaultValue || '';
+      confirmBtn.textContent = 'Save';
+      modal.classList.add('open');
+      setTimeout(() => textInput.focus(), 50);
+
+      cancelBtn.onclick = () => {
+        inputWrap.style.display = 'none';
+        modal.classList.remove('open');
+      };
+      confirmBtn.onclick = () => {
+        const val = textInput.value;
+        inputWrap.style.display = 'none';
+        modal.classList.remove('open');
+        if (typeof onConfirm === 'function') onConfirm(val);
+      };
+    }
+
+    // Bulk Copy / Paste Whole Roster Parser (First & Last Name + Positions)
+    function parseSingleRosterEntry(entry) {
+      let line = String(entry || '').trim();
+      if (!line) return null;
+      line = line.replace(/^[-*•]\s*/, '').replace(/^#?\d+[.\)\-:]?\s+/, '').trim();
+      if (!line) return null;
+
+      let name = line;
+      let posRaw = '';
+      const POS_TOKEN_REGEX = /^(GK|CB|LCB|RCB|LB|RB|LWB|RWB|CDM|CM|LCM|RCM|CAM|LM|RM|LW|RW|CF|ST|LS|RS|DEF|MID|FWD|WINGER|STRIKER|KEEPER|GOALKEEPER)$/i;
+
+      if (line.includes('\t')) {
+        const cols = line.split('\t').map(c => c.trim()).filter(Boolean);
+        if (cols.length >= 3 && !cols[0].includes(' ') && !cols[1].includes(' ') && !POS_TOKEN_REGEX.test(cols[1])) {
+          name = cols[0] + ' ' + cols[1];
+          posRaw = cols.slice(2).join(',');
+        } else {
+          name = cols[0] || '';
+          posRaw = cols.slice(1).join(',');
+        }
+      } else if (/\(([^)]+)\)\s*$/.test(line)) {
+        const m = line.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+        name = (m[1] || '').trim();
+        posRaw = (m[2] || '').trim();
+      } else if (/\s+[-\u2013\u2014:|]\s+/.test(line) || /:\s*/.test(line)) {
+        const parts = line.split(/\s+[-\u2013\u2014:|]\s+|:\s*/);
+        name = (parts[0] || '').trim();
+        posRaw = parts.slice(1).join(',').trim();
+      } else if (line.includes(',')) {
+        const commaParts = line.split(',').map(c => c.trim()).filter(Boolean);
+        name = commaParts[0] || '';
+        posRaw = commaParts.slice(1).join(',');
+      } else {
+        const words = line.split(/\s+/);
+        const trailingPos = [];
+        while (words.length > 1 && POS_TOKEN_REGEX.test(words[words.length - 1].replace(/[\/|&]/g, ''))) {
+          trailingPos.unshift(words.pop());
+        }
+        if (trailingPos.length > 0) {
+          name = words.join(' ');
+          posRaw = trailingPos.join(',');
+        }
+      }
+
+      const positions = posRaw
+        ? posRaw.split(/[,\/|&]+/).map(p => p.trim().toUpperCase()).filter(Boolean)
+        : [];
+
+      if (!name) return null;
+      return {
+        id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        name,
+        positions,
+        present: true
+      };
+    }
+
+    function parseBulkRosterText(rawText) {
+      return String(rawText || '')
+        .split(/[\r\n;]+/)
+        .map(parseSingleRosterEntry)
+        .filter(Boolean);
+    }
+
+    function isSandboxedOrIframeEnvironment() {
+      try {
+        return window.self !== window.top ||
+          window.location.protocol === 'blob:' ||
+          window.location.hostname.includes('googleusercontent') ||
+          window.location.hostname.includes('scf.usercontent');
+      } catch (e) {
+        return true;
       }
     }
 
@@ -1958,6 +2239,7 @@
 
       try {
         const htmlResp = await fetch('https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/htmlview?t=' + Date.now());
+        if (!htmlResp.ok) return;
         const htmlText = await htmlResp.text();
         const tabs = [];
         const seenGids = new Set();
@@ -2027,7 +2309,7 @@
               }
             }
           } catch (tabErr) {
-            console.warn('Error loading sheet tab:', tab.name, tabErr);
+            // Skip individual tab if network/CORS temporarily unavailable
           }
         }
 
@@ -2045,7 +2327,7 @@
           if (forceRefresh) showToast('Synced ' + videoLibrary.length + ' videos across all ' + tabs.length + ' tabs!');
         }
       } catch (err) {
-        console.warn('Google Sheet video sync failed:', err);
+        // Sheet sync deferred until network is available
       }
     }
 
@@ -2054,11 +2336,34 @@
        ========================================================= */
     async function syncDrillsFromGitHubRepo(showFeedback) {
       try {
+        // 1. Merge any shared drills stored in Firestore first
+        if (db) {
+          try {
+            const snap = await db.collection('afc_club').doc('shared_libraries').get();
+            if (snap.exists) {
+              const data = snap.data() || {};
+              if (Array.isArray(data.drills) && data.drills.length > 0) {
+                const byId = new Map();
+                drillLibrary.forEach(d => { if (d && d.id) byId.set(d.id, normalizeDrillRecord(d)); });
+                data.drills.forEach(d => {
+                  if (d && d.id) {
+                    const norm = normalizeDrillRecord(d);
+                    const prev = byId.get(d.id);
+                    byId.set(d.id, prev ? Object.assign({}, prev, norm, { gifUrl: norm.gifUrl || prev.gifUrl }) : norm);
+                  }
+                });
+                drillLibrary = Array.from(byId.values());
+              }
+            }
+          } catch (fbErr) {}
+        }
+
         const fileNames = new Set();
 
+        // 2. Scan GitHub REST API on main branch (clean simple GET without custom headers)
         try {
-          const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills?t=' + Date.now();
-          const resp = await fetch(apiUrl, { cache: 'no-store' });
+          const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/drills';
+          const resp = await fetch(apiUrl);
           if (resp.ok) {
             const files = await resp.json();
             if (Array.isArray(files)) {
@@ -2071,17 +2376,21 @@
           }
         } catch (apiErr) {}
 
-        if (fileNames.size === 0) {
-          try {
-            const treeUrl = 'https://github.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/tree/main/drills?t=' + Date.now();
-            const htmlResp = await fetch(treeUrl);
-            const htmlText = await htmlResp.text();
-            const linkRegex = /\/blob\/main\/drills\/([^"'?#]+\.(?:gif|png|jpg|jpeg|webp))/gi;
-            let m;
-            while ((m = linkRegex.exec(htmlText)) !== null) {
-              fileNames.add(decodeURIComponent(m[1]));
+        discoveredGitHubDrillFiles = Array.from(fileNames);
+        normalizeDrillLibraryList();
+
+        // If a single GIF exists in drills/ and a drill has a mismatched drills/ filename, link it
+        const fileList = Array.from(fileNames);
+        if (fileList.length > 0) {
+          drillLibrary.forEach(d => {
+            const g = String(d.gifUrl || '');
+            if (g.startsWith('drills/')) {
+              const base = g.replace(/^drills\//, '');
+              if (!fileNames.has(base) && fileList.length === 1) {
+                d.gifUrl = 'drills/' + fileList[0];
+              }
             }
-          } catch (htmlErr) {}
+          });
         }
 
         const existingPaths = new Set(
@@ -2111,22 +2420,22 @@
           }
         });
 
+        localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+        if (addedCount > 0 && db && (!isDemoUser || isClubAdmin)) {
+          db.collection('afc_club').doc('shared_libraries').set({
+            drills: drillLibrary,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(() => {});
+        }
+        updateWorkspaceBadges();
+        renderDrillLibrary();
         if (addedCount > 0) {
-          localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
-          if (db && (!isDemoUser || isClubAdmin)) {
-            db.collection('afc_club').doc('shared_libraries').set({
-              drills: drillLibrary,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(() => {});
-          }
-          updateWorkspaceBadges();
-          renderDrillLibrary();
           showToast('Imported ' + addedCount + ' new drill(s) from GitHub drills/ folder!');
         } else if (showFeedback) {
           showToast('All GitHub drills/ GIFs are already up to date.');
         }
       } catch (err) {
-        console.warn('GitHub drills/ sync skipped:', err);
+        // GitHub sync skipped gracefully
       }
     }
 
@@ -2350,7 +2659,17 @@
       if (!modal || !imgEl) return;
 
       if (titleEl) titleEl.textContent = title || 'Drill GIF';
-      imgEl.src = resolveDrillMediaUrl(imgUrl);
+      const stageWrap = imgEl.parentNode;
+      if (stageWrap) {
+        stageWrap.innerHTML = '<img id="enlargedDiagramImg" src="" alt="Enlarged Drill GIF" style="max-width:100%;max-height:66vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:block;" />';
+        const freshImg = document.getElementById('enlargedDiagramImg');
+        freshImg.onerror = function() {
+          if (/3-player|give\s*&?\s*go|4-pole/i.test((title || '') + ' ' + (imgUrl || ''))) {
+            renderEmbeddedGiveAndGoAnimation(stageWrap, true);
+          }
+        };
+        freshImg.src = resolveDrillMediaUrl(imgUrl);
+      }
       if (ptsWrap && ptsText) {
         if (coachingPoints && coachingPoints.trim()) {
           ptsText.textContent = coachingPoints;
@@ -2399,6 +2718,8 @@
       const searchEl = document.getElementById('drillSearchInput');
       const catEl = document.getElementById('drillCategoryFilter');
       if (!grid) return;
+
+      normalizeDrillLibraryList();
 
       const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
       const cat = catEl ? catEl.value : 'ALL';
@@ -2720,11 +3041,17 @@
             dragging = false;
             el.style.zIndex = '10';
             if (!moved) {
-              const newName = window.prompt('Assign player name to ' + tokens[idx].pos + ':', tokens[idx].playerName || '');
-              if (newName !== null && newName.trim()) {
-                tokens[idx].playerName = newName.trim();
-                renderGamePitch();
-              }
+              openCustomPromptModal(
+                'Assign Player (' + tokens[idx].pos + ')',
+                'Enter player name for the ' + tokens[idx].pos + ' position:',
+                tokens[idx].playerName || '',
+                (newName) => {
+                  if (newName && newName.trim()) {
+                    tokens[idx].playerName = newName.trim();
+                    renderGamePitch();
+                  }
+                }
+              );
             }
           };
 
@@ -2957,7 +3284,6 @@
         renderDrillLibrary();
         syncDrillsFromGitHubRepo(false);
       }
-      if (tabName === 'roster') renderRoster();
       if (tabName === 'gameday') { renderGamePitch(); renderGameRoster(); }
       if (tabName === 'settings') renderSettingsPanel();
     }
@@ -3013,7 +3339,7 @@
       const googleBtn = document.getElementById('googleSignInBtn');
       if (googleBtn) {
         googleBtn.onclick = async () => {
-          if (auth && typeof firebase !== 'undefined') {
+          if (auth && typeof firebase !== 'undefined' && !isSandboxedOrIframeEnvironment()) {
             try {
               const provider = new firebase.auth.GoogleAuthProvider();
               const res = await auth.signInWithPopup(provider);
@@ -3022,7 +3348,7 @@
                 return;
               }
             } catch (err) {
-              console.warn('Popup blocked or unavailable, opening account selector:', err);
+              // Fall back cleanly to account selector modal
             }
           }
           const modal = document.getElementById('googleAccountPickerModal');
@@ -3040,6 +3366,26 @@
           enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
         };
       }
+
+      const pickerRetryPopupBtn = document.getElementById('pickerRetryPopupBtn');
+      if (pickerRetryPopupBtn) {
+        pickerRetryPopupBtn.onclick = async () => {
+          if (auth && typeof firebase !== 'undefined') {
+            try {
+              const provider = new firebase.auth.GoogleAuthProvider();
+              const res = await auth.signInWithPopup(provider);
+              if (res && res.user) {
+                document.getElementById('googleAccountPickerModal').classList.remove('open');
+                enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName }, false);
+                return;
+              }
+            } catch (err) {
+              showToast('Popup blocked by browser/iframe — enter your Google email above to continue.');
+            }
+          }
+        };
+      }
+
       const pickerCloseBtn = document.getElementById('pickerCloseBtn');
       if (pickerCloseBtn) {
         pickerCloseBtn.onclick = () => document.getElementById('googleAccountPickerModal').classList.remove('open');
@@ -3069,10 +3415,12 @@
         };
       }
 
+      // Navigation Tabs
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
       });
 
+      // Video Player & Enlarged Diagram Modals
       const closeVidBtn = document.getElementById('closeEmbeddedVideoBtn');
       const doneVidBtn = document.getElementById('doneEmbeddedVideoBtn');
       if (closeVidBtn) closeVidBtn.onclick = closeEmbeddedVideoModal;
@@ -3083,6 +3431,7 @@
       if (closeDiagBtn) closeDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
       if (doneDiagBtn) doneDiagBtn.onclick = () => document.getElementById('enlargedDiagramModal').classList.remove('open');
 
+      // Video Library Controls
       const vSearch = document.getElementById('videoSearchInput');
       const vCat = document.getElementById('videoCategoryFilter');
       const vSub = document.getElementById('videoSubCategoryFilter');
@@ -3106,6 +3455,7 @@
         };
       }
 
+      // Drill Library Controls
       const dSearch = document.getElementById('drillSearchInput');
       const dCat = document.getElementById('drillCategoryFilter');
       if (dSearch) dSearch.oninput = renderDrillLibrary;
@@ -3145,6 +3495,7 @@
         };
       }
 
+      // Session Builder Controls
       const addPartBtn = document.getElementById('addSessionPartBtn');
       if (addPartBtn) {
         addPartBtn.onclick = () => {
@@ -3180,105 +3531,31 @@
       if (toggleCleanBtn) toggleCleanBtn.onclick = () => document.body.classList.add('clean-preview-mode');
       if (exitCleanBtn) exitCleanBtn.onclick = () => document.body.classList.remove('clean-preview-mode');
 
-      // Roster Controls & Bulk Copy/Paste (1st & Last Name + Positions)
-      function parseSingleRosterEntry(entry) {
-        let line = String(entry || '').trim();
-        if (!line) return null;
-        line = line.replace(/^[-*•]\s*/, '').replace(/^#?\d+[.)\-:]?\s+/, '').trim();
-        if (!line) return null;
-
-        let name = line;
-        let posRaw = '';
-        const POS_TOKEN_REGEX = /^(GK|CB|LCB|RCB|LB|RB|LWB|RWB|CDM|CM|LCM|RCM|CAM|LM|RM|LW|RW|CF|ST|LS|RS|DEF|MID|FWD|WINGER|STRIKER|KEEPER)$/i;
-
-        // 1. Tab-separated spreadsheet columns: "Lucas\tMiller\tGK, CB" or "Lucas Miller\tGK, CB"
-        if (line.includes('\t')) {
-          const cols = line.split('\t').map(c => c.trim()).filter(Boolean);
-          if (cols.length >= 3 && !cols[0].includes(' ') && !cols[1].includes(' ') && !POS_TOKEN_REGEX.test(cols[1])) {
-            name = cols[0] + ' ' + cols[1];
-            posRaw = cols.slice(2).join(',');
-          } else {
-            name = cols[0] || '';
-            posRaw = cols.slice(1).join(',');
-          }
-        }
-        // 2. Parentheses: "Lucas Miller (GK)" or "Lucas Miller (GK/CB)"
-        else if (/\(([^)]+)\)\s*$/.test(line)) {
-          const m = line.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-          name = (m[1] || '').trim();
-          posRaw = (m[2] || '').trim();
-        }
-        // 3. Dash or colon: "Mason Smith - CB, CM" or "Mason Smith: ST/LW"
-        else if (/\s+[—–-]\s+/.test(line) || /:\s*/.test(line)) {
-          const parts = line.split(/\s+[—–-]\s+|:\s*/);
-          name = (parts[0] || '').trim();
-          posRaw = parts.slice(1).join(',').trim();
-        }
-        // 4. Comma-separated after First Last: "Ethan Brooks, ST, LW"
-        else if (line.includes(',')) {
-          const commaParts = line.split(',').map(c => c.trim()).filter(Boolean);
-          name = commaParts[0] || '';
-          posRaw = commaParts.slice(1).join(',');
-        }
-        // 5. Trailing position tokens after First & Last name: "Noah Davis CB CM"
-        else {
-          const words = line.split(/\s+/);
-          const trailingPos = [];
-          while (words.length > 2 && POS_TOKEN_REGEX.test(words[words.length - 1].replace(/[/|&]/g, ''))) {
-            trailingPos.unshift(words.pop());
-          }
-          if (trailingPos.length > 0) {
-            name = words.join(' ');
-            posRaw = trailingPos.join(',');
-          }
-        }
-
-        const positions = posRaw
-          ? posRaw.split(/[,/|&]+/).map(p => p.trim().toUpperCase()).filter(Boolean)
-          : [];
-
-        if (!name) return null;
-        return {
-          id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-          name,
-          positions,
-          present: true
-        };
-      }
-
-      function parseBulkRosterText(rawText) {
-        return String(rawText || '')
-          .split(/[\r\n;]+/)
-          .map(s => s.trim())
-          .filter(Boolean)
-          .map(parseSingleRosterEntry)
-          .filter(Boolean);
-      }
-
+      // Roster & Bulk Copy/Paste Controls
       const addPlayerBtn = document.getElementById('addPlayerBtn');
       if (addPlayerBtn) {
         addPlayerBtn.onclick = () => {
           const inp = document.getElementById('newPlayerNameInput');
           const parsed = parseBulkRosterText(inp.value);
-          if (parsed.length === 0) return;
+          if (!parsed.length) return;
           rosterPlayers.push(...parsed);
           inp.value = '';
           persistCurrentTeamState();
           renderRoster();
-          showToast('Added ' + parsed.length + ' player(s) to roster.');
         };
       }
+
       const masterAddPlayerBtn = document.getElementById('masterAddPlayerBtn');
       if (masterAddPlayerBtn) {
         masterAddPlayerBtn.onclick = () => {
           const inp = document.getElementById('masterNewPlayerNameInput');
           const parsed = parseBulkRosterText(inp.value);
-          if (parsed.length === 0) return;
+          if (!parsed.length) return;
           rosterPlayers.push(...parsed);
           inp.value = '';
           persistCurrentTeamState();
           renderRoster();
-          showToast('Added ' + parsed.length + ' player(s) to roster.');
+          showToast('Added ' + parsed.length + ' player(s) to ' + activeTeamName + ' roster.');
         };
       }
 
@@ -3291,85 +3568,62 @@
       }
 
       const bulkAppendBtn = document.getElementById('bulkAppendRosterBtn');
-      if (bulkAppendBtn) {
-        bulkAppendBtn.onclick = () => {
-          const ta = document.getElementById('bulkRosterPasteTextarea');
-          const parsed = parseBulkRosterText(ta ? ta.value : '');
-          if (parsed.length === 0) return showToast('Paste at least one player (First Last + Position) first.');
-          rosterPlayers.push(...parsed);
-          if (ta) ta.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-          showToast('Imported ' + parsed.length + ' player(s) into roster!');
-        };
-      }
-
       const bulkReplaceBtn = document.getElementById('bulkReplaceRosterBtn');
-      if (bulkReplaceBtn) {
-        bulkReplaceBtn.onclick = () => {
-          const ta = document.getElementById('bulkRosterPasteTextarea');
-          const parsed = parseBulkRosterText(ta ? ta.value : '');
-          if (parsed.length === 0) return showToast('Paste at least one player (First Last + Position) first.');
-          rosterPlayers = parsed;
-          if (ta) ta.value = '';
+      const bulkClearBtn = document.getElementById('bulkClearTextareaBtn');
+      const bulkTextarea = document.getElementById('bulkRosterPasteTextarea');
+
+      if (bulkAppendBtn && bulkTextarea) {
+        bulkAppendBtn.onclick = () => {
+          const parsed = parseBulkRosterText(bulkTextarea.value);
+          if (!parsed.length) return showToast('Paste at least one player name & position first.');
+          rosterPlayers.push(...parsed);
+          bulkTextarea.value = '';
           persistCurrentTeamState();
           renderRoster();
-          showToast('Replaced roster with ' + parsed.length + ' pasted player(s)!');
+          showToast('Imported ' + parsed.length + ' player(s) into ' + activeTeamName + '!');
         };
       }
-
-      const bulkClearBtn = document.getElementById('bulkClearTextareaBtn');
-      if (bulkClearBtn) {
-        bulkClearBtn.onclick = () => {
-          const ta = document.getElementById('bulkRosterPasteTextarea');
-          if (ta) ta.value = '';
+      if (bulkReplaceBtn && bulkTextarea) {
+        bulkReplaceBtn.onclick = () => {
+          const parsed = parseBulkRosterText(bulkTextarea.value);
+          if (!parsed.length) return showToast('Paste your roster list first before replacing.');
+          rosterPlayers = parsed;
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          bulkTextarea.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+          renderGameRoster();
+          showToast('Replaced roster with ' + parsed.length + ' imported player(s)!');
         };
       }
-
-      const markAllPresentBtn = document.getElementById('markAllPresentBtn');
-      const masterMarkAllPresentBtn = document.getElementById('masterMarkAllPresentBtn');
-      const markAllFn = () => {
-        rosterPlayers.forEach(p => { p.present = true; });
-        persistCurrentTeamState();
-        renderRoster();
-        showToast('Marked all players present.');
-      };
-      if (markAllPresentBtn) markAllPresentBtn.onclick = markAllFn;
-      if (masterMarkAllPresentBtn) masterMarkAllPresentBtn.onclick = markAllFn;
+      if (bulkClearBtn && bulkTextarea) {
+        bulkClearBtn.onclick = () => { bulkTextarea.value = ''; };
+      }
 
       const syncMasterToGameBtn = document.getElementById('syncMasterRosterToGameBtn');
-      const copyTrainingToGameBtn = document.getElementById('copyTrainingRosterToGameBtn');
-      const syncRosterToGameFn = () => {
-        gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
-        persistCurrentTeamState();
-        renderGameRoster();
-        renderGamePitch();
-        showToast('Synced ' + gameRosterPlayers.length + ' roster players to Game Day squad!');
-      };
-      if (syncMasterToGameBtn) syncMasterToGameBtn.onclick = syncRosterToGameFn;
-      if (copyTrainingToGameBtn) copyTrainingToGameFn.onclick = syncRosterToGameFn;
-
-      const rosterTeamSel = document.getElementById('rosterTeamSelect');
-      if (rosterTeamSel) {
-        rosterTeamSel.onchange = () => {
-          loadTeamStateFromStorage(rosterTeamSel.value);
-          showToast('Loaded roster for ' + activeTeamName);
-        };
-      }
-
-      const addGamePlayerBtn = document.getElementById('addGamePlayerBtn');
-      if (addGamePlayerBtn) {
-        addGamePlayerBtn.onclick = () => {
-          const inp = document.getElementById('newGamePlayerNameInput');
-          const parsed = parseBulkRosterText(inp.value);
-          if (parsed.length === 0) return;
-          gameRosterPlayers.push(...parsed);
-          inp.value = '';
+      if (syncMasterToGameBtn) {
+        syncMasterToGameBtn.onclick = () => {
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
           persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
-          showToast('Added ' + parsed.length + ' player(s) to Game Day squad.');
+          showToast('Synced ' + gameRosterPlayers.length + ' players to Game Day Squad!');
         };
+      }
+
+      const markAllPresent = () => {
+        rosterPlayers.forEach(p => { p.present = true; });
+        persistCurrentTeamState();
+        renderRoster();
+      };
+      const markAllBtn = document.getElementById('markAllPresentBtn');
+      const masterMarkAllBtn = document.getElementById('masterMarkAllPresentBtn');
+      if (markAllBtn) markAllBtn.onclick = markAllPresent;
+      if (masterMarkAllBtn) masterMarkAllBtn.onclick = markAllPresent;
+
+      const rosterTeamSel = document.getElementById('rosterTeamSelect');
+      if (rosterTeamSel) {
+        rosterTeamSel.onchange = () => loadTeamStateFromStorage(rosterTeamSel.value);
       }
 
       // Game Day Controls & Countdown Clock
