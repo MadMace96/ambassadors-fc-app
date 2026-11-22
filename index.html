@@ -1168,9 +1168,8 @@
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span id="syncIndicatorBadge" style="display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:4px 10px;border-radius:999px;font-size:0.76rem;font-weight:800;">
-              <span style="width:8px;height:8px;background:#10b981;border-radius:50%;"></span> Synced
+              <span style="width:8px;height:8px;background:#10b981;border-radius:50%;"></span> Cloud Synced
             </span>
-            <button type="button" class="btn btn-outline btn-sm" id="forceCloudSyncBtn">&#8635; Sync Now</button>
             <button type="button" class="btn btn-danger btn-sm" id="settingsSignOutBtn">Sign Out</button>
           </div>
         </div>
@@ -1180,7 +1179,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.4</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.5</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1244,7 +1243,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.4</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.5</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1419,7 +1418,7 @@
     let isClubAdmin = false;
     let isRegisterMode = false;
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.4';
+    const APP_VERSION = '2.5';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1431,9 +1430,17 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' },
         { version: '2.4', date: '2026-11-21', note: 'Fixed Google OAuth & Preview-only bypass, Sign Out, Join/Create Team, Calendar Month/Week/Day views, Game Day Timer & Save/New Game, GitHub drills auto-sync, and Video Tag editor.' },
         { version: '2.2', date: '2026-11-21', note: 'Baseline v2.2 checkpoint.' }
       ];
+      try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.5')) {
+      versionHistoryLog.unshift({
+        version: '2.5',
+        date: '2026-11-22',
+        note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.'
+      });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
 
@@ -1458,6 +1465,7 @@
     let unsubscribeTeamCloudListener = null;
     let unsubscribeSharedLibsListener = null;
     let firebaseCloudReadyPromise = null;
+    let lastCloudSyncError = '';
     let coachInvitesRegistry = [];
     try {
       const storedInvites = JSON.parse(localStorage.getItem('afc_coach_invites') || '[]');
@@ -1476,11 +1484,13 @@
         badge.style.background = '#fef2f2';
         badge.style.color = '#991b1b';
         badge.style.borderColor = '#fecaca';
+        badge.title = lastCloudSyncError || 'Cloud Firestore write blocked';
         badge.innerHTML = '<span style="width:8px;height:8px;background:#ef4444;border-radius:50%;"></span> ' + escapeHtml(label || 'Local Only');
       } else {
         badge.style.background = '#ecfdf5';
         badge.style.color = '#065f46';
         badge.style.borderColor = '#a7f3d0';
+        badge.title = 'Connected to Ambassadors FC Cloud';
         badge.innerHTML = '<span style="width:8px;height:8px;background:#10b981;border-radius:50%;"></span> ' + escapeHtml(label || 'Cloud Synced');
       }
     }
@@ -1490,15 +1500,34 @@
       if (auth.currentUser) return Promise.resolve(auth.currentUser);
       if (!firebaseCloudReadyPromise) {
         firebaseCloudReadyPromise = auth.signInAnonymously()
-          .then(cred => (cred && cred.user) || auth.currentUser)
-          .catch(() => null);
+          .then(cred => {
+            firebaseCloudReadyPromise = null;
+            return (cred && cred.user) || auth.currentUser;
+          })
+          .catch((err) => {
+            firebaseCloudReadyPromise = null;
+            lastCloudSyncError = (err && err.message) || 'Anonymous auth disabled';
+            return null;
+          });
       }
       return firebaseCloudReadyPromise;
     }
 
-    function getTeamDocRef(teamName) {
+    function getTeamDocRefs(teamName) {
+      if (!db) return [];
       const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      return db ? db.collection('afc_teams').doc(slug) : null;
+      return [
+        db.collection('afc_teams').doc(slug),
+        db.collection('artifacts').doc('ambassadors-fc').collection('public').doc('data').collection('afc_teams').doc(slug)
+      ];
+    }
+
+    function getClubDocRefs() {
+      if (!db) return [];
+      return [
+        db.collection('afc_club').doc('shared_libraries'),
+        db.collection('artifacts').doc('ambassadors-fc').collection('public').doc('data').collection('afc_club').doc('shared_libraries')
+      ];
     }
 
     async function persistCurrentTeamState() {
@@ -1527,62 +1556,74 @@
       setCloudSyncBadge('syncing', 'Syncing...');
       await ensureFirebaseAuthReady();
 
-      const writes = [];
-      const docRef = getTeamDocRef(activeTeamName);
-      if (docRef) {
-        writes.push(docRef.set(teamState, { merge: true }));
-      }
-      writes.push(
-        db.collection('afc_club').doc('shared_libraries').set({
-          videos: videoLibrary,
-          drills: drillLibrary,
-          clubTeams: clubTeamsRegistry,
-          coachInvites: coachInvitesRegistry,
-          invitesUpdatedAt: nowTs,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
-      );
+      const teamPayload = JSON.parse(JSON.stringify(teamState));
+      const clubPayload = JSON.parse(JSON.stringify({
+        videos: videoLibrary,
+        drills: drillLibrary,
+        clubTeams: clubTeamsRegistry,
+        coachInvites: coachInvitesRegistry,
+        invitesUpdatedAt: nowTs
+      }));
+      clubPayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-      Promise.all(writes)
-        .then(() => setCloudSyncBadge('synced', 'Cloud Synced'))
-        .catch(() => setCloudSyncBadge('error', 'Sync Retry Needed'));
+      const allWrites = [
+        ...getTeamDocRefs(activeTeamName).map(ref => ref.set(teamPayload, { merge: true })),
+        ...getClubDocRefs().map(ref => ref.set(clubPayload, { merge: true }))
+      ];
+
+      const results = await Promise.allSettled(allWrites);
+      const anySuccess = results.some(r => r.status === 'fulfilled');
+      if (anySuccess) {
+        lastCloudSyncError = '';
+        setCloudSyncBadge('synced', 'Cloud Synced');
+      } else {
+        const firstErr = results.find(r => r.status === 'rejected');
+        lastCloudSyncError = (firstErr && firstErr.reason && firstErr.reason.message) || 'Firestore permission denied';
+        setCloudSyncBadge('error', 'Sync Blocked (' + (firstErr && firstErr.reason && firstErr.reason.code ? firstErr.reason.code : 'Auth') + ')');
+      }
     }
 
     function applyCloudTeamData(teamName, cloud) {
-      if (!cloud || activeTeamName !== teamName) return;
+      if (!cloud) return;
+      const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster : [];
+      const cloudSessions = Array.isArray(cloud.sessions) ? cloud.sessions : [];
+      const cloudGames = Array.isArray(cloud.games) ? cloud.games : [];
+      const cloudGameRoster = Array.isArray(cloud.gameRoster) ? cloud.gameRoster : [];
+      const cloudUpdated = Number(cloud.updatedAt || 0);
+
       let localRaw = null;
       try { localRaw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null'); } catch (e) {}
+      const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster : [];
       const localUpdated = (localRaw && localRaw.updatedAt) || 0;
-      const cloudUpdated = Number(cloud.updatedAt || 0);
-      const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster : [];
 
-      // Hydrate if cloud is newer OR local device (e.g. phone) has no roster yet
-      if (cloudUpdated > localUpdated || (rosterPlayers.length === 0 && cloudRoster.length > 0)) {
-        if (Array.isArray(cloud.sessions)) savedSessions = cloud.sessions;
-        if (Array.isArray(cloud.games)) savedGames = cloud.games;
-        if (cloudRoster.length > 0) rosterPlayers = cloudRoster;
-        if (Array.isArray(cloud.gameRoster) && cloud.gameRoster.length > 0) {
-          gameRosterPlayers = cloud.gameRoster;
-        } else if (rosterPlayers.length > 0 && gameRosterPlayers.length === 0) {
-          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
-        }
+      // Always hydrate any team in localStorage if cloud has newer data OR local has 0 players
+      if (cloudUpdated > localUpdated || (localRoster.length === 0 && cloudRoster.length > 0)) {
+        const mergedState = {
+          teamName,
+          sessions: cloudSessions.length ? cloudSessions : ((localRaw && localRaw.sessions) || []),
+          games: cloudGames.length ? cloudGames : ((localRaw && localRaw.games) || []),
+          roster: cloudRoster.length ? cloudRoster : localRoster,
+          gameRoster: cloudGameRoster.length ? cloudGameRoster : (cloudRoster.length ? cloudRoster : ((localRaw && localRaw.gameRoster) || [])),
+          updatedAt: cloudUpdated || Date.now()
+        };
         try {
-          localStorage.setItem('afc_team_state_' + teamName, JSON.stringify({
-            teamName,
-            sessions: savedSessions,
-            games: savedGames,
-            roster: rosterPlayers,
-            gameRoster: gameRosterPlayers,
-            updatedAt: cloudUpdated || Date.now()
-          }));
+          localStorage.setItem('afc_team_state_' + teamName, JSON.stringify(mergedState));
+          const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+          localStorage.setItem(rosterBackupKey, JSON.stringify(mergedState.roster));
         } catch (e) {}
-        renderCalendar();
-        renderRoster();
-        renderGameRoster();
-        renderGamePitch();
-        updateWorkspaceBadges();
-      } else if (rosterPlayers.length > 0 && cloudRoster.length === 0) {
-        // Push existing local roster up to cloud if cloud document was empty
+
+        if (activeTeamName === teamName) {
+          savedSessions = mergedState.sessions;
+          savedGames = mergedState.games;
+          rosterPlayers = mergedState.roster;
+          gameRosterPlayers = mergedState.gameRoster;
+          renderCalendar();
+          renderRoster();
+          renderGameRoster();
+          renderGamePitch();
+          updateWorkspaceBadges();
+        }
+      } else if (activeTeamName === teamName && rosterPlayers.length > 0 && cloudRoster.length === 0) {
         persistCurrentTeamState();
       }
       setCloudSyncBadge('synced', 'Cloud Synced');
@@ -1614,42 +1655,69 @@
       }
     }
 
+    async function syncAllClubTeamsFromCloud() {
+      if (!db) return;
+      await ensureFirebaseAuthReady();
+      for (const t of clubTeamsRegistry) {
+        const refs = getTeamDocRefs(t.name);
+        for (const ref of refs) {
+          try {
+            const snap = await ref.get();
+            if (snap.exists) applyCloudTeamData(t.name, snap.data());
+          } catch (e) {}
+        }
+      }
+    }
+
     async function attachFirestoreTeamSync(teamName) {
       if (typeof unsubscribeTeamCloudListener === 'function') {
         unsubscribeTeamCloudListener();
         unsubscribeTeamCloudListener = null;
       }
-      const docRef = getTeamDocRef(teamName);
-      if (!docRef) return;
+      const refs = getTeamDocRefs(teamName);
+      if (!refs.length) return;
 
       await ensureFirebaseAuthReady();
-      docRef.get().then((snap) => {
-        if (snap.exists) applyCloudTeamData(teamName, snap.data());
-        else if (rosterPlayers.length > 0 || savedSessions.length > 0 || savedGames.length > 0) persistCurrentTeamState();
-      }).catch(() => {});
+      const unsubs = [];
+      for (const ref of refs) {
+        ref.get().then((snap) => {
+          if (snap.exists) applyCloudTeamData(teamName, snap.data());
+          else if (activeTeamName === teamName && (rosterPlayers.length > 0 || savedSessions.length > 0 || savedGames.length > 0)) {
+            persistCurrentTeamState();
+          }
+        }).catch(() => {});
 
-      unsubscribeTeamCloudListener = docRef.onSnapshot((snap) => {
-        if (snap.exists) applyCloudTeamData(teamName, snap.data());
-      }, () => setCloudSyncBadge('error', 'Sync Offline'));
+        const u = ref.onSnapshot((snap) => {
+          if (snap.exists) applyCloudTeamData(teamName, snap.data());
+        }, () => {});
+        unsubs.push(u);
+      }
+      unsubscribeTeamCloudListener = () => unsubs.forEach(fn => { try { fn(); } catch (e) {} });
     }
 
     async function attachFirestoreClubSync() {
       if (!db) return;
       await ensureFirebaseAuthReady();
-      const clubDocRef = db.collection('afc_club').doc('shared_libraries');
-
-      clubDocRef.get().then((snap) => {
-        if (snap.exists) applyCloudClubData(snap.data());
-        else if (coachInvitesRegistry.length > 0) persistCurrentTeamState();
-      }).catch(() => {});
+      const refs = getClubDocRefs();
 
       if (typeof unsubscribeSharedLibsListener === 'function') {
         unsubscribeSharedLibsListener();
         unsubscribeSharedLibsListener = null;
       }
-      unsubscribeSharedLibsListener = clubDocRef.onSnapshot((snap) => {
-        if (snap.exists) applyCloudClubData(snap.data());
-      }, () => {});
+      const unsubs = [];
+      for (const ref of refs) {
+        ref.get().then((snap) => {
+          if (snap.exists) applyCloudClubData(snap.data());
+          else if (coachInvitesRegistry.length > 0) persistCurrentTeamState();
+        }).catch(() => {});
+
+        const u = ref.onSnapshot((snap) => {
+          if (snap.exists) applyCloudClubData(snap.data());
+        }, () => {});
+        unsubs.push(u);
+      }
+      unsubscribeSharedLibsListener = () => unsubs.forEach(fn => { try { fn(); } catch (e) {} });
+      syncAllClubTeamsFromCloud();
     }
 
     function loadTeamStateFromStorage(teamName) {
@@ -3995,26 +4063,27 @@
       const signOutBtn = document.getElementById('settingsSignOutBtn');
       if (signOutBtn) signOutBtn.onclick = signOutCoach;
 
-      // Manual Force Cloud Sync Button
-      const forceSyncBtn = document.getElementById('forceCloudSyncBtn');
-      if (forceSyncBtn) {
-        forceSyncBtn.onclick = async () => {
-          setCloudSyncBadge('syncing', 'Syncing...');
-          await ensureFirebaseAuthReady();
-          await attachFirestoreClubSync();
-          await attachFirestoreTeamSync(activeTeamName);
-          await persistCurrentTeamState();
-          showToast('Synced roster, sessions, and coach invites with cloud!');
-        };
+      // Automatic Background Cloud Sync (on app resume/focus + periodic heartbeat)
+      async function runAutoCloudSync() {
+        if (!currentUser || !db) return;
+        await ensureFirebaseAuthReady();
+        await attachFirestoreClubSync();
+        await attachFirestoreTeamSync(activeTeamName);
       }
 
-      // Re-sync automatically when switching back to the mobile app or browser tab
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && currentUser) {
-          attachFirestoreClubSync();
-          attachFirestoreTeamSync(activeTeamName);
+          runAutoCloudSync();
         }
       });
+      window.addEventListener('focus', () => {
+        if (currentUser) runAutoCloudSync();
+      });
+      setInterval(() => {
+        if (document.visibilityState === 'visible' && currentUser) {
+          syncAllClubTeamsFromCloud();
+        }
+      }, 25000);
 
       // Roster Tab Add Player, Bulk Copy/Paste, and Sync Controls
       const masterAddBtn = document.getElementById('masterAddPlayerBtn');
