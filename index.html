@@ -1991,11 +1991,33 @@
         return;
       }
 
-      // Replace broken browser icon with a clean clickable hint to set the exact filename
+      // Query GitHub API for the drills/ folder to find the exact uploaded filename automatically
+      if (!imgEl.getAttribute('data-gh-checked') && rawSrc && !rawSrc.startsWith('data:')) {
+        imgEl.setAttribute('data-gh-checked', '1');
+        fetch('https://api.github.com/repos/mmaddox-afc/ambassadors-fc-app/contents/drills')
+          .then(r => r.ok ? r.json() : [])
+          .then(files => {
+            if (Array.isArray(files)) {
+              const gifFile = files.find(f => f && f.name && /\.(gif|png|jpg|jpeg|webp)$/i.test(f.name) && (f.name.toLowerCase().includes('give') || files.length === 1));
+              if (gifFile && gifFile.download_url) {
+                imgEl.src = gifFile.download_url;
+                return;
+              }
+            }
+            showMissingDiagramNotice(imgEl, rawSrc);
+          })
+          .catch(() => showMissingDiagramNotice(imgEl, rawSrc));
+        return;
+      }
+
+      showMissingDiagramNotice(imgEl, rawSrc);
+    }
+
+    function showMissingDiagramNotice(imgEl, rawSrc) {
       const notice = document.createElement('div');
       notice.style.cssText = 'font-size:0.74rem;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:10px;text-align:center;margin:8px 0;';
-      notice.innerHTML = 'Diagram file not found at <code>' + escapeHtml(rawSrc) + '</code>.<br>Click <strong>Edit</strong> below to check the exact filename in your GitHub <code>drills/</code> folder.';
-      if (imgEl.parentNode) {
+      notice.innerHTML = 'Diagram file not found at <code>' + escapeHtml(rawSrc) + '</code>.<br>Click <strong>Edit</strong> below to check the exact filename in your GitHub <code>drills/</code> folder (or upload the GIF directly).';
+      if (imgEl && imgEl.parentNode) {
         imgEl.parentNode.replaceChild(notice, imgEl);
       }
     }
