@@ -1964,6 +1964,42 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    function handleDrillImageError(imgEl) {
+      if (!imgEl) return;
+      const rawSrc = imgEl.getAttribute('data-raw-src') || imgEl.getAttribute('src') || '';
+      const attempt = parseInt(imgEl.getAttribute('data-fallback-attempt') || '0', 10);
+
+      // Build ordered candidate paths for drills/ folder files (case/filename variations)
+      const candidates = [];
+      if (rawSrc && !rawSrc.startsWith('data:')) {
+        if (rawSrc.includes('3-player-give-and-go')) {
+          candidates.push(
+            'drills/3-player-give-and-go.gif',
+            'drills/3-player-give-and-go-4-pole.gif',
+            'drills/3-Player-Give-and-Go.gif',
+            'drills/3-Player-Give-and-Go-4-Pole.gif'
+          );
+        }
+        const cleanPath = rawSrc.replace(/^\/+/, '');
+        candidates.push('https://raw.githubusercontent.com/mmaddox-afc/ambassadors-fc-app/main/' + cleanPath);
+      }
+
+      const nextSrc = candidates.find((c, idx) => idx >= attempt && c !== imgEl.getAttribute('src'));
+      if (nextSrc && attempt < candidates.length) {
+        imgEl.setAttribute('data-fallback-attempt', String(attempt + 1));
+        imgEl.src = nextSrc;
+        return;
+      }
+
+      // Replace broken browser icon with a clean clickable hint to set the exact filename
+      const notice = document.createElement('div');
+      notice.style.cssText = 'font-size:0.74rem;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:10px;text-align:center;margin:8px 0;';
+      notice.innerHTML = 'Diagram file not found at <code>' + escapeHtml(rawSrc) + '</code>.<br>Click <strong>Edit</strong> below to check the exact filename in your GitHub <code>drills/</code> folder.';
+      if (imgEl.parentNode) {
+        imgEl.parentNode.replaceChild(notice, imgEl);
+      }
+    }
+
     function showToast(message) {
       const container = document.getElementById('toastContainer');
       if (!container) return;
@@ -2313,7 +2349,7 @@
               '<span style="font-size:0.72rem;font-weight:800;color:#475569;">' + (Number(d.duration) || 15) + ' min</span>' +
             '</div>' +
             '<div style="font-size:0.88rem;font-weight:900;color:#0A2647;margin-bottom:6px;">' + escapeHtml(d.title || 'Untitled Drill') + '</div>' +
-            (d.gifDataUrl ? '<img src="' + d.gifDataUrl + '" style="width:100%;max-height:135px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;margin-bottom:6px;" alt="Drill Diagram" />' : '') +
+            (d.gifDataUrl ? '<img src="' + escapeHtml(d.gifDataUrl) + '" data-raw-src="' + escapeHtml(d.gifDataUrl) + '" onerror="handleDrillImageError(this)" style="width:100%;max-height:135px;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;margin-bottom:6px;" alt="Drill Diagram" />' : '') +
             (cpSnippet ? '<div style="font-size:0.72rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:6px 8px;line-height:1.35;white-space:pre-line;max-height:76px;overflow:hidden;">' + escapeHtml(cpSnippet) + '</div>' : '') +
           '</div>' +
           '<button type="button" class="btn btn-emerald btn-sm select-drill-for-part-btn" data-drill-id="' + escapeHtml(d.id) + '" style="width:100%;">Use This Drill</button>' +
@@ -2495,7 +2531,7 @@
             '<div>' +
               '<label class="label">Diagram / GIF &amp; Video Reference</label>' +
               '<div class="gif-drop-box">' +
-                (part.gifDataUrl ? '<img src="' + part.gifDataUrl + '" class="gif-preview-img" alt="Drill Diagram" />' : '<div style="font-size:0.76rem;color:#64748b;margin-bottom:8px;">No diagram uploaded</div>') +
+                (part.gifDataUrl ? '<img src="' + escapeHtml(part.gifDataUrl) + '" data-raw-src="' + escapeHtml(part.gifDataUrl) + '" onerror="handleDrillImageError(this)" class="gif-preview-img" alt="Drill Diagram" />' : '<div style="font-size:0.76rem;color:#64748b;margin-bottom:8px;">No diagram uploaded</div>') +
                 '<div class="no-clean-preview" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;">' +
                   '<button type="button" class="btn btn-primary btn-sm browse-part-drills-btn" data-part-idx="' + idx + '">&#128218; ' + escapeHtml(browseBtnText) + '</button>' +
                   '<button type="button" class="btn btn-emerald btn-sm browse-part-videos-btn" data-part-idx="' + idx + '">&#9654; Browse Videos</button>' +
@@ -3498,7 +3534,7 @@
               '<span style="font-size:0.74rem;font-weight:800;color:#475569;">' + (Number(d.duration) || 15) + ' min</span>' +
             '</div>' +
             '<h3 style="margin:0 0 6px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title || 'Untitled Drill') + '</h3>' +
-            (d.gifDataUrl ? '<img src="' + d.gifDataUrl + '" class="gif-preview-img" style="max-height:170px;margin:8px 0;" alt="Drill Diagram" />' : '') +
+            (d.gifDataUrl ? '<img src="' + escapeHtml(d.gifDataUrl) + '" data-raw-src="' + escapeHtml(d.gifDataUrl) + '" onerror="handleDrillImageError(this)" class="gif-preview-img" style="max-height:170px;margin:8px 0;" alt="Drill Diagram" />' : '') +
             (cpText
               ? '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 10px;margin-bottom:8px;">' +
                   '<div style="font-size:0.66rem;font-weight:900;text-transform:uppercase;color:#0A2647;margin-bottom:3px;">Pre-Made Coaching Points</div>' +
