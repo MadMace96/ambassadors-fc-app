@@ -1557,6 +1557,16 @@
         gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
         coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
         notes: '4 central poles spaced 6 yards apart with left and right passing lanes.'
+      },
+      {
+        id: 'drill_5person_get_angle_triangle',
+        title: '5-Person Get Angle Triangle',
+        category: 'Technical',
+        duration: 15,
+        tags: ['passing', 'angles', 'triangle', 'support'],
+        gifUrl: 'drills/5-person get angle triangle.gif',
+        coachingPoints: '• Create supporting passing angles immediately after the pass\n• Open hips to see both corners of the triangle\n• Crisp 1- and 2-touch ball circulation',
+        notes: '5-player triangle passing and angle-support rotation.'
       }
     ];
 
@@ -1567,6 +1577,20 @@
     } catch (e) {
       drillLibrary = DEFAULT_DRILLS.slice();
     }
+
+    // Ensure every built-in repository drill is always present even if an older cache existed
+    (function ensureDefaultDrillsPresent() {
+      const existingNorm = new Set(
+        drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, ''))
+      );
+      DEFAULT_DRILLS.forEach(def => {
+        const key = String(def.gifUrl || '').toLowerCase().replace(/^\.?\//, '');
+        if (!existingNorm.has(key)) {
+          existingNorm.add(key);
+          drillLibrary.push(Object.assign({}, def));
+        }
+      });
+    })();
 
     function resolveDrillMediaUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
@@ -1845,7 +1869,7 @@
 
       // 0. Query repo metadata first to discover the exact default_branch
       try {
-        const repoMetaResp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME, { cache: 'no-store' });
+        const repoMetaResp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME);
         if (repoMetaResp.ok) {
           const repoMeta = await repoMetaResp.json();
           if (repoMeta && repoMeta.default_branch) {
@@ -1860,7 +1884,7 @@
         // 1. Try GitHub Recursive Trees API across the entire repo (finds drills/, Drills/, nested subfolders, etc.)
         try {
           const treeUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/git/trees/' + encodeURIComponent(branch) + '?recursive=1';
-          const treeResp = await fetch(treeUrl, { cache: 'no-store' });
+          const treeResp = await fetch(treeUrl);
           if (treeResp.ok) {
             const treeData = await treeResp.json();
             const nodes = Array.isArray(treeData.tree) ? treeData.tree : [];
@@ -1881,7 +1905,7 @@
           for (const folder of ['drills', 'Drills', 'assets/drills', 'images/drills']) {
             try {
               const apiUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/contents/' + folder + '?ref=' + encodeURIComponent(branch);
-              const resp = await fetch(apiUrl, { cache: 'no-store' });
+              const resp = await fetch(apiUrl);
               if (resp.ok) {
                 const files = await resp.json();
                 if (Array.isArray(files)) {
@@ -1901,10 +1925,10 @@
           for (const folder of ['drills', 'Drills']) {
             try {
               const htmlUrl = 'https://github.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/tree/' + encodeURIComponent(branch) + '/' + folder;
-              const htmlResp = await fetch(htmlUrl, { cache: 'no-store' });
+              const htmlResp = await fetch(htmlUrl);
               if (htmlResp.ok) {
                 const htmlText = await htmlResp.text();
-                const regex = new RegExp('(?:' + folder + '|drills)\\/[^"\'<>\\\\\\s]+\\.(?:gif|png|jpg|jpeg|webp)', 'gi');
+                const regex = new RegExp('(?:' + folder + '|drills)\\/[^"\'<>\\\\\\n]+?\\.(?:gif|png|jpg|jpeg|webp)', 'gi');
                 for (const m of htmlText.matchAll(regex)) {
                   discoveredPaths.add(decodeURIComponent(m[0]));
                 }
