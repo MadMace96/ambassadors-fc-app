@@ -1496,7 +1496,9 @@
 
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px;">
             <div>
-              <label class="label" for="newDrillGifInput">Upload Drill GIF / Diagram File</label>
+              <label class="label" for="newDrillGifPathInput">GitHub <code>drills/</code> Path or Image URL</label>
+              <input type="text" id="newDrillGifPathInput" class="input" style="margin-bottom:8px;" placeholder="e.g. drills/3-player-give-and-go-4-pole.gif">
+              <label class="label" for="newDrillGifInput">Or Upload Drill GIF / Diagram File</label>
               <input type="file" id="newDrillGifInput" accept="image/gif,image/*" class="input" style="padding:6px;">
               <div id="newDrillGifPreviewWrap" style="margin-top:8px;display:none;">
                 <img id="newDrillGifPreviewImg" class="gif-preview-img" alt="GIF Preview">
@@ -4394,6 +4396,21 @@
 
         const savedDrills = localStorage.getItem('afc_drills_shared');
         if (savedDrills) drillLibrary = JSON.parse(savedDrills) || [];
+        if (drillLibrary.length === 0) {
+          drillLibrary = [
+            {
+              id: 'drill_3p_give_and_go_4pole',
+              title: '3-Player Give & Go Combination (4-Pole Line)',
+              category: 'Technical',
+              duration: 15,
+              tags: ['1-touch', 'give-and-go', 'combination', 'passing'],
+              coachingPoints: '• Time active check-in runs between poles as the pass travels\n• Open body shape to play 1-touch diagonal switches cleanly through the pole gaps\n• Follow pass with immediate active overlap (Yellow) or inactive reset run (Orange)',
+              notes: '4 central poles spaced symmetrically in a vertical line with left and right passing lanes. Continuous 1-touch passing rotation.',
+              gifDataUrl: 'drills/3-player-give-and-go-4-pole.gif'
+            }
+          ];
+          localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+        }
         const savedVideos = localStorage.getItem('afc_videos_shared');
         if (savedVideos) videoLibrary = JSON.parse(savedVideos) || [];
       } catch (e) {}
@@ -4431,8 +4448,42 @@
           auth = firebase.auth();
           db = firebase.firestore();
         }
+        if (auth && firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+          auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+        }
       } catch (e) {
         console.warn('Firebase initialization skipped:', e);
+      }
+
+      // Immediately restore saved coach session on refresh (zero login flash on mobile/desktop)
+      let hasAutoRestoredSession = false;
+      try {
+        const savedSessionRaw = localStorage.getItem('afc_saved_coach_session');
+        if (savedSessionRaw) {
+          const savedCoach = JSON.parse(savedSessionRaw);
+          if (savedCoach && savedCoach.email) {
+            hasAutoRestoredSession = true;
+            enterWorkspaceAsCoach({
+              email: savedCoach.email,
+              displayName: savedCoach.displayName || savedCoach.email.split('@')[0]
+            }, false);
+          }
+        }
+      } catch (e) {}
+
+      // Sync with live Firebase Auth state across refreshes & redirect logins
+      if (auth && typeof auth.onAuthStateChanged === 'function') {
+        auth.onAuthStateChanged(fbUser => {
+          if (fbUser && fbUser.email) {
+            const resolvedName = fbUser.displayName || fbUser.email.split('@')[0];
+            if (!currentUser || !currentUser.email || currentUser.email.toLowerCase() !== fbUser.email.toLowerCase()) {
+              enterWorkspaceAsCoach({ email: fbUser.email, displayName: resolvedName }, false);
+            }
+          } else if (!hasAutoRestoredSession && !isDemoUser) {
+            const authOverlay = document.getElementById('authGateOverlay');
+            if (authOverlay) authOverlay.style.display = 'flex';
+          }
+        });
       }
 
       // Auth Form Mode Switcher ('signin' | 'register' | 'forgot')
@@ -5144,6 +5195,8 @@
         if (cpEl) cpEl.value = '';
         const notesEl = document.getElementById('newDrillNotes');
         if (notesEl) notesEl.value = '';
+        const pathInp = document.getElementById('newDrillGifPathInput');
+        if (pathInp) pathInp.value = '';
         const gifInp = document.getElementById('newDrillGifInput');
         if (gifInp) gifInp.value = '';
         const prevWrap = document.getElementById('newDrillGifPreviewWrap');
@@ -5291,16 +5344,29 @@
           resetSingleDrillForm();
           drawer.style.display = 'block';
           drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          setTimeout(() => document.getElementById('newDrillTitle')?.focus(), 50);
         } else {
-          resetSingleDrillForm();
           drawer.style.display = 'none';
         }
       });
+
       document.getElementById('cancelNewDrillBtn')?.addEventListener('click', function() {
         resetSingleDrillForm();
         const drawer = document.getElementById('newDrillDrawer');
         if (drawer) drawer.style.display = 'none';
+      });
+
+      document.getElementById('newDrillGifPathInput')?.addEventListener('input', function() {
+        const val = this.value.trim();
+        const wrap = document.getElementById('newDrillGifPreviewWrap');
+        const img = document.getElementById('newDrillGifPreviewImg');
+        if (val) {
+          pendingNewDrillGifDataUrl = val;
+          if (img) img.src = val;
+          if (wrap) wrap.style.display = 'block';
+        } else if (!document.getElementById('newDrillGifInput')?.files?.length) {
+          pendingNewDrillGifDataUrl = '';
+          if (wrap) wrap.style.display = 'none';
+        }
       });
       document.getElementById('newDrillGifInput')?.addEventListener('change', function() {
         const file = this.files && this.files[0];
@@ -5333,6 +5399,7 @@
         const tags = rawTags ? rawTags.split(/[,;|]+/).map(t => t.trim()).filter(Boolean) : [];
         const coachingPoints = (document.getElementById('newDrillCoachingPoints')?.value || '').trim();
         const notes = (document.getElementById('newDrillNotes')?.value || '').trim();
+        const explicitPath = (document.getElementById('newDrillGifPathInput')?.value || '').trim();
 
         saveDrillToFirestore({
           id: existingId || ('drill_' + Date.now()),
@@ -5342,7 +5409,7 @@
           tags: tags,
           coachingPoints: coachingPoints,
           notes: notes,
-          gifDataUrl: pendingNewDrillGifDataUrl
+          gifDataUrl: explicitPath || pendingNewDrillGifDataUrl
         });
 
         resetSingleDrillForm();
@@ -5392,6 +5459,8 @@
             document.getElementById('newDrillTags').value = (drill.tags || []).join(', ');
             document.getElementById('newDrillCoachingPoints').value = drill.coachingPoints || '';
             document.getElementById('newDrillNotes').value = drill.notes || '';
+            const pathInp = document.getElementById('newDrillGifPathInput');
+            if (pathInp) pathInp.value = (drill.gifDataUrl && !drill.gifDataUrl.startsWith('data:')) ? drill.gifDataUrl : '';
             pendingNewDrillGifDataUrl = drill.gifDataUrl || '';
             const prevWrap = document.getElementById('newDrillGifPreviewWrap');
             const prevImg = document.getElementById('newDrillGifPreviewImg');
