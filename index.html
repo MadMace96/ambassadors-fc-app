@@ -846,7 +846,7 @@
   <div id="exitCleanPreviewBar">
     <span style="font-weight:800;font-size:0.85rem;">Clean Sideline Sheet Preview</span>
     <div style="display:flex;gap:8px;">
-      <button type="button" class="btn btn-emerald btn-sm" onclick="window.print()">Print / Save PDF</button>
+      <button type="button" class="btn btn-emerald btn-sm" onclick="window.print()">Save PDF</button>
       <button type="button" class="btn btn-outline btn-sm" id="exitCleanPreviewBtn">Exit Preview</button>
     </div>
   </div>
@@ -1343,7 +1343,6 @@
           <button type="button" class="btn btn-outline" id="newBlankSessionBtn">New Blank Session</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
-          <button type="button" class="btn btn-outline" id="copySessionTextSummaryBtn">Copy Text Summary</button>
           <button type="button" class="btn btn-outline" id="toggleCleanPreviewBtn">Clean Preview</button>
           <button type="button" class="btn btn-primary" onclick="window.print()">Print / PDF</button>
         </div>
@@ -2660,6 +2659,53 @@
             renderSessionBuilder();
           };
           reader.readAsDataURL(file);
+        };
+      });
+
+      container.querySelectorAll('.part-title-input').forEach(inp => {
+        inp.oninput = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (sessionParts[i]) sessionParts[i].title = this.value;
+        };
+      });
+
+      container.querySelectorAll('.part-duration-input').forEach(inp => {
+        inp.oninput = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (sessionParts[i]) {
+            sessionParts[i].duration = Math.max(0, parseInt(this.value, 10) || 0);
+            const totalMins = (sessionParts || []).reduce((acc, p) => acc + (Number(p.duration) || 0), 0);
+            if (totalMinEl) totalMinEl.textContent = totalMins;
+          }
+        };
+      });
+
+      container.querySelectorAll('.part-notes-input').forEach(ta => {
+        ta.oninput = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (sessionParts[i]) sessionParts[i].notes = this.value;
+        };
+      });
+
+      container.querySelectorAll('.copy-cp-to-notes-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          const p = sessionParts[i];
+          if (!p || !p.coachingPoints) return;
+          p.notes = p.notes ? (p.notes + '\n\n' + p.coachingPoints) : p.coachingPoints;
+          renderSessionBuilder();
+          showToast('Copied coaching points to Notes.');
+        };
+      });
+
+      container.querySelectorAll('.remove-part-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.getAttribute('data-part-idx'), 10);
+          if (isNaN(i) || !sessionParts[i]) return;
+          const removedTitle = sessionParts[i].title || 'Session Part';
+          sessionParts.splice(i, 1);
+          renderSessionBuilder();
+          showToast('Removed "' + removedTitle + '".');
         };
       });
 
@@ -5091,6 +5137,56 @@
       });
 
       // 2. Session Builder Roster & Activity Controls
+      document.getElementById('toggleCleanPreviewBtn')?.addEventListener('click', function() {
+        document.body.classList.add('clean-preview-mode');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      document.getElementById('exitCleanPreviewBtn')?.addEventListener('click', function() {
+        document.body.classList.remove('clean-preview-mode');
+      });
+
+      document.getElementById('saveSessionBtn')?.addEventListener('click', function() {
+        const title = (document.getElementById('sessionTitleInput')?.value || '').trim() || 'Training Session';
+        const team = document.getElementById('sessionTeamSelect')?.value || activeTeamName;
+        const date = document.getElementById('sessionDateInput')?.value || formatIsoLocal(new Date());
+        const coach = (document.getElementById('sessionCoachInput')?.value || '').trim() || 'Ambassadors FC Staff';
+
+        const sessionObj = {
+          id: 'sess_' + Date.now(),
+          title: title,
+          team: team,
+          date: date,
+          coach: coach,
+          parts: JSON.parse(JSON.stringify(sessionParts))
+        };
+
+        savedSessions.unshift(sessionObj);
+        saveAllState();
+        renderCalendar();
+        showToast('Saved "' + title + '" to Calendar!');
+      });
+
+      document.getElementById('newBlankSessionBtn')?.addEventListener('click', function() {
+        const titleInp = document.getElementById('sessionTitleInput');
+        if (titleInp) titleInp.value = '';
+        sessionParts = [
+          {
+            type: 'warmup',
+            title: 'Part 1: Warm-Up',
+            duration: 15,
+            gifDataUrl: '',
+            videoUrl: '',
+            videoTitle: '',
+            videoTimestamp: '',
+            videos: [],
+            coachingPoints: '',
+            notes: ''
+          }
+        ];
+        renderSessionBuilder();
+        showToast('Started a new blank session.');
+      });
+
       document.getElementById('closePartDrillPickerBtn')?.addEventListener('click', function() {
         const modal = document.getElementById('partDrillPickerModal');
         if (modal) modal.classList.remove('open');
