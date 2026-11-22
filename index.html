@@ -382,6 +382,12 @@
       display: block;
       margin: 0 auto 8px;
       background: #ffffff;
+      cursor: zoom-in;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .gif-preview-img:hover {
+      transform: scale(1.015);
+      box-shadow: 0 6px 16px rgba(10, 38, 71, 0.14);
     }
 
     /* Library Grids */
@@ -1780,30 +1786,28 @@
     </div>
   </div>
 
-  <!-- Session Part Drill Library Browser Modal -->
-  <div id="partDrillPickerModal" class="modal-backdrop">
-    <div class="modal-box" style="max-width:820px;width:96%;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+  <!-- Enlarged Drill Diagram / GIF Lightbox Modal -->
+  <div id="enlargedDiagramModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:760px;width:96%;max-height:92vh;display:flex;flex-direction:column;padding:16px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
         <div>
-          <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#1e4e8c;">Club Drill Library</div>
-          <h3 id="partDrillPickerTitle" style="margin:2px 0 0;font-size:1.08rem;font-weight:900;color:#0A2647;">Select a Drill for Session Part</h3>
+          <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#1e4e8c;">Drill Diagram &amp; Animation</div>
+          <h3 id="enlargedDiagramTitle" style="margin:2px 0 0;font-size:1.05rem;font-weight:900;color:#0A2647;">Drill Diagram</h3>
         </div>
-        <button type="button" id="closePartDrillPickerBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+        <button type="button" id="closeEnlargedDiagramBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
       </div>
-
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-        <input type="text" id="partDrillPickerSearch" class="input" style="flex:1;min-width:200px;" placeholder="Search drills by title, coaching points, tag..." />
-        <select id="partDrillPickerCategory" class="select" style="width:auto;min-width:170px;">
-          <option value="ALL">All Categories</option>
-          <option value="Warm-Up">Warm-Up</option>
-          <option value="Technical">Technical</option>
-          <option value="Tactical">Tactical</option>
-          <option value="Scrimmage">Scrimmage</option>
-          <option value="Fitness">Fitness</option>
-        </select>
+      <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <div style="width:100%;background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center;">
+          <img id="enlargedDiagramImg" src="" alt="Enlarged Drill Diagram" style="max-width:100%;max-height:66vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:block;" />
+        </div>
+        <div id="enlargedDiagramPointsWrap" style="display:none;width:100%;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;">
+          <div style="font-size:0.68rem;font-weight:900;text-transform:uppercase;color:#0A2647;margin-bottom:4px;">Coaching Points</div>
+          <div id="enlargedDiagramPointsText" style="font-size:0.8rem;color:#1e3a8a;line-height:1.45;white-space:pre-line;"></div>
+        </div>
       </div>
-
-      <div id="partDrillPickerGrid" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-right:4px;"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn btn-primary btn-sm" id="doneEnlargedDiagramBtn">Close</button>
+      </div>
     </div>
   </div>
 
@@ -1829,10 +1833,84 @@
     </div>
   </div>
 
+  <!-- Session Part Drill Library Browser Modal -->
+  <div id="partDrillPickerModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:820px;width:96%;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#1e4e8c;">Club Drill Library</div>
+          <h3 id="partDrillPickerTitle" style="margin:2px 0 0;font-size:1.08rem;font-weight:900;color:#0A2647;">Browse Drills</h3>
+        </div>
+        <button type="button" id="closePartDrillPickerBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <input type="text" id="partDrillPickerSearch" class="input" style="flex:1;min-width:200px;" placeholder="Search drills by title, coaching points, or tag..." />
+        <select id="partDrillPickerCategory" class="select" style="width:auto;min-width:170px;">
+          <option value="ALL">All Categories</option>
+          <option value="Warm-Up">Warm-Up</option>
+          <option value="Technical">Technical</option>
+          <option value="Tactical">Tactical</option>
+          <option value="Scrimmage">Scrimmage</option>
+          <option value="Fitness">Fitness</option>
+        </select>
+      </div>
+
+      <div id="partDrillPickerGrid" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-right:4px;"></div>
+    </div>
+  </div>
+
   <div id="toastContainer"></div>
 
   <!-- Main JavaScript App Code -->
   <script>
+    /* =========================================================
+       TOAST NOTIFICATIONS & ACCOUNT PICKER HELPERS
+       ========================================================= */
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      if (!container || !message) return;
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = String(message);
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 260);
+      }, 3200);
+    }
+
+    function openGoogleAccountPicker() {
+      const modal = document.getElementById('googleAccountPickerModal');
+      const listEl = document.getElementById('googleSavedAccountsList');
+      if (!modal) return;
+      let known = [];
+      try {
+        known = JSON.parse(localStorage.getItem('afc_known_accounts') || '[]');
+      } catch (e) {}
+      if (listEl) {
+        listEl.innerHTML = Array.isArray(known) && known.length > 0
+          ? known.map(acc =>
+              '<button type="button" class="btn btn-outline saved-acc-pick-btn" data-email="' + escapeHtml(acc.email) + '" data-name="' + escapeHtml(acc.displayName || '') + '" style="justify-content:flex-start;text-align:left;width:100%;">' +
+                '<div><div style="font-weight:800;color:#0A2647;">' + escapeHtml(acc.displayName || acc.email) + '</div><div style="font-size:0.72rem;color:#64748b;">' + escapeHtml(acc.email) + '</div></div>' +
+              '</button>'
+            ).join('')
+          : '<div style="font-size:0.76rem;color:#64748b;padding:6px 0;">No saved accounts on this device yet.</div>';
+        listEl.querySelectorAll('.saved-acc-pick-btn').forEach(btn => {
+          btn.onclick = function() {
+            const em = this.getAttribute('data-email');
+            const nm = this.getAttribute('data-name') || em.split('@')[0];
+            modal.classList.remove('open');
+            enterWorkspaceAsCoach({ email: em, displayName: nm }, true);
+          };
+        });
+      }
+      modal.classList.add('open');
+    }
+
     /* =========================================================
        FIREBASE CONFIG & STATE INITIALIZATION
        ========================================================= */
@@ -2021,14 +2099,33 @@
       }
     }
 
-    function showToast(message) {
-      const container = document.getElementById('toastContainer');
-      if (!container) return;
-      const el = document.createElement('div');
-      el.className = 'toast';
-      el.textContent = message;
-      container.appendChild(el);
-      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 3200);
+    function openEnlargedDiagramModal(imgSrc, title, coachingPoints) {
+      const modal = document.getElementById('enlargedDiagramModal');
+      const imgEl = document.getElementById('enlargedDiagramImg');
+      const titleEl = document.getElementById('enlargedDiagramTitle');
+      const cpWrap = document.getElementById('enlargedDiagramPointsWrap');
+      const cpText = document.getElementById('enlargedDiagramPointsText');
+      if (!modal || !imgEl || !imgSrc) return;
+
+      imgEl.src = imgSrc;
+      if (titleEl) titleEl.textContent = title || 'Drill Diagram';
+      const cleanCp = String(coachingPoints || '').trim();
+      if (cpWrap && cpText) {
+        if (cleanCp) {
+          cpText.textContent = cleanCp;
+          cpWrap.style.display = 'block';
+        } else {
+          cpWrap.style.display = 'none';
+        }
+      }
+      modal.classList.add('open');
+    }
+
+    function closeEnlargedDiagramModal() {
+      const modal = document.getElementById('enlargedDiagramModal');
+      const imgEl = document.getElementById('enlargedDiagramImg');
+      if (modal) modal.classList.remove('open');
+      if (imgEl) imgEl.src = '';
     }
 
     /* =========================================================
@@ -4419,18 +4516,6 @@
       });
     }
 
-    function promptCreateTeam() {
-      openCustomDialog({
-        title: 'Create New Team Workspace',
-        message: 'Enter the name for your new team (e.g., U13 AFC Girls):',
-        showInput: true,
-        placeholder: 'e.g. U13 AFC Girls',
-        onConfirm: function(val) {
-          createAdditionalTeam(val);
-        }
-      });
-    }
-
     function openCustomDialog(opts) {
       const backdrop = document.getElementById('customModalBackdrop');
       const titleEl = document.getElementById('modalTitle');
@@ -5318,19 +5403,28 @@
       document.getElementById('embeddedVideoModal')?.addEventListener('click', function(e) {
         if (e.target === this) closeEmbeddedVideoModal();
       });
-      document.getElementById('clearVideosBtn')?.addEventListener('click', function() {
-        if (!isClubAdmin) return;
-        openCustomDialog({
-          title: 'Clear Video Library',
-          message: 'Are you sure you want to clear all videos from the shared Video Library?',
-          onConfirm: function() {
-            videoLibrary = [];
-            saveSharedVideosLibrary();
-            renderVideoLibrary();
-            updateWorkspaceBadges();
-            showToast('Cleared Video Library.');
+
+      // Enlarged Drill Diagram / GIF Lightbox Modal Handlers (Click any diagram anywhere in the app)
+      document.getElementById('closeEnlargedDiagramBtn')?.addEventListener('click', closeEnlargedDiagramModal);
+      document.getElementById('doneEnlargedDiagramBtn')?.addEventListener('click', closeEnlargedDiagramModal);
+      document.getElementById('enlargedDiagramModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeEnlargedDiagramModal();
+      });
+      document.addEventListener('click', function(e) {
+        const diagramImg = e.target.closest('.gif-preview-img');
+        if (!diagramImg || !diagramImg.src) return;
+        const card = diagramImg.closest('.lib-card, .session-part-card');
+        let title = 'Drill Diagram';
+        let coachingPoints = '';
+        if (card) {
+          const titleNode = card.querySelector('h3, .part-title-input');
+          if (titleNode) {
+            title = (titleNode.value !== undefined ? titleNode.value : titleNode.textContent) || title;
           }
-        });
+          const cpNode = card.querySelector('div[style*="white-space:pre-line"]');
+          if (cpNode) coachingPoints = cpNode.textContent || '';
+        }
+        openEnlargedDiagramModal(diagramImg.currentSrc || diagramImg.src, title.trim(), coachingPoints);
       });
 
       // Drill Library Admin Backend Drawer, Batch Upload, Edit & Add Drill Handlers
