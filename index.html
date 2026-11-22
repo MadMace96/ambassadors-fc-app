@@ -1232,6 +1232,17 @@
                 <button type="button" class="btn btn-emerald" id="sendCoachInviteBtn" style="height:37px;">&#9993; Invite Coach</button>
               </div>
 
+              <div id="latestInviteShareBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:0.78rem;color:#065f46;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+                  <div id="latestInviteShareText" style="font-weight:700;"></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <button type="button" class="btn btn-emerald btn-sm" id="copyLatestInviteMsgBtn">&#128203; Copy Invite Message</button>
+                    <a id="openGmailComposeLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="text-decoration:none;">&#9993; Open in Gmail</a>
+                    <a id="openDefaultMailAppLink" href="#" class="btn btn-outline btn-sm" style="text-decoration:none;">Default Mail App</a>
+                  </div>
+                </div>
+              </div>
+
               <div id="invitedCoachesList" style="display:flex;flex-direction:column;gap:6px;"></div>
             </div>
 
@@ -4329,16 +4340,57 @@
           persistCurrentTeamState();
           renderSettingsPanel();
 
+          const appUrl = (window.location.protocol === 'http:' || window.location.protocol === 'https:') && !isHostedPreviewEnvironment()
+            ? (window.location.origin + window.location.pathname)
+            : ('https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/');
           const teamObj = clubTeamsRegistry.find(t => t.name === team) || clubTeamsRegistry[0];
-          const subject = encodeURIComponent('Ambassadors FC Training App Invitation (' + (team === 'ALL_TEAMS' ? 'All Teams' : team) + ')');
-          const body = encodeURIComponent(
+          const teamDisplay = team === 'ALL_TEAMS' ? 'All Club Teams' : team;
+          const inviteText =
             'Hi ' + name + ',\n\n' +
-            'You have been invited as ' + role + ' for ' + (team === 'ALL_TEAMS' ? 'Ambassadors FC' : team) + '.\n' +
+            'You have been invited as ' + role + ' for ' + teamDisplay + ' on the Ambassadors FC Training App.\n' +
             (teamObj ? 'Team Join Code: ' + teamObj.code + '\n\n' : '\n') +
-            'Sign in using your email (' + email + ') at:\n' + window.location.origin + window.location.pathname
-          );
-          try { window.open('mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body, '_blank'); } catch (e) {}
-          showToast('Saved coach invite for ' + email + '!');
+            'Sign in using your email (' + email + ') at:\n' + appUrl;
+
+          const tmp = document.createElement('textarea');
+          tmp.value = inviteText;
+          document.body.appendChild(tmp);
+          tmp.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(tmp);
+
+          const shareBanner = document.getElementById('latestInviteShareBanner');
+          const shareTextEl = document.getElementById('latestInviteShareText');
+          const copyLatestBtn = document.getElementById('copyLatestInviteMsgBtn');
+          const gmailLink = document.getElementById('openGmailComposeLink');
+          const mailAppLink = document.getElementById('openDefaultMailAppLink');
+          const subject = encodeURIComponent('Ambassadors FC Training App Invitation (' + teamDisplay + ')');
+          const body = encodeURIComponent(inviteText);
+          const gmailComposeUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(email) + '&su=' + subject + '&body=' + body;
+
+          if (shareBanner && shareTextEl) {
+            shareTextEl.textContent = 'Access granted to ' + email + ' (' + teamDisplay + ') — opening Gmail compose & copied invite to clipboard!';
+            shareBanner.style.display = 'block';
+          }
+          if (copyLatestBtn) {
+            copyLatestBtn.onclick = () => {
+              const t = document.createElement('textarea');
+              t.value = inviteText;
+              document.body.appendChild(t);
+              t.select();
+              try { document.execCommand('copy'); } catch (e) {}
+              document.body.removeChild(t);
+              showToast('Copied invite message to clipboard!');
+            };
+          }
+          if (gmailLink) {
+            gmailLink.href = gmailComposeUrl;
+          }
+          if (mailAppLink) {
+            mailAppLink.href = 'mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body;
+          }
+
+          window.open(gmailComposeUrl, '_blank', 'noopener,noreferrer');
+          showToast('Granted access & opened Gmail compose for ' + email + '!');
         };
       }
 
