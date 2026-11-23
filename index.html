@@ -1522,7 +1522,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Account</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.12</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.13</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Staff</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1617,7 +1617,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.12</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.13</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1911,7 +1911,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.7.12';
+    const APP_VERSION = '2.7.13';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
@@ -1932,6 +1932,7 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.7.13', date: '2026-11-23', note: 'Fixed strict per-team roster isolation so adding, editing, or deleting players on 11/12 AFC Boys never leaks onto 09/10 AFC Boys (or any other team) during team switches or cloud syncs.' },
         { version: '2.7.12', date: '2026-11-23', note: 'Added Warm-Up reference links box & clickable link pills in Session Builder, and streamlined Session Attendance to two clean buttons (✓ Present / ✕ Not Present) with automatic absence reason input and no accidental delete button.' },
         { version: '2.7.11', date: '2026-11-23', note: 'Added the Team Manager role with full access to Calendar, Session Plan attendance, Game Day attendance, and Roster while hiding Drills and Videos tabs automatically.' },
         { version: '2.7.10', date: '2026-11-23', note: 'Enabled free drag-and-drop repositioning of any position slot (filled or open) anywhere on the side-by-side Scrimmage fields so coaches can shape custom formations directly on the pitch while keeping player swapping and bench drops intact.' },
@@ -1943,11 +1944,11 @@
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.12')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.13')) {
       versionHistoryLog.unshift({
-        version: '2.7.12',
+        version: '2.7.13',
         date: '2026-11-23',
-        note: 'Added Warm-Up reference links box & clickable link pills in Session Builder, and streamlined Session Attendance to two clean buttons (✓ Present / ✕ Not Present) with automatic absence reason input and no accidental delete button.'
+        note: 'Fixed strict per-team roster isolation so adding, editing, or deleting players on 11/12 AFC Boys never leaks onto 09/10 AFC Boys (or any other team) during team switches or cloud syncs.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2360,9 +2361,18 @@
       return firebaseCloudReadyPromise;
     }
 
+    function getTeamDocSlug(teamName) {
+      return String(teamName || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    }
+
     function getTeamDocRefs(teamName) {
       if (!db || !teamName) return [];
-      const slug = String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      const slug = getTeamDocSlug(teamName);
+      if (!slug) return [];
       return [
         db.collection('afc_teams').doc(slug),
         db.collection('artifacts').doc('ambassadors-fc').collection('public').doc('data').collection('afc_teams').doc(slug)
@@ -2377,8 +2387,27 @@
       ];
     }
 
+    function saveTeamSnapshotLocally(teamName, snapshot) {
+      if (!teamName || !snapshot) return;
+      const slug = getTeamDocSlug(teamName);
+      const cleanSnapshot = {
+        teamName: teamName,
+        teamSlug: slug,
+        sessions: JSON.parse(JSON.stringify(Array.isArray(snapshot.sessions) ? snapshot.sessions : [])),
+        games: JSON.parse(JSON.stringify(Array.isArray(snapshot.games) ? snapshot.games : [])),
+        roster: JSON.parse(JSON.stringify(Array.isArray(snapshot.roster) ? snapshot.roster : [])),
+        gameRoster: JSON.parse(JSON.stringify(Array.isArray(snapshot.gameRoster) ? snapshot.gameRoster : [])),
+        updatedAt: Number(snapshot.updatedAt || Date.now())
+      };
+      try {
+        localStorage.setItem('afc_team_state_' + teamName, JSON.stringify(cleanSnapshot));
+        localStorage.setItem('afc_roster_backup_' + slug, JSON.stringify(cleanSnapshot.roster));
+      } catch (e) {}
+    }
+
     async function persistCurrentTeamState() {
       const nowTs = Date.now();
+      const targetTeamToSave = activeTeamName;
       try {
         localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
         localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry));
@@ -2389,20 +2418,17 @@
       } catch (e) {}
 
       let teamState = null;
-      if (activeTeamName) {
+      if (targetTeamToSave) {
         teamState = {
-          teamName: activeTeamName,
-          sessions: savedSessions,
-          games: savedGames,
-          roster: rosterPlayers,
-          gameRoster: gameRosterPlayers,
+          teamName: targetTeamToSave,
+          teamSlug: getTeamDocSlug(targetTeamToSave),
+          sessions: JSON.parse(JSON.stringify(savedSessions)),
+          games: JSON.parse(JSON.stringify(savedGames)),
+          roster: JSON.parse(JSON.stringify(rosterPlayers)),
+          gameRoster: JSON.parse(JSON.stringify(gameRosterPlayers)),
           updatedAt: nowTs
         };
-        const rosterBackupKey = 'afc_roster_backup_' + String(activeTeamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
-        try {
-          localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
-          localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
-        } catch (e) {}
+        saveTeamSnapshotLocally(targetTeamToSave, teamState);
       }
 
       updateWorkspaceBadges();
@@ -2426,9 +2452,9 @@
         ...getClubDocRefs().map(ref => ref.set(clubPayload, { merge: true }))
       ];
 
-      if (teamState && activeTeamName) {
+      if (teamState && targetTeamToSave) {
         const teamPayload = JSON.parse(JSON.stringify(teamState));
-        allWrites.push(...getTeamDocRefs(activeTeamName).map(ref => ref.set(teamPayload, { merge: true })));
+        allWrites.push(...getTeamDocRefs(targetTeamToSave).map(ref => ref.set(teamPayload, { merge: false })));
       }
 
       const results = await Promise.allSettled(allWrites);
@@ -2456,37 +2482,38 @@
 
     function applyCloudTeamData(teamName, cloud) {
       if (!cloud || !teamName) return;
-      const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster.map(normalizePlayerAttendanceModel) : [];
-      const cloudSessions = Array.isArray(cloud.sessions) ? cloud.sessions : [];
-      const cloudGames = Array.isArray(cloud.games) ? cloud.games : [];
-      const cloudGameRoster = Array.isArray(cloud.gameRoster) ? cloud.gameRoster.map(normalizePlayerAttendanceModel) : [];
+      if (cloud.teamName && String(cloud.teamName).trim().toLowerCase() !== String(teamName).trim().toLowerCase()) {
+        return;
+      }
+
+      const cloudRoster = Array.isArray(cloud.roster) ? JSON.parse(JSON.stringify(cloud.roster)).map(normalizePlayerAttendanceModel) : [];
+      const cloudSessions = Array.isArray(cloud.sessions) ? JSON.parse(JSON.stringify(cloud.sessions)) : [];
+      const cloudGames = Array.isArray(cloud.games) ? JSON.parse(JSON.stringify(cloud.games)) : [];
+      const cloudGameRoster = Array.isArray(cloud.gameRoster) ? JSON.parse(JSON.stringify(cloud.gameRoster)).map(normalizePlayerAttendanceModel) : [];
       const cloudUpdated = Number(cloud.updatedAt || 0);
 
       let localRaw = null;
       try { localRaw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null'); } catch (e) {}
       const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster.map(normalizePlayerAttendanceModel) : [];
-      const localUpdated = (localRaw && localRaw.updatedAt) || 0;
+      const localUpdated = Number((localRaw && localRaw.updatedAt) || 0);
 
-      if (cloudUpdated > localUpdated || (localRoster.length === 0 && cloudRoster.length > 0)) {
+      if (cloudUpdated > localUpdated || (!localRaw && cloudRoster.length > 0)) {
         const mergedState = {
           teamName,
-          sessions: cloudSessions.length ? cloudSessions : ((localRaw && localRaw.sessions) || []),
-          games: cloudGames.length ? cloudGames : ((localRaw && localRaw.games) || []),
-          roster: cloudRoster.length ? cloudRoster : localRoster,
-          gameRoster: cloudGameRoster.length ? cloudGameRoster : (cloudRoster.length ? cloudRoster : ((localRaw && localRaw.gameRoster) || [])),
+          teamSlug: getTeamDocSlug(teamName),
+          sessions: cloudSessions,
+          games: cloudGames,
+          roster: cloudRoster,
+          gameRoster: cloudGameRoster.length ? cloudGameRoster : JSON.parse(JSON.stringify(cloudRoster)),
           updatedAt: cloudUpdated || Date.now()
         };
-        try {
-          localStorage.setItem('afc_team_state_' + teamName, JSON.stringify(mergedState));
-          const rosterBackupKey = 'afc_roster_backup_' + String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
-          localStorage.setItem(rosterBackupKey, JSON.stringify(mergedState.roster));
-        } catch (e) {}
+        saveTeamSnapshotLocally(teamName, mergedState);
 
         if (activeTeamName === teamName && userTeams.includes(teamName)) {
-          savedSessions = mergedState.sessions;
-          savedGames = mergedState.games;
-          rosterPlayers = mergedState.roster;
-          gameRosterPlayers = mergedState.gameRoster;
+          savedSessions = JSON.parse(JSON.stringify(mergedState.sessions));
+          savedGames = JSON.parse(JSON.stringify(mergedState.games));
+          rosterPlayers = JSON.parse(JSON.stringify(mergedState.roster));
+          gameRosterPlayers = JSON.parse(JSON.stringify(mergedState.gameRoster));
           renderCalendar();
           renderRoster();
           renderSessionParts();
@@ -2494,7 +2521,7 @@
           renderGamePitch();
           updateWorkspaceBadges();
         }
-      } else if (activeTeamName === teamName && userTeams.includes(teamName) && rosterPlayers.length > 0 && cloudRoster.length === 0) {
+      } else if (activeTeamName === teamName && userTeams.includes(teamName) && localUpdated > cloudUpdated && cloudUpdated > 0) {
         persistCurrentTeamState();
       }
       setCloudSyncBadge('synced', 'Cloud Synced');
@@ -2597,21 +2624,23 @@
         unsubscribeTeamCloudListener = null;
       }
       if (!teamName || !userTeams.includes(teamName)) return;
-      const refs = getTeamDocRefs(teamName);
+      const expectedTeam = teamName;
+      const refs = getTeamDocRefs(expectedTeam);
       if (!refs.length) return;
 
       await ensureFirebaseAuthReady();
+      if (activeTeamName !== expectedTeam) return;
+
       const unsubs = [];
       for (const ref of refs) {
         ref.get().then((snap) => {
-          if (snap.exists) applyCloudTeamData(teamName, snap.data());
-          else if (activeTeamName === teamName && (rosterPlayers.length > 0 || savedSessions.length > 0 || savedGames.length > 0)) {
-            persistCurrentTeamState();
-          }
+          if (activeTeamName !== expectedTeam) return;
+          if (snap.exists) applyCloudTeamData(expectedTeam, snap.data());
         }).catch(() => {});
 
         const u = ref.onSnapshot((snap) => {
-          if (snap.exists) applyCloudTeamData(teamName, snap.data());
+          if (activeTeamName !== expectedTeam) return;
+          if (snap.exists) applyCloudTeamData(expectedTeam, snap.data());
         }, () => {});
         unsubs.push(u);
       }
@@ -2647,6 +2676,11 @@
       if (!teamName || (currentUser && !userTeams.includes(teamName))) {
         return;
       }
+      if (typeof unsubscribeTeamCloudListener === 'function') {
+        unsubscribeTeamCloudListener();
+        unsubscribeTeamCloudListener = null;
+      }
+
       activeTeamName = teamName;
       const subEl = document.getElementById('topBarActiveTeamSub');
       const masterTitleEl = document.getElementById('masterRosterTitle');
@@ -2657,7 +2691,7 @@
       if (calTeamLbl) calTeamLbl.textContent = activeTeamName;
       if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
 
-      const rosterBackupKey = 'afc_roster_backup_' + String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      const rosterBackupKey = 'afc_roster_backup_' + getTeamDocSlug(teamName);
       let foundSavedState = false;
       savedSessions = [];
       savedGames = [];
@@ -2666,12 +2700,12 @@
 
       try {
         const raw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null');
-        if (raw) {
+        if (raw && (!raw.teamName || raw.teamName === teamName)) {
           foundSavedState = true;
-          savedSessions = Array.isArray(raw.sessions) ? raw.sessions : [];
-          savedGames = Array.isArray(raw.games) ? raw.games : [];
-          rosterPlayers = Array.isArray(raw.roster) ? raw.roster.map(normalizePlayerAttendanceModel) : [];
-          gameRosterPlayers = Array.isArray(raw.gameRoster) ? raw.gameRoster.map(normalizePlayerAttendanceModel) : JSON.parse(JSON.stringify(rosterPlayers));
+          savedSessions = JSON.parse(JSON.stringify(Array.isArray(raw.sessions) ? raw.sessions : []));
+          savedGames = JSON.parse(JSON.stringify(Array.isArray(raw.games) ? raw.games : []));
+          rosterPlayers = JSON.parse(JSON.stringify(Array.isArray(raw.roster) ? raw.roster : [])).map(normalizePlayerAttendanceModel);
+          gameRosterPlayers = JSON.parse(JSON.stringify(Array.isArray(raw.gameRoster) ? raw.gameRoster : rosterPlayers)).map(normalizePlayerAttendanceModel);
         }
       } catch (e) {}
 
@@ -2679,7 +2713,7 @@
         try {
           const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
           if (Array.isArray(backupRaw)) {
-            rosterPlayers = backupRaw.map(normalizePlayerAttendanceModel);
+            rosterPlayers = JSON.parse(JSON.stringify(backupRaw)).map(normalizePlayerAttendanceModel);
             gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
           }
         } catch (e) {}
@@ -2690,6 +2724,7 @@
       renderRoster();
       renderSessionParts();
       renderGameRoster();
+      renderGamePitch();
       updateWorkspaceBadges();
       attachFirestoreTeamSync(teamName);
     }
@@ -7211,6 +7246,7 @@
       if (copyRosterBtn) {
         copyRosterBtn.onclick = () => {
           gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
           showToast('Copied training roster to Game Day!');
@@ -7225,6 +7261,7 @@
           if (!parsed) return;
           gameRosterPlayers.push(parsed);
           newGamePlayerInput.value = '';
+          persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
         };
