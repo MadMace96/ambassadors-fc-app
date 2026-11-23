@@ -1253,7 +1253,7 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your backend drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your Google Sheet drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
           </div>
         </div>
 
@@ -1378,7 +1378,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.7</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.8</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1472,7 +1472,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.7</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.8</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1725,16 +1725,15 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.7';
+    const APP_VERSION = '2.6.8';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
-    const DRILLS_GOOGLE_SHEET_ID = '';
+    const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
 
     let drillsGoogleSheetId = DRILLS_GOOGLE_SHEET_ID;
     try {
-      const storedSheetId = localStorage.getItem('afc_drills_google_sheet_id');
-      if (storedSheetId) drillsGoogleSheetId = storedSheetId;
+      localStorage.setItem('afc_drills_google_sheet_id', DRILLS_GOOGLE_SHEET_ID);
     } catch (e) {}
 
     let versionHistoryLog = [];
@@ -1744,6 +1743,7 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.8', date: '2026-11-22', note: 'Connected Drills Google Sheet (1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4) directly into the backend for automatic background syncing.' },
         { version: '2.6.7', date: '2026-11-22', note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.' },
         { version: '2.6.6', date: '2026-11-22', note: 'Google Sheet Drill Library Sync: Added backend Google Sheet drill loader supporting Title, Category, Duration, GIF_URL, Tags, Coaching_Points, and Notes.' },
         { version: '2.6.5', date: '2026-11-22', note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.' },
@@ -1754,11 +1754,11 @@
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.7')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.8')) {
       versionHistoryLog.unshift({
-        version: '2.6.7',
+        version: '2.6.8',
         date: '2026-11-22',
-        note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.'
+        note: 'Connected Drills Google Sheet (1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4) directly into the backend for automatic background syncing.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2671,7 +2671,7 @@
     }
 
     /* =========================================================
-       DRILL LIBRARY & AUTOMATIC BACKEND SYNC (GITHUB + GOOGLE SHEET)
+       DRILL LIBRARY & AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB)
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
@@ -2753,31 +2753,33 @@
         return 'Technical';
       };
 
-      const discoveredTabNames = new Set();
-      try {
-        const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/pubhtml', { cache: 'no-store' });
-        if (pubResp.ok) {
-          const html = await pubResp.text();
-          for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"/g)) {
-            if (m[1]) discoveredTabNames.add(m[1].trim());
+      const discoveredTabNames = new Set(['Warm-Up', 'Technical', 'Tactical', 'Scrimmage', 'Fitness']);
+      for (const pubEndpoint of ['pubhtml', 'htmlview', 'edit']) {
+        try {
+          const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/' + pubEndpoint, { cache: 'no-store' });
+          if (pubResp.ok) {
+            const html = await pubResp.text();
+            for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"/g)) {
+              if (m[1]) discoveredTabNames.add(m[1].trim());
+            }
+            for (const m of html.matchAll(/id="sheet-button-\d+"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
+              if (m[1]) discoveredTabNames.add(m[1].trim());
+            }
+            for (const m of html.matchAll(/\[\d{4,},\s*\d+,\s*"([^"\\]+)"/g)) {
+              if (m[1]) discoveredTabNames.add(m[1].trim());
+            }
           }
-          for (const m of html.matchAll(/id="sheet-button-\d+"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
-            if (m[1]) discoveredTabNames.add(m[1].trim());
-          }
-        }
-      } catch (e) {}
+        } catch (e) {}
+      }
 
-      const targets = discoveredTabNames.size > 0
-        ? Array.from(discoveredTabNames).map(t => ({ sheetName: t }))
-        : [{ sheetName: '' }];
-
+      const targets = Array.from(discoveredTabNames).map(t => ({ sheetName: t }));
       const sheetDrills = [];
       const seenTitles = new Set();
 
       for (const target of targets) {
         try {
           const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
-            '/gviz/tq?tqx=out:csv' + (target.sheetName ? '&sheet=' + encodeURIComponent(target.sheetName) : '') + '&cb=' + Date.now();
+            '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(target.sheetName) + '&cb=' + Date.now();
           const resp = await fetch(csvUrl, { cache: 'no-store' });
           if (!resp.ok) continue;
           const text = await resp.text();
@@ -2853,7 +2855,21 @@
     function resolveDrillMediaUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
       if (!u) return '';
-      if (/^(https?:|data:|blob:)/i.test(u)) return u;
+      if (/^(data:|blob:)/i.test(u)) return u;
+
+      const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i) ||
+        u.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?.*id=([A-Za-z0-9_-]+)/i);
+      if (driveFileMatch) {
+        return 'https://lh3.googleusercontent.com/d/' + driveFileMatch[1];
+      }
+
+      if (/^https?:/i.test(u)) {
+        if (/dropbox\.com/i.test(u)) {
+          return u.replace(/[?&]dl=0/i, '?raw=1').replace(/www\.dropbox\.com/i, 'dl.dropboxusercontent.com');
+        }
+        return u;
+      }
+
       const cleanPath = u.replace(/^\.?\//, '');
       const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
       if (isHostedPreviewEnvironment()) {
@@ -2865,22 +2881,41 @@
     function handleDrillGifError(imgEl, rawPath) {
       if (!imgEl) return;
       const attempt = parseInt(imgEl.getAttribute('data-fallback-step') || '0', 10);
-      const cleanPath = String(rawPath || '').replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, '');
+      const rawStr = String(rawPath || '').trim();
+
+      const driveMatch = rawStr.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i) ||
+        rawStr.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?.*id=([A-Za-z0-9_-]+)/i);
+      if (driveMatch) {
+        if (attempt === 0) {
+          imgEl.setAttribute('data-fallback-step', '1');
+          imgEl.src = 'https://drive.google.com/uc?export=view&id=' + driveMatch[1];
+          return;
+        }
+        if (attempt === 1) {
+          imgEl.setAttribute('data-fallback-step', '2');
+          imgEl.src = 'https://drive.google.com/thumbnail?id=' + driveMatch[1] + '&sz=w1000';
+          return;
+        }
+      }
+
+      const cleanPath = rawStr.replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, '');
       const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
-      if (attempt === 0 && encodedPath) {
-        imgEl.setAttribute('data-fallback-step', '1');
-        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
-        return;
-      }
-      if (attempt === 1 && encodedPath) {
-        imgEl.setAttribute('data-fallback-step', '2');
-        imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + encodedPath;
-        return;
-      }
-      if (attempt === 2 && encodedPath) {
-        imgEl.setAttribute('data-fallback-step', '3');
-        imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + encodedPath;
-        return;
+      if (!/^https?:/i.test(rawStr)) {
+        if (attempt === 0 && encodedPath) {
+          imgEl.setAttribute('data-fallback-step', '1');
+          imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
+          return;
+        }
+        if (attempt === 1 && encodedPath) {
+          imgEl.setAttribute('data-fallback-step', '2');
+          imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + encodedPath;
+          return;
+        }
+        if (attempt === 2 && encodedPath) {
+          imgEl.setAttribute('data-fallback-step', '3');
+          imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + encodedPath;
+          return;
+        }
       }
       const wrap = imgEl.closest('.gif-preview-wrap');
       if (wrap) {
