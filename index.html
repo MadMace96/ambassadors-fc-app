@@ -461,6 +461,14 @@
       transition: transform 0.15s ease;
     }
     .gif-preview-wrap:hover .gif-preview-img { transform: scale(1.015); }
+    .gif-drive-frame {
+      width: 100%;
+      height: 230px;
+      border: 0;
+      display: block;
+      background: #ffffff;
+      pointer-events: none;
+    }
     .gif-enlarge-hint {
       position: absolute;
       bottom: 6px;
@@ -816,7 +824,7 @@
       <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Ambassadors FC</div>
       <h1 style="margin:4px 0 8px;font-size:1.35rem;font-weight:900;color:#0A2647;">Training App</h1>
 
-      <!-- Smart Invite Banner (Automatically revealed when opened via ?mode=register&email=...&codes=...) -->
+      <!-- Smart Invite Banner -->
       <div id="invitePrefillBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:0.77rem;font-weight:700;color:#065f46;text-align:left;line-height:1.4;">
         &#10003; Coach Invitation Detected — Your email and team join code(s) have been pre-filled below. Set a password to unlock your teams!
       </div>
@@ -945,7 +953,7 @@
 
   <main class="workspace-wrap">
 
-    <!-- PENDING TEAM ACCESS GATE (Shown on Calendar/Builder/GameDay/Roster if user has 0 authorized teams) -->
+    <!-- PENDING TEAM ACCESS GATE -->
     <div id="pendingTeamAccessGate" style="display:none;">
       <div class="locked-gate-card">
         <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
@@ -1232,7 +1240,7 @@
       </div>
     </section>
 
-    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite + Live Automatic Backend Sync) -->
+    <!-- 4. DRILL LIBRARY TAB (3-Tier: Category -> Sub-Category -> Tags) -->
     <section id="tab-drills" class="workspace-section">
       <div id="drillLibraryLockedPanel" style="display:none;">
         <div class="locked-gate-card">
@@ -1253,20 +1261,20 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Live-synced automatically from your Google Sheet drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
           </div>
         </div>
 
         <div class="card-body">
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-            <input type="text" id="drillSearchInput" class="input" style="max-width:280px;" placeholder="Search drills by title, coaching points, tag...">
-            <select id="drillCategoryFilter" class="select" style="max-width:180px;">
+            <input type="text" id="drillSearchInput" class="input" style="max-width:240px;" placeholder="Search drills by title or tag...">
+            <select id="drillCategoryFilter" class="select" style="max-width:190px;">
               <option value="ALL">All Categories</option>
-              <option value="Warm-Up">Warm-Up</option>
-              <option value="Technical">Technical</option>
-              <option value="Tactical">Tactical</option>
-              <option value="Scrimmage">Scrimmage</option>
-              <option value="Fitness">Fitness</option>
+            </select>
+            <select id="drillSubCategoryFilter" class="select" style="max-width:200px;">
+              <option value="ALL">All Sub-Categories</option>
+            </select>
+            <select id="drillTagFilter" class="select" style="max-width:210px;">
+              <option value="ALL">All Tags</option>
             </select>
           </div>
           <div id="drillLibraryGrid" class="library-grid"></div>
@@ -1378,7 +1386,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.9</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.4</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1472,7 +1480,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.9</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.4</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1486,7 +1494,7 @@
 
   </main>
 
-  <!-- Player Attendance Profile Modal (Opened by clicking any player on Roster) -->
+  <!-- Player Attendance Profile Modal -->
   <div id="playerAttendanceModal" class="modal-backdrop">
     <div class="modal-box" style="max-width:580px;width:96%;max-height:90vh;display:flex;flex-direction:column;padding:20px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;">
@@ -1498,7 +1506,6 @@
         <button type="button" id="closePlayerAttModalBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
       </div>
 
-      <!-- Summary Stat Cards -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
         <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:8px;text-align:center;">
           <div style="font-size:1.1rem;font-weight:900;color:#065f46;" id="playerAttStatRate">100%</div>
@@ -1529,7 +1536,7 @@
     </div>
   </div>
 
-  <!-- Custom Modal Dialog (Input + Video Metadata/Tag Editor) -->
+  <!-- Custom Modal Dialog -->
   <div id="customModalBackdrop" class="modal-backdrop">
     <div class="modal-box">
       <h3 id="modalTitle" style="margin:0 0 8px;font-size:1rem;font-weight:900;color:#0A2647;">Notice</h3>
@@ -1592,22 +1599,12 @@
         <button type="button" id="closeEnlargedDiagramBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
       </div>
       <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:12px;">
-        <div style="width:100%;background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center;">
+        <div id="enlargedDiagramMediaStage" style="width:100%;background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center;">
           <img id="enlargedDiagramImg" src="" alt="Enlarged Drill GIF" style="max-width:100%;max-height:66vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:block;" />
         </div>
         <div id="enlargedDiagramPointsWrap" style="display:none;width:100%;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;">
           <div style="font-size:0.68rem;font-weight:900;text-transform:uppercase;color:#0A2647;margin-bottom:4px;">Coaching Points</div>
           <div id="enlargedDiagramPointsText" style="font-size:0.8rem;color:#1e3a8a;line-height:1.45;white-space:pre-line;"></div>
-        </div>
-        <div id="gifBannerCropperBox" style="width:100%;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;">
-          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
-            <div>
-              <div style="font-size:0.74rem;font-weight:900;color:#0A2647;">Export Banner-Free Animated GIF (All Frames Preserved)</div>
-              <div style="font-size:0.7rem;color:#64748b;">Crops the top/bottom session plan banners off every frame of your original animated GIF so you can upload it straight to GitHub.</div>
-            </div>
-            <button type="button" class="btn btn-emerald btn-sm" id="exportCroppedGifBtn">&#11015; Download Banner-Free .GIF</button>
-          </div>
-          <div id="gifCropStatusText" style="font-size:0.72rem;font-weight:700;color:#1e4e8c;margin-top:6px;display:none;"></div>
         </div>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;">
@@ -1725,7 +1722,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.9';
+    const APP_VERSION = '2.7.4';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
@@ -1746,23 +1743,19 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
-        { version: '2.6.9', date: '2026-11-23', note: 'Live Auto-Refreshing Drill Library Sync: Multi-endpoint CSV + GViz + GID sync with automatic live updates as new URLs and rows are added to the spreadsheet.' },
-        { version: '2.6.8', date: '2026-11-22', note: 'Connected Drills Google Sheet (1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4) directly into the backend for automatic background syncing.' },
-        { version: '2.6.7', date: '2026-11-22', note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.' },
-        { version: '2.6.6', date: '2026-11-22', note: 'Google Sheet Drill Library Sync: Added backend Google Sheet drill loader supporting Title, Category, Duration, GIF_URL, Tags, Coaching_Points, and Notes.' },
-        { version: '2.6.5', date: '2026-11-22', note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.' },
-        { version: '2.6.4', date: '2026-11-22', note: 'Step 5 Attendance & Scrimmage Builder: Present/Excused/Unexcused session attendance with absence reasons, auto-filtered Scrimmage Team Generator (Navy vs White), and clickable Player Attendance Profile on Roster.' },
-        { version: '2.6.3', date: '2026-11-22', note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.' },
-        { version: '2.6.2', date: '2026-11-22', note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).' },
-        { version: '2.6.1', date: '2026-11-22', note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.' },
+        { version: '2.7.4', date: '2026-11-23', note: 'Removed the Drill Library filter subtitle text and added exact GIF path diagnostics inside the enlarged modal when a GitHub link fails to load.' },
+        { version: '2.7.3', date: '2026-11-23', note: 'Removed the Download Banner-Free .GIF box from the enlarged GIF modal and added smart GitHub path & filename fallback resolution (handling subfolders, raw.githubusercontent.com, and github.io paths) so GIFs display cleanly.' },
+        { version: '2.7.2', date: '2026-11-23', note: '3-Tier Drill Hierarchy (Category -> Sub-Category -> Tags) & Same-Origin GitHub Pages GIF Loader.' },
+        { version: '2.7.1', date: '2026-11-23', note: 'Fixed GitHub /blob/ GIF URLs & Sub-Category Parsing.' },
+        { version: '2.7.0', date: '2026-11-23', note: 'Fixed Drill Library Google Drive Media & Full Multi-Tab HTML/CSV Sync.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.9')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.4')) {
       versionHistoryLog.unshift({
-        version: '2.6.9',
+        version: '2.7.4',
         date: '2026-11-23',
-        note: 'Live Auto-Refreshing Drill Library Sync: Multi-endpoint CSV + GViz + GID sync with automatic live updates as new URLs and rows are added to the spreadsheet.'
+        note: 'Removed the Drill Library filter subtitle text and added exact GIF path diagnostics inside the enlarged modal when a GitHub link fails to load.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2675,15 +2668,17 @@
     }
 
     /* =========================================================
-       DRILL LIBRARY & LIVE AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB)
+       DRILL LIBRARY: 3-TIER HIERARCHY (CATEGORY -> SUB-CATEGORY -> TAGS)
+       & LIVE AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB PAGES)
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
         id: 'drill_3player_give_go',
         title: '3-Player Give & Go Combination (4-Pole Line)',
         category: 'Technical',
+        subCategory: 'Passing',
         duration: 15,
-        tags: ['passing', '1-touch', 'give-and-go', 'movement'],
+        tags: ['Give and Go', '1-touch', 'movement'],
         gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
         coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
         notes: '4 central poles spaced 6 yards apart with left and right passing lanes.'
@@ -2692,13 +2687,34 @@
         id: 'drill_5person_get_angle_triangle',
         title: '5-Person Get Angle Triangle',
         category: 'Technical',
+        subCategory: 'Passing',
         duration: 15,
-        tags: ['passing', 'angles', 'triangle', 'support'],
+        tags: ['Triangle Passing', 'angles', 'support'],
         gifUrl: 'drills/5-person get angle triangle.gif',
         coachingPoints: '• Create supporting passing angles immediately after the pass\n• Open hips to see both corners of the triangle\n• Crisp 1- and 2-touch ball circulation',
         notes: '5-player triangle passing and angle-support rotation.'
       }
     ];
+
+    const BROAD_SUBCATEGORY_KEYWORDS = [
+      'passing', 'dribbling', 'shooting', 'finishing', 'defending', 'defensive',
+      'attacking', 'transition', 'possession', 'first touch', 'receiving',
+      'crossing', 'goalkeeping', 'conditioning', 'agility', 'speed', 'rondo',
+      'activation', 'ball mastery', '1v1', 'build up', 'build-up'
+    ];
+
+    function isBroadSubCategoryHeading(headingText) {
+      const clean = String(headingText || '').trim().toLowerCase();
+      if (!clean) return false;
+      if (/(triangle|3rd person|third person|give and go|give & go|return pass|set pass|wall pass)/i.test(clean)) {
+        return false;
+      }
+      return BROAD_SUBCATEGORY_KEYWORDS.some(kw =>
+        clean === kw ||
+        clean.startsWith(kw + ' ') ||
+        clean.endsWith(' ' + kw)
+      );
+    }
 
     let drillLibrary = [];
     try {
@@ -2710,7 +2726,7 @@
 
     (function ensureDefaultDrillsPresent() {
       const existingNorm = new Set(
-        drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, ''))
+        drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/(?:raw\.githubusercontent\.com|github\.com)\/[^/]+\/[^/]+\/(?:blob\/)?[^/]+\//i, '').replace(/^\.?\//, ''))
       );
       DEFAULT_DRILLS.forEach(def => {
         const key = String(def.gifUrl || '').toLowerCase().replace(/^\.?\//, '');
@@ -2720,6 +2736,147 @@
         }
       });
     })();
+
+    function extractGoogleDriveFileId(rawUrl) {
+      const u = String(rawUrl || '').trim();
+      if (!u) return '';
+      const m = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i) ||
+        u.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?.*id=([A-Za-z0-9_-]+)/i) ||
+        u.match(/lh3\.googleusercontent\.com\/d\/([A-Za-z0-9_-]+)/i);
+      return m ? m[1] : '';
+    }
+
+    function extractRepoRelativeDrillPath(rawUrl) {
+      const u = String(rawUrl || '').trim();
+      if (!u) return '';
+      const ghMatch = u.match(/^https?:\/\/(?:www\.)?(?:github\.com|raw\.githubusercontent\.com)\/[^/]+\/[^/]+\/(?:(?:blob|raw)\/)?[^/]+\/(.+)$/i);
+      if (ghMatch) {
+        const rawPath = ghMatch[1].split('?')[0];
+        try { return decodeURIComponent(rawPath).replace(/^\.?\//, ''); } catch (e) { return rawPath.replace(/^\.?\//, ''); }
+      }
+      const pagesMatch = u.match(/^https?:\/\/[^/]+\.github\.io\/[^/]+\/(.+)$/i);
+      if (pagesMatch) {
+        const rawPath = pagesMatch[1].split('?')[0];
+        try { return decodeURIComponent(rawPath).replace(/^\.?\//, ''); } catch (e) { return rawPath.replace(/^\.?\//, ''); }
+      }
+      if (!/^https?:/i.test(u) && !/^(data:|blob:)/i.test(u)) {
+        try { return decodeURIComponent(u).replace(/^\.?\//, ''); } catch (e) { return u.replace(/^\.?\//, ''); }
+      }
+      return '';
+    }
+
+    function encodeRelativeAssetPath(relPath) {
+      return String(relPath || '').replace(/^\.?\//, '').split('/').map(seg => encodeURIComponent(seg)).join('/');
+    }
+
+    function buildGitHubDrillCandidateUrls(rawStr) {
+      const relPath = extractRepoRelativeDrillPath(rawStr);
+      if (!relPath) return [];
+      const fileNameOnly = relPath.split('/').pop() || relPath;
+      const rootDrillsPath = 'drills/' + fileNameOnly;
+
+      const pathsToTry = Array.from(new Set([
+        relPath,
+        rootDrillsPath,
+        relPath.replace(/^Drills\//, 'drills/'),
+        'drills/' + fileNameOnly.replace(/\s+/g, '-'),
+        'drills/' + fileNameOnly.replace(/-/g, ' ')
+      ]));
+
+      const urls = [];
+      pathsToTry.forEach(p => {
+        const enc = encodeRelativeAssetPath(p);
+        if (!isHostedPreviewEnvironment()) {
+          urls.push(enc);
+        }
+        urls.push('https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + enc);
+        urls.push('https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + enc);
+        urls.push('https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + enc);
+      });
+      return Array.from(new Set(urls));
+    }
+
+    function resolveDrillMediaUrl(rawUrl) {
+      const u = String(rawUrl || '').trim();
+      if (!u) return '';
+      if (/^(data:|blob:)/i.test(u)) return u;
+
+      const driveId = extractGoogleDriveFileId(u);
+      if (driveId) {
+        return 'https://lh3.googleusercontent.com/d/' + driveId;
+      }
+
+      const ghCandidates = buildGitHubDrillCandidateUrls(u);
+      if (ghCandidates.length > 0) {
+        return ghCandidates[0];
+      }
+
+      if (/^https?:/i.test(u)) {
+        if (/dropbox\.com/i.test(u)) {
+          return u.replace(/[?&]dl=0/i, '?raw=1').replace(/www\.dropbox\.com/i, 'dl.dropboxusercontent.com');
+        }
+        return u;
+      }
+
+      return u;
+    }
+
+    function handleDrillGifError(imgEl, rawPath) {
+      if (!imgEl) return;
+      const attempt = parseInt(imgEl.getAttribute('data-fallback-step') || '0', 10);
+      const rawStr = String(rawPath || '').trim();
+
+      const driveId = extractGoogleDriveFileId(rawStr);
+      if (driveId) {
+        if (attempt === 0) {
+          imgEl.setAttribute('data-fallback-step', '1');
+          imgEl.src = 'https://drive.google.com/thumbnail?id=' + driveId + '&sz=w1000';
+          return;
+        }
+        if (attempt === 1) {
+          imgEl.setAttribute('data-fallback-step', '2');
+          imgEl.src = 'https://drive.google.com/uc?export=view&id=' + driveId;
+          return;
+        }
+        const wrap = imgEl.closest('.gif-preview-wrap');
+        if (wrap) {
+          imgEl.style.display = 'none';
+          if (!wrap.querySelector('iframe.gif-drive-frame')) {
+            const iframe = document.createElement('iframe');
+            iframe.className = 'gif-drive-frame';
+            iframe.src = 'https://drive.google.com/file/d/' + driveId + '/preview';
+            iframe.setAttribute('allow', 'autoplay; fullscreen');
+            wrap.insertBefore(iframe, wrap.firstChild);
+          }
+        }
+        return;
+      }
+
+      const candidates = buildGitHubDrillCandidateUrls(rawStr);
+      if (candidates.length > 0) {
+        const nextIdx = attempt + 1;
+        if (nextIdx < candidates.length) {
+          imgEl.setAttribute('data-fallback-step', String(nextIdx));
+          imgEl.src = candidates[nextIdx];
+          return;
+        }
+      }
+
+      const wrap = imgEl.closest('.gif-preview-wrap');
+      if (wrap) {
+        imgEl.style.display = 'none';
+        if (!wrap.querySelector('.drill-media-unavailable')) {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'drill-media-unavailable';
+          placeholder.style.cssText = 'padding:18px 12px;color:#64748b;font-size:0.76rem;font-weight:700;text-align:center;';
+          placeholder.innerHTML = '&#127916; Drill Animation<br>' +
+            '<span style="display:block;font-size:0.67rem;font-weight:600;color:#94a3b8;margin-top:3px;word-break:break-all;">' +
+              escapeHtml(extractRepoRelativeDrillPath(rawStr) || rawStr) +
+            '</span>';
+          wrap.insertBefore(placeholder, wrap.firstChild);
+        }
+      }
+    }
 
     async function syncDrillsFromGoogleSheet() {
       if (!drillsGoogleSheetId || isDrillsSyncInFlight) return false;
@@ -2749,19 +2906,20 @@
           return rows;
         };
 
-        const normalizeCategoryLabel = (raw) => {
-          const s = String(raw || '').trim().toLowerCase();
-          if (!s) return 'Technical';
-          if (s.includes('warm')) return 'Warm-Up';
-          if (s.includes('tactic')) return 'Tactical';
-          if (s.includes('scrim')) return 'Scrimmage';
-          if (s.includes('fit') || s.includes('cond')) return 'Fitness';
-          return 'Technical';
+        const formatTabCategoryLabel = (rawTab, rawCellCat) => {
+          const clean = String(rawTab || rawCellCat || '').trim();
+          if (!clean || /^sheet\d+$/i.test(clean)) return 'Technical';
+          if (/^warm/i.test(clean)) return 'Warm-Up';
+          if (/^tech/i.test(clean)) return 'Technical';
+          if (/^fit/i.test(clean)) return 'Fitness';
+          return clean;
         };
 
         const targets = [];
         const seenSheetKeys = new Set();
         const gidToNameMap = {};
+        const sheetDrills = [];
+        const seenRecords = new Set();
 
         const addTarget = (sheetName, gid) => {
           const cleanName = String(sheetName || '').trim();
@@ -2773,11 +2931,159 @@
           targets.push({ sheetName: cleanName, gid: cleanGid });
         };
 
+        const ingestDrillMatrix = (matrix, tabCategoryLabel) => {
+          if (!Array.isArray(matrix) || !matrix.length) return;
+          let headerMap = null;
+          let currentSubCategory = '';
+          let currentSectionTag = '';
+
+          matrix.forEach((vals, rIdx) => {
+            if (!vals || !vals.some(Boolean)) return;
+            const lower = vals.map(v => String(v || '').toLowerCase().trim());
+
+            if (!headerMap && rIdx <= 2 && lower.some(h => h === 'title' || h === 'drill' || h === 'name' || h === 'gif_url' || h === 'url' || h === 'link')) {
+              headerMap = {
+                titleIdx: lower.findIndex(h => h.includes('title') || h === 'drill' || h === 'name'),
+                catIdx: lower.findIndex(h => /^cat/.test(h)),
+                subCatIdx: lower.findIndex(h => h.includes('sub')),
+                durIdx: lower.findIndex(h => h.includes('dur') || h.includes('min') || h.includes('time')),
+                gifIdx: lower.findIndex(h => h.includes('gif') || h.includes('url') || h.includes('diagram') || h.includes('image') || h.includes('link')),
+                tagsIdx: lower.findIndex(h => h.includes('tag')),
+                cpIdx: lower.findIndex(h => h.includes('coach') || h.includes('point')),
+                notesIdx: lower.findIndex(h => h.includes('note') || h.includes('setup') || h.includes('desc'))
+              };
+              return;
+            }
+
+            let titleVal = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : vals[0] || '').trim();
+            const rawCat = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : '').trim();
+            const explicitSubCat = (headerMap && headerMap.subCatIdx >= 0 ? vals[headerMap.subCatIdx] : '').trim();
+            const rawDur = (headerMap && headerMap.durIdx >= 0 ? vals[headerMap.durIdx] : '15').trim();
+            let rawGif = (headerMap && headerMap.gifIdx >= 0 ? vals[headerMap.gifIdx] : vals[1] || '').trim();
+            const rawTags = (headerMap && headerMap.tagsIdx >= 0 ? vals[headerMap.tagsIdx] : '').trim();
+            const rawCp = (headerMap && headerMap.cpIdx >= 0 ? vals[headerMap.cpIdx] : '').trim();
+            const rawNotes = (headerMap && headerMap.notesIdx >= 0 ? vals[headerMap.notesIdx] : '').trim();
+
+            if (!/^(https?:\/\/|drills\/)/i.test(rawGif)) {
+              const urlInRow = vals.find(c => /^(https?:\/\/|drills\/)/i.test(String(c || '').trim()));
+              rawGif = urlInRow ? urlInRow.trim() : '';
+            }
+
+            if (/^(https?:\/\/|drills\/)/i.test(titleVal) && !rawGif) {
+              rawGif = titleVal;
+              titleVal = '';
+            }
+
+            if (titleVal && !rawGif && !/^title$/i.test(titleVal)) {
+              if (isBroadSubCategoryHeading(titleVal)) {
+                currentSubCategory = titleVal;
+                currentSectionTag = '';
+              } else {
+                currentSectionTag = titleVal;
+                if (!currentSubCategory && /pass/i.test(titleVal)) {
+                  currentSubCategory = 'Passing';
+                } else if (!currentSubCategory && /defen/i.test(titleVal)) {
+                  currentSubCategory = 'Defending';
+                } else if (!currentSubCategory && /transition/i.test(titleVal)) {
+                  currentSubCategory = 'Transition';
+                }
+              }
+              return;
+            }
+
+            if (!titleVal && rawGif) {
+              const nonUrlText = vals.find(c => c && c.trim() !== rawGif && !/^\d+$/.test(c.trim()));
+              if (nonUrlText) {
+                titleVal = nonUrlText.trim();
+              } else {
+                const fileSeg = decodeURIComponent(rawGif.split('/').pop().split('?')[0] || '');
+                titleVal = fileSeg.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()) || ('Drill #' + (sheetDrills.length + 1));
+              }
+            }
+
+            if (!titleVal || /^title$/i.test(titleVal) || !rawGif) return;
+
+            const finalCat = formatTabCategoryLabel(tabCategoryLabel, rawCat);
+            const finalSubCat = explicitSubCat || currentSubCategory || '';
+            const dedupeKey = (finalCat.toLowerCase() + '|' + titleVal.toLowerCase() + '|' + rawGif.toLowerCase());
+            if (seenRecords.has(dedupeKey)) return;
+            seenRecords.add(dedupeKey);
+
+            const formattedCp = rawCp.replace(/\s*\|\s*/g, '\n');
+            const tagsArr = rawTags ? rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean) : [];
+            if (currentSectionTag && !tagsArr.some(t => t.toLowerCase() === currentSectionTag.toLowerCase())) {
+              tagsArr.unshift(currentSectionTag);
+            }
+
+            sheetDrills.push({
+              id: 'gs_drill_' + rIdx + '_' + titleVal.toLowerCase().replace(/[^a-z0-9]/g, '_'),
+              title: titleVal,
+              category: finalCat,
+              subCategory: finalSubCat,
+              duration: parseInt(rawDur, 10) || 15,
+              gifUrl: rawGif,
+              tags: tagsArr,
+              coachingPoints: formattedCp,
+              notes: rawNotes
+            });
+          });
+        };
+
+        const parseHtmlTableIntoDrills = (tbl, tabLabel) => {
+          if (!tbl) return;
+          const trs = Array.from(tbl.querySelectorAll('tr'));
+          const matrix = trs.map(tr => {
+            const tds = Array.from(tr.querySelectorAll('td, th'));
+            return tds.map(td => {
+              const link = td.querySelector('a[href]');
+              const href = link ? (link.getAttribute('href') || '') : '';
+              if (href.includes('google.com/url?')) {
+                const qMatch = href.match(/[?&]q=([^&]+)/);
+                if (qMatch) {
+                  try { return decodeURIComponent(qMatch[1]); } catch (e) {}
+                }
+              }
+              if (/^https?:\/\//i.test(href)) return href;
+              return (td.textContent || '').trim();
+            });
+          });
+          ingestDrillMatrix(matrix, tabLabel);
+        };
+
         for (const pubEndpoint of ['pubhtml', 'htmlview', 'edit']) {
           try {
             const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/' + pubEndpoint + '?cb=' + Date.now(), { cache: 'no-store' });
             if (pubResp.ok) {
               const html = await pubResp.text();
+
+              if (typeof DOMParser !== 'undefined') {
+                try {
+                  const doc = new DOMParser().parseFromString(html, 'text/html');
+                  doc.querySelectorAll('#sheet-menu li, [id^="sheet-button-"]').forEach(li => {
+                    const idAttr = li.id || '';
+                    const gidM = idAttr.match(/(\d+)/);
+                    const anchor = li.querySelector('a');
+                    const linkHref = anchor ? (anchor.getAttribute('href') || '') : '';
+                    const hrefGidM = linkHref.match(/gid=(\d+)/);
+                    const gidVal = (hrefGidM && hrefGidM[1]) || (gidM && gidM[1]) || '';
+                    const tabLabel = (anchor ? anchor.textContent : li.textContent || '').trim();
+                    if (gidVal && tabLabel) {
+                      gidToNameMap[gidVal] = tabLabel;
+                      addTarget(tabLabel, gidVal);
+                    }
+                  });
+
+                  if (pubEndpoint === 'pubhtml' || pubEndpoint === 'htmlview') {
+                    doc.querySelectorAll('table.waffle').forEach((tbl, tIdx) => {
+                      const parentDiv = tbl.closest('div[id]');
+                      const divGid = parentDiv ? (parentDiv.id || '').replace(/\D/g, '') : '';
+                      const tabTitle = (divGid && gidToNameMap[divGid]) || Object.values(gidToNameMap)[tIdx] || '';
+                      parseHtmlTableIntoDrills(tbl, tabTitle);
+                    });
+                  }
+                } catch (domErr) {}
+              }
+
               for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"[^}]*gid=(\d+)/g)) {
                 if (m[1] && m[2]) {
                   gidToNameMap[m[2].trim()] = m[1].trim();
@@ -2803,104 +3109,52 @@
           } catch (e) {}
         }
 
-        ['Warm-Up', 'Technical', 'Tactical', 'Scrimmage', 'Fitness', 'Sheet1'].forEach(t => addTarget(t, ''));
+        ['Technical', 'Fitness', 'Warm-Up', 'Warm Up', 'Tactical', 'Scrimmage', 'Sheet1'].forEach(t => addTarget(t, ''));
         DRILLS_DEFAULT_GIDS.forEach(g => addTarget(gidToNameMap[g] || '', g));
-
-        const sheetDrills = [];
-        const seenRecords = new Set();
-
-        const ingestDrillMatrix = (matrix, fallbackCatLabel) => {
-          if (!Array.isArray(matrix) || !matrix.length) return;
-          let headerMap = null;
-
-          matrix.forEach((vals, rIdx) => {
-            if (!vals || !vals.some(Boolean)) return;
-            const lower = vals.map(v => String(v || '').toLowerCase().trim());
-
-            if (!headerMap && lower.some(h => h === 'title' || h === 'drill' || h === 'name' || h.includes('gif') || h.includes('coaching') || h === 'url' || h === 'link')) {
-              headerMap = {
-                titleIdx: lower.findIndex(h => h.includes('title') || h === 'drill' || h === 'name'),
-                catIdx: lower.findIndex(h => h.includes('cat')),
-                durIdx: lower.findIndex(h => h.includes('dur') || h.includes('min') || h.includes('time')),
-                gifIdx: lower.findIndex(h => h.includes('gif') || h.includes('url') || h.includes('diagram') || h.includes('image') || h.includes('link')),
-                tagsIdx: lower.findIndex(h => h.includes('tag')),
-                cpIdx: lower.findIndex(h => h.includes('coach') || h.includes('point')),
-                notesIdx: lower.findIndex(h => h.includes('note') || h.includes('setup') || h.includes('desc'))
-              };
-              return;
-            }
-
-            let titleVal = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : vals[0] || '').trim();
-            const rawCat = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : (fallbackCatLabel || vals[1] || '')).trim();
-            const rawDur = (headerMap && headerMap.durIdx >= 0 ? vals[headerMap.durIdx] : vals[2] || '15').trim();
-            let rawGif = (headerMap && headerMap.gifIdx >= 0 ? vals[headerMap.gifIdx] : vals[3] || '').trim();
-            const rawTags = (headerMap && headerMap.tagsIdx >= 0 ? vals[headerMap.tagsIdx] : vals[4] || '').trim();
-            const rawCp = (headerMap && headerMap.cpIdx >= 0 ? vals[headerMap.cpIdx] : vals[5] || '').trim();
-            const rawNotes = (headerMap && headerMap.notesIdx >= 0 ? vals[headerMap.notesIdx] : vals[6] || '').trim();
-
-            if (!rawGif) {
-              const urlInRow = vals.find(c => /^(https?:\/\/|drills\/)/i.test(String(c || '').trim()));
-              if (urlInRow) rawGif = urlInRow.trim();
-            }
-
-            if (/^(https?:\/\/|drills\/)/i.test(titleVal) && !rawGif) {
-              rawGif = titleVal;
-              titleVal = '';
-            }
-
-            if (!titleVal && rawGif) {
-              const nonUrlText = vals.find(c => c && c.trim() !== rawGif && !/^\d+$/.test(c.trim()) && !/^(warm-up|technical|tactical|scrimmage|fitness)$/i.test(c.trim()));
-              if (nonUrlText) {
-                titleVal = nonUrlText.trim();
-              } else {
-                const fileSeg = decodeURIComponent(rawGif.split('/').pop().split('?')[0] || '');
-                titleVal = fileSeg.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()) || ('Drill #' + (sheetDrills.length + 1));
-              }
-            }
-
-            if (!titleVal || /^title$/i.test(titleVal)) return;
-
-            const dedupeKey = (titleVal.toLowerCase() + '|' + rawGif.toLowerCase());
-            if (seenRecords.has(dedupeKey)) return;
-            seenRecords.add(dedupeKey);
-
-            const formattedCp = rawCp.replace(/\s*\|\s*/g, '\n');
-            const tagsArr = rawTags ? rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean) : [];
-
-            sheetDrills.push({
-              id: 'gs_drill_' + rIdx + '_' + titleVal.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-              title: titleVal,
-              category: normalizeCategoryLabel(rawCat || fallbackCatLabel),
-              duration: parseInt(rawDur, 10) || 15,
-              gifUrl: rawGif,
-              tags: tagsArr,
-              coachingPoints: formattedCp,
-              notes: rawNotes
-            });
-          });
-        };
 
         for (const target of targets) {
           let loadedTarget = false;
+          const tabLabel = target.sheetName || gidToNameMap[target.gid] || '';
           const queryParam = target.gid
             ? ('gid=' + encodeURIComponent(target.gid))
             : ('sheet=' + encodeURIComponent(target.sheetName));
 
-          try {
-            const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
-              '/gviz/tq?tqx=out:csv&' + queryParam + '&cb=' + Date.now();
-            const resp = await fetch(csvUrl, { cache: 'no-store' });
-            if (resp.ok) {
-              const text = await resp.text();
-              if (text && !text.trim().startsWith('<!DOCTYPE')) {
-                const matrix = parseCsvRows(text);
-                if (matrix.length > 0) {
-                  ingestDrillMatrix(matrix, target.sheetName || gidToNameMap[target.gid] || '');
-                  loadedTarget = true;
+          if (target.gid && typeof DOMParser !== 'undefined') {
+            try {
+              const singleSheetUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
+                '/pubhtml/sheet?headers=false&gid=' + encodeURIComponent(target.gid) + '&cb=' + Date.now();
+              const sResp = await fetch(singleSheetUrl, { cache: 'no-store' });
+              if (sResp.ok) {
+                const sHtml = await sResp.text();
+                const sDoc = new DOMParser().parseFromString(sHtml, 'text/html');
+                const tbl = sDoc.querySelector('table.waffle') || sDoc.querySelector('table');
+                if (tbl) {
+                  const before = sheetDrills.length;
+                  parseHtmlTableIntoDrills(tbl, tabLabel);
+                  if (sheetDrills.length > before) loadedTarget = true;
                 }
               }
-            }
-          } catch (e) {}
+            } catch (e) {}
+          }
+
+          if (!loadedTarget) {
+            try {
+              const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
+                '/gviz/tq?tqx=out:csv&' + queryParam + '&cb=' + Date.now();
+              const resp = await fetch(csvUrl, { cache: 'no-store' });
+              if (resp.ok) {
+                const text = await resp.text();
+                if (text && !text.trim().startsWith('<!DOCTYPE')) {
+                  const matrix = parseCsvRows(text);
+                  if (matrix.length > 0) {
+                    const before = sheetDrills.length;
+                    ingestDrillMatrix(matrix, tabLabel);
+                    if (sheetDrills.length > before) loadedTarget = true;
+                  }
+                }
+              }
+            } catch (e) {}
+          }
 
           if (!loadedTarget) {
             try {
@@ -2928,7 +3182,7 @@
                       return vStr || fStr;
                     }));
                   });
-                  ingestDrillMatrix(matrix, target.sheetName || gidToNameMap[target.gid] || '');
+                  ingestDrillMatrix(matrix, tabLabel);
                 }
               }
             } catch (e) {}
@@ -2936,15 +3190,16 @@
         }
 
         if (sheetDrills.length > 0) {
-          const prevFingerprint = JSON.stringify(drillLibrary.map(d => [d.title, d.category, d.gifUrl, d.duration, d.coachingPoints]));
+          const prevFingerprint = JSON.stringify(drillLibrary.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints]));
           const merged = [...sheetDrills];
           const sheetTitles = new Set(sheetDrills.map(d => d.title.toLowerCase()));
           drillLibrary.forEach(existing => {
+            if (!existing.gifUrl) return;
             if (!sheetTitles.has(String(existing.title || '').toLowerCase())) {
               merged.push(existing);
             }
           });
-          const nextFingerprint = JSON.stringify(merged.map(d => [d.title, d.category, d.gifUrl, d.duration, d.coachingPoints]));
+          const nextFingerprint = JSON.stringify(merged.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints]));
 
           if (prevFingerprint !== nextFingerprint) {
             drillLibrary = merged;
@@ -2960,236 +3215,29 @@
       }
     }
 
-    function resolveDrillMediaUrl(rawUrl) {
-      const u = String(rawUrl || '').trim();
-      if (!u) return '';
-      if (/^(data:|blob:)/i.test(u)) return u;
-
-      const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i) ||
-        u.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?.*id=([A-Za-z0-9_-]+)/i);
-      if (driveFileMatch) {
-        return 'https://lh3.googleusercontent.com/d/' + driveFileMatch[1];
-      }
-
-      if (/^https?:/i.test(u)) {
-        if (/dropbox\.com/i.test(u)) {
-          return u.replace(/[?&]dl=0/i, '?raw=1').replace(/www\.dropbox\.com/i, 'dl.dropboxusercontent.com');
-        }
-        return u;
-      }
-
-      const cleanPath = u.replace(/^\.?\//, '');
-      const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
-      if (isHostedPreviewEnvironment()) {
-        return 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
-      }
-      return encodedPath;
-    }
-
-    function handleDrillGifError(imgEl, rawPath) {
-      if (!imgEl) return;
-      const attempt = parseInt(imgEl.getAttribute('data-fallback-step') || '0', 10);
-      const rawStr = String(rawPath || '').trim();
-
-      const driveMatch = rawStr.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/i) ||
-        rawStr.match(/drive\.google\.com\/(?:open|uc|thumbnail)\?.*id=([A-Za-z0-9_-]+)/i);
-      if (driveMatch) {
-        if (attempt === 0) {
-          imgEl.setAttribute('data-fallback-step', '1');
-          imgEl.src = 'https://drive.google.com/uc?export=view&id=' + driveMatch[1];
-          return;
-        }
-        if (attempt === 1) {
-          imgEl.setAttribute('data-fallback-step', '2');
-          imgEl.src = 'https://drive.google.com/thumbnail?id=' + driveMatch[1] + '&sz=w1000';
-          return;
-        }
-      }
-
-      const cleanPath = rawStr.replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, '');
-      const encodedPath = cleanPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
-      if (!/^https?:/i.test(rawStr)) {
-        if (attempt === 0 && encodedPath) {
-          imgEl.setAttribute('data-fallback-step', '1');
-          imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/main/' + encodedPath;
-          return;
-        }
-        if (attempt === 1 && encodedPath) {
-          imgEl.setAttribute('data-fallback-step', '2');
-          imgEl.src = 'https://raw.githubusercontent.com/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/master/' + encodedPath;
-          return;
-        }
-        if (attempt === 2 && encodedPath) {
-          imgEl.setAttribute('data-fallback-step', '3');
-          imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + encodedPath;
-          return;
-        }
-      }
-      const wrap = imgEl.closest('.gif-preview-wrap');
-      if (wrap) {
-        imgEl.style.display = 'none';
-        if (!wrap.querySelector('canvas.embedded-drill-canvas')) {
-          const canvas = document.createElement('canvas');
-          canvas.className = 'embedded-drill-canvas';
-          canvas.width = 460;
-          canvas.height = 310;
-          canvas.style.cssText = 'width:100%;max-height:230px;object-fit:contain;display:block;margin:0 auto;background:#ffffff;';
-          wrap.insertBefore(canvas, wrap.firstChild);
-          startEmbeddedDrillCanvasLoop(canvas, cleanPath);
-        }
-      }
-    }
-
-    function startEmbeddedDrillCanvasLoop(canvas) {
-      if (!canvas || canvas.dataset.animRunning === '1') return;
-      canvas.dataset.animRunning = '1';
-      const ctx = canvas.getContext('2d');
-      const cx = canvas.width / 2;
-      const leftX = cx - 95;
-      const rightX = cx + 95;
-      const topY = 46;
-      const botY = canvas.height - 46;
-      const poles = [92, 134, 176, 218];
-      let startTs = null;
-
-      function drawArrow(x1, y1, x2, y2, color, dashed) {
-        ctx.save();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 3;
-        if (dashed) ctx.setLineDash([6, 4]);
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        const ang = Math.atan2(y2 - y1, x2 - x1);
-        ctx.fillStyle = color;
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - 9 * Math.cos(ang - 0.45), y2 - 9 * Math.sin(ang - 0.45));
-        ctx.lineTo(x2 - 9 * Math.cos(ang + 0.45), y2 - 9 * Math.sin(ang + 0.45));
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-
-      function drawPlayer(x, y, num, fill) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x, y, 14, 0, Math.PI * 2);
-        ctx.fillStyle = fill;
-        ctx.fill();
-        ctx.lineWidth = 2.5;
-        ctx.strokeStyle = '#0f172a';
-        ctx.stroke();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '800 11px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(num, x, y + 0.5);
-        ctx.restore();
-      }
-
-      function frame(ts) {
-        if (!document.body.contains(canvas)) return;
-        if (startTs === null) startTs = ts;
-        const cycle = ((ts - startTs) % 5200) / 5200;
-        const phase = Math.floor(cycle * 4);
-        const t = (cycle * 4) - phase;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        poles.forEach((py, i) => {
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(cx - 10, py - 2, 20, 4);
-          ctx.beginPath();
-          ctx.arc(cx, py - 7, 4, 0, Math.PI * 2);
-          ctx.fillStyle = '#eab308';
-          ctx.fill();
-          ctx.fillStyle = '#64748b';
-          ctx.font = '700 9px Inter, sans-serif';
-          ctx.fillText('P' + (i + 1), cx + 18, py + 3);
-        });
-
-        let p1 = [rightX, topY], p2 = [rightX, botY], p3 = [leftX, botY], ball = [rightX, botY];
-        if (phase === 0) {
-          p2 = [rightX, botY + (113 - botY) * t];
-          ball = [rightX, botY + (topY - botY) * t];
-          drawArrow(rightX, botY, rightX, topY, '#16a34a', true);
-          drawArrow(rightX, botY, rightX, 113, '#eab308', false);
-        } else if (phase === 1) {
-          p1 = [rightX + (leftX - rightX) * t, topY + (113 - topY) * t];
-          p2 = [rightX, 113 + (topY - 113) * t];
-          ball = t < 0.45
-            ? [rightX, topY + (113 - topY) * (t / 0.45)]
-            : [rightX + (leftX - rightX) * ((t - 0.45) / 0.55), 113];
-          drawArrow(rightX, 113, leftX, 113, '#16a34a', true);
-          drawArrow(rightX, topY, leftX, 113, '#eab308', false);
-          drawArrow(rightX, 113, rightX, topY, '#ea580c', false);
-        } else if (phase === 2) {
-          p1 = [leftX, 113 + (197 - 113) * t];
-          p2 = [rightX, topY];
-          ball = [leftX, 113 + (botY - 113) * t];
-          drawArrow(leftX, 113, leftX, botY, '#16a34a', true);
-          drawArrow(leftX, 113, leftX, 197, '#eab308', false);
-        } else {
-          p1 = [leftX, 197 + (botY - 197) * t];
-          p2 = [rightX, topY];
-          p3 = [leftX + (rightX - leftX) * t, botY];
-          ball = t < 0.45
-            ? [leftX, botY + (197 - botY) * (t / 0.45)]
-            : [leftX + (rightX - leftX) * ((t - 0.45) / 0.55), 197];
-          drawArrow(leftX, 197, rightX, 197, '#16a34a', true);
-          drawArrow(leftX, botY, rightX, botY, '#eab308', false);
-          drawArrow(leftX, 197, leftX, botY, '#ea580c', false);
-        }
-
-        drawPlayer(p1[0], p1[1], '1', '#1d4ed8');
-        drawPlayer(p2[0], p2[1], '2', '#4f46e5');
-        drawPlayer(p3[0], p3[1], '3', '#0d9488');
-
-        ctx.beginPath();
-        ctx.arc(ball[0], ball[1], 7, 0, Math.PI * 2);
-        ctx.fillStyle = '#0f172a';
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-    }
-
     function openEnlargedDiagramModal(title, imgUrl, coachingPoints) {
       const modal = document.getElementById('enlargedDiagramModal');
       const titleEl = document.getElementById('enlargedDiagramTitle');
-      const imgEl = document.getElementById('enlargedDiagramImg');
+      const stageEl = document.getElementById('enlargedDiagramMediaStage');
       const ptsWrap = document.getElementById('enlargedDiagramPointsWrap');
       const ptsText = document.getElementById('enlargedDiagramPointsText');
-      const exportBtn = document.getElementById('exportCroppedGifBtn');
-      const statusEl = document.getElementById('gifCropStatusText');
-      if (!modal || !imgEl) return;
+      if (!modal || !stageEl) return;
       if (titleEl) titleEl.textContent = title || 'Drill GIF';
-      const parentBox = imgEl.parentElement;
-      if (parentBox) {
-        parentBox.classList.remove('enlarged-crop-banner-box');
-        parentBox.style.cursor = 'default';
-        const oldCanvas = parentBox.querySelector('canvas.embedded-drill-canvas');
-        if (oldCanvas) oldCanvas.remove();
-      }
-      imgEl.style.display = 'block';
-      imgEl.setAttribute('data-fallback-step', '0');
-      imgEl.onerror = function() { handleDrillGifError(this, imgUrl); };
+
+      const driveId = extractGoogleDriveFileId(imgUrl);
       const resolvedSrc = resolveDrillMediaUrl(imgUrl);
-      imgEl.src = resolvedSrc;
-      if (statusEl) { statusEl.style.display = 'none'; statusEl.textContent = ''; }
-      if (exportBtn) {
-        exportBtn.disabled = false;
-        exportBtn.onclick = () => exportBannerFreeAnimatedGif(resolvedSrc, title || 'drill-animation');
+
+      if (driveId) {
+        stageEl.innerHTML = '<div style="width:100%;display:flex;flex-direction:column;gap:8px;align-items:center;">' +
+          '<iframe src="https://drive.google.com/file/d/' + escapeHtml(driveId) + '/preview" allow="autoplay; fullscreen" style="width:100%;height:420px;border:0;border-radius:8px;background:#ffffff;"></iframe>' +
+          '<a href="https://drive.google.com/file/d/' + escapeHtml(driveId) + '/view" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">Open Full Size in Google Drive &rarr;</a>' +
+        '</div>';
+      } else {
+        stageEl.innerHTML = '<div class="gif-preview-wrap" style="width:100%;border:none;margin:0;cursor:default;">' +
+          '<img id="enlargedDiagramImg" src="' + escapeHtml(resolvedSrc) + '" data-raw-path="' + escapeHtml(imgUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Enlarged Drill GIF" style="max-width:100%;max-height:66vh;width:auto;height:auto;object-fit:contain;border-radius:8px;display:block;margin:0 auto;" />' +
+        '</div>';
       }
+
       if (ptsWrap && ptsText) {
         if (coachingPoints && coachingPoints.trim()) {
           ptsText.textContent = coachingPoints;
@@ -3201,100 +3249,12 @@
       modal.classList.add('open');
     }
 
-    async function exportBannerFreeAnimatedGif(gifUrl, baseTitle) {
-      const statusEl = document.getElementById('gifCropStatusText');
-      const btn = document.getElementById('exportCroppedGifBtn');
-      const setStatus = (msg) => {
-        if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = msg; }
-      };
-      try {
-        if (btn) btn.disabled = true;
-        setStatus('Loading animated GIF frames...');
-        const resp = await fetch(gifUrl);
-        if (!resp.ok) throw new Error('Could not fetch GIF file (' + resp.status + ')');
-        const arrayBuf = await resp.arrayBuffer();
-
-        if (typeof ImageDecoder === 'undefined') {
-          throw new Error('Please open in Chrome or Edge to decode multi-frame GIFs directly.');
-        }
-
-        if (!window.GIF) {
-          await new Promise((resolve, reject) => {
-            const s = document.createElement('script');
-            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js';
-            s.onload = resolve;
-            s.onerror = () => reject(new Error('Failed to load GIF encoder library.'));
-            document.head.appendChild(s);
-          });
-        }
-        const workerResp = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
-        const workerBlobUrl = URL.createObjectURL(await workerResp.blob());
-
-        const decoder = new ImageDecoder({ data: arrayBuf, type: 'image/gif' });
-        await decoder.tracks.ready;
-        const frameCount = decoder.tracks.selectedTrack.frameCount || 1;
-        setStatus('Decoding & cropping ' + frameCount + ' animation frames...');
-
-        let gifEncoder = null;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        for (let i = 0; i < frameCount; i++) {
-          const result = await decoder.decode({ frameIndex: i });
-          const frame = result.image;
-          const fullW = frame.displayWidth;
-          const fullH = frame.displayHeight;
-
-          const cropX = Math.round(fullW * 0.068);
-          const cropY = Math.round(fullH * 0.182);
-          const cropW = Math.round(fullW * (1 - 0.136));
-          const cropH = Math.round(fullH * (1 - 0.182 - 0.068));
-
-          if (!gifEncoder) {
-            canvas.width = cropW;
-            canvas.height = cropH;
-            gifEncoder = new window.GIF({
-              workers: 2,
-              quality: 8,
-              width: cropW,
-              height: cropH,
-              workerScript: workerBlobUrl
-            });
-          }
-
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, cropW, cropH);
-          ctx.drawImage(frame, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-          const delayMs = frame.duration ? Math.max(20, Math.round(frame.duration / 1000)) : 50;
-          gifEncoder.addFrame(ctx, { copy: true, delay: delayMs });
-          frame.close();
-        }
-
-        setStatus('Encoding clean animated .GIF...');
-        gifEncoder.on('finished', (blob) => {
-          URL.revokeObjectURL(workerBlobUrl);
-          const dlUrl = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          const safeName = String(baseTitle || '5-person get angle triangle').toLowerCase().replace(/[^a-z0-9\- ]+/g, '').trim() || '5-person get angle triangle';
-          a.href = dlUrl;
-          a.download = safeName + '.gif';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          setStatus('Done! Downloaded "' + safeName + '.gif" with all ' + frameCount + ' frames and original positions intact.');
-          if (btn) btn.disabled = false;
-        });
-        gifEncoder.render();
-      } catch (err) {
-        setStatus('Error: ' + (err && err.message ? err.message : 'Unable to crop GIF.'));
-        if (btn) btn.disabled = false;
-      }
-    }
-
     function renderDrillLibrary() {
       const grid = document.getElementById('drillLibraryGrid');
       const searchEl = document.getElementById('drillSearchInput');
       const catEl = document.getElementById('drillCategoryFilter');
+      const subCatEl = document.getElementById('drillSubCategoryFilter');
+      const tagEl = document.getElementById('drillTagFilter');
       if (!grid) return;
 
       if (!userLibraryAccess.drills) {
@@ -3302,29 +3262,77 @@
         return;
       }
 
+      const validDrills = drillLibrary.filter(d => d && d.gifUrl && String(d.gifUrl).trim() !== '');
+      const selectedCat = catEl ? catEl.value : 'ALL';
+      const selectedSubCat = subCatEl ? subCatEl.value : 'ALL';
+      const selectedTag = tagEl ? tagEl.value : 'ALL';
+
+      if (catEl) {
+        const categories = Array.from(new Set(validDrills.map(d => d.category).filter(Boolean))).sort();
+        catEl.innerHTML = '<option value="ALL">All Categories (' + validDrills.length + ')</option>' +
+          categories.map(c => {
+            const count = validDrills.filter(d => (d.category || '').toLowerCase() === c.toLowerCase()).length;
+            return '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + ' (' + count + ')</option>';
+          }).join('');
+      }
+
+      const scopedByCat = selectedCat === 'ALL'
+        ? validDrills
+        : validDrills.filter(d => (d.category || '').toLowerCase() === selectedCat.toLowerCase());
+
+      if (subCatEl) {
+        const subCategories = Array.from(new Set(scopedByCat.map(d => d.subCategory).filter(Boolean))).sort();
+        subCatEl.innerHTML = '<option value="ALL">All Sub-Categories</option>' +
+          subCategories.map(sc => '<option value="' + escapeHtml(sc) + '"' + (sc === selectedSubCat ? ' selected' : '') + '>' + escapeHtml(sc) + '</option>').join('');
+      }
+
+      const scopedBySub = selectedSubCat === 'ALL'
+        ? scopedByCat
+        : scopedByCat.filter(d => (d.subCategory || '').toLowerCase() === selectedSubCat.toLowerCase());
+
+      if (tagEl) {
+        const allTags = Array.from(new Set(
+          scopedBySub.flatMap(d => Array.isArray(d.tags) ? d.tags : []).filter(Boolean)
+        )).sort();
+        tagEl.innerHTML = '<option value="ALL">All Tags</option>' +
+          allTags.map(t => '<option value="' + escapeHtml(t) + '"' + (t === selectedTag ? ' selected' : '') + '>#' + escapeHtml(t) + '</option>').join('');
+      }
+
       const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
       const cat = catEl ? catEl.value : 'ALL';
-      const filtered = drillLibrary.filter(d => {
-        if (cat !== 'ALL' && d.category !== cat) return false;
+      const subCat = subCatEl ? subCatEl.value : 'ALL';
+      const tagVal = tagEl ? tagEl.value : 'ALL';
+
+      const filtered = validDrills.filter(d => {
+        if (cat !== 'ALL' && (d.category || '').toLowerCase() !== cat.toLowerCase()) return false;
+        if (subCat !== 'ALL' && (d.subCategory || '').toLowerCase() !== subCat.toLowerCase()) return false;
+        if (tagVal !== 'ALL') {
+          const dTags = Array.isArray(d.tags) ? d.tags.map(t => t.toLowerCase()) : [];
+          if (!dTags.includes(tagVal.toLowerCase())) return false;
+        }
         if (!query) return true;
-        return [d.title, d.category, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
+        return [d.title, d.category, d.subCategory, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
       });
 
       grid.innerHTML = filtered.length === 0
         ? '<div style="grid-column:1/-1;text-align:center;padding:28px;color:#64748b;font-size:0.86rem;">No drills match your filter.</div>'
         : filtered.map((d, idx) => {
             const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
-            const tagsHtml = (Array.isArray(d.tags) ? d.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+            const tagsHtml = (Array.isArray(d.tags) ? d.tags : [])
+              .map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
             return '<div class="lib-card">' +
               '<div class="lib-card-body">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                  '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">' +
+                  '<div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;">' +
+                    '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                    (d.subCategory ? '<span class="badge badge-amber">' + escapeHtml(d.subCategory) + '</span>' : '') +
+                  '</div>' +
                   '<span style="font-size:0.74rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
                 '</div>' +
                 '<h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:900;color:#0A2647;">' + escapeHtml(d.title) + '</h3>' +
                 (resolvedGif
                   ? '<div class="gif-preview-wrap enlarge-drill-gif-btn" data-drill-idx="' + idx + '" title="Click to enlarge GIF">' +
-                      '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img">' +
+                      '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img">' +
                       '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
                     '</div>'
                   : '') +
@@ -3442,7 +3450,10 @@
 
       if (discoveredPaths.size > 0) {
         const existingNormalized = new Set(
-          drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, ''))
+          drillLibrary.map(d => {
+            const raw = String(d.gifUrl || '').replace(/^https?:\/\/(?:raw\.githubusercontent\.com|github\.com)\/[^/]+\/[^/]+\/(?:blob\/)?[^/]+\//i, '').replace(/^\.?\//, '');
+            try { return decodeURIComponent(raw).toLowerCase(); } catch (e) { return raw.toLowerCase(); }
+          })
         );
         let added = 0;
         discoveredPaths.forEach(relPath => {
@@ -3454,8 +3465,6 @@
             const pathParts = cleanPath.split('/');
             const subFolderCat = pathParts.length >= 3 ? pathParts[pathParts.length - 2] : '';
             const mappedCategory = /warm/i.test(subFolderCat) ? 'Warm-Up'
-              : /tactic/i.test(subFolderCat) ? 'Tactical'
-              : /scrim/i.test(subFolderCat) ? 'Scrimmage'
               : /fit/i.test(subFolderCat) ? 'Fitness'
               : 'Technical';
 
@@ -3463,8 +3472,9 @@
               id: 'gh_drill_' + cleanPath.replace(/[^a-z0-9]/gi, '_'),
               title: fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()),
               category: mappedCategory,
+              subCategory: subFolderCat || 'Passing',
               duration: 15,
-              tags: ['github-sync', 'gif'].concat(subFolderCat ? [subFolderCat.toLowerCase()] : []),
+              tags: ['github-sync', 'gif'].concat(subFolderCat ? [subFolderCat] : []),
               gifUrl: cleanPath,
               coachingPoints: '• Observe movement timing and body shape\n• Execute crisp 1- and 2-touch combinations',
               notes: 'Synced automatically from GitHub (' + cleanPath + ')'
@@ -4881,7 +4891,7 @@
             '<div class="gif-drop-box">' +
               (resolvedGif
                 ? '<div class="gif-preview-wrap session-part-gif-wrap" data-part-idx="' + idx + '">' +
-                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
+                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
                     '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
                   '</div>'
                 : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">' + (isScrimmage ? 'Small-Sided Scrimmage / Match Play' : 'No GIF diagram attached') + '</div>') +
@@ -5481,7 +5491,6 @@
       syncDrillsFromGitHubRepo();
       syncVideosFromGoogleSheet();
 
-      // Automatic live background refresh as new URLs are added to the Drills Google Sheet
       if (!drillsLiveSyncTimer) {
         drillsLiveSyncTimer = setInterval(() => {
           if (document.visibilityState === 'visible' && activeTabKey === 'drills') {
@@ -6440,11 +6449,22 @@
         };
       }
 
-      // Drill & Video Filters
+      // Drill & Video 3-Tier Filters
       const drillSearch = document.getElementById('drillSearchInput');
       const drillCat = document.getElementById('drillCategoryFilter');
+      const drillSubCat = document.getElementById('drillSubCategoryFilter');
+      const drillTag = document.getElementById('drillTagFilter');
       if (drillSearch) drillSearch.oninput = renderDrillLibrary;
-      if (drillCat) drillCat.onchange = renderDrillLibrary;
+      if (drillCat) drillCat.onchange = () => {
+        if (drillSubCat) drillSubCat.value = 'ALL';
+        if (drillTag) drillTag.value = 'ALL';
+        renderDrillLibrary();
+      };
+      if (drillSubCat) drillSubCat.onchange = () => {
+        if (drillTag) drillTag.value = 'ALL';
+        renderDrillLibrary();
+      };
+      if (drillTag) drillTag.onchange = renderDrillLibrary;
 
       const vidSearch = document.getElementById('videoSearchInput');
       const vidCat = document.getElementById('videoCategoryFilter');
