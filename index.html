@@ -396,6 +396,45 @@
     .part-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 768px) { .part-body { grid-template-columns: 1fr; } }
 
+    /* Interactive Scrimmage Team Builder inside Session Part */
+    .scrimmage-builder-panel {
+      border-top: 1px solid #cbd5e1;
+      background: #f8fafc;
+      padding: 14px 16px;
+    }
+    .scrimmage-teams-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 680px) {
+      .scrimmage-teams-grid { grid-template-columns: 1fr; }
+    }
+    .scrimmage-side-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .scrimmage-player-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin: 3px 4px 3px 0;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+    .scrimmage-player-pill:hover { transform: scale(1.03); }
+    .scrimmage-player-pill.navy { background: #0A2647; color: #ffffff; }
+    .scrimmage-player-pill.white { background: #f1f5f9; color: #0A2647; border: 1.5px solid #0A2647; }
+    .scrimmage-player-pill.pool { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+
     /* GIF Preview Box */
     .gif-drop-box {
       border: 2px dashed #cbd5e1;
@@ -1174,20 +1213,21 @@
         <button type="button" id="addSessionPartBtn" class="btn btn-primary">+ Add Session Part</button>
       </div>
 
+      <!-- Session Attendance & Absence Reasons Card -->
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:#0A2647;">Training Roster &amp; Attendance Trends</h3>
-            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="rosterSummaryText">0 of 0 Present</p>
+            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:#0A2647;">Session Attendance &amp; Absence Notes</h3>
+            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="rosterSummaryText">0 Present • 0 Excused • 0 Unexcused</p>
           </div>
           <div class="no-clean-preview" style="display:flex;flex-wrap:wrap;gap:6px;">
             <button type="button" class="btn btn-outline btn-sm" id="markAllPresentBtn">All Present</button>
-            <input type="text" id="newPlayerNameInput" class="input" style="width:220px;padding:5px 9px;" placeholder="e.g. Lucas Miller (GK)">
+            <input type="text" id="newPlayerNameInput" class="input" style="width:210px;padding:5px 9px;" placeholder="e.g. Lucas Miller (GK)">
             <button type="button" class="btn btn-primary btn-sm" id="addPlayerBtn">+ Add Player</button>
           </div>
         </div>
         <div class="card-body">
-          <div id="rosterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px;"></div>
+          <div id="rosterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:10px;"></div>
         </div>
       </div>
     </section>
@@ -1275,7 +1315,7 @@
       </div>
     </section>
 
-    <!-- 5B. MASTER TEAM ROSTER TAB (6-Column Position Board: GK, CB, WB, CM, AM, ST) -->
+    <!-- 5B. MASTER TEAM ROSTER TAB (6-Column Position Board + Clickable Player Attendance Profile) -->
     <section id="tab-roster" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
@@ -1284,7 +1324,7 @@
               <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;" id="masterRosterTitle">Team Roster</h2>
               <select id="rosterTeamSelect" class="select" style="width:auto;min-width:185px;padding:5px 10px;font-weight:800;font-size:0.82rem;color:#0A2647;background:#eff6ff;border-color:#93c5fd;" aria-label="Select Team for Roster"></select>
             </div>
-            <p style="margin:4px 0 0;font-size:0.78rem;color:#64748b;" id="masterRosterSummaryText">0 Players on Active Roster</p>
+            <p style="margin:4px 0 0;font-size:0.78rem;color:#64748b;" id="masterRosterSummaryText">0 Players on Active Roster • Click any player to view attendance history</p>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             <button type="button" class="btn btn-emerald btn-sm" id="syncMasterRosterToGameBtn">Sync to Game Day Squad</button>
@@ -1338,7 +1378,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.3</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.5</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1417,12 +1457,12 @@
               <div id="invitedCoachesList" style="display:flex;flex-direction:column;gap:6px;"></div>
             </div>
 
-            <!-- Step 4: Live User & Coach Permissions Manager Table -->
+            <!-- Live User & Coach Permissions Manager Table -->
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
                   <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Live User &amp; Coach Permissions Manager</h3>
-                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Modify any coach's role, assigned teams, or Drill &amp; Video library visibility in real time.</p>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Track invite acceptance in real time and modify any coach's role, assigned teams, or Drill &amp; Video library access.</p>
                 </div>
                 <span class="badge badge-navy" id="managedUsersCountBadge">0 Users</span>
               </div>
@@ -1432,7 +1472,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.3</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.5</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1445,6 +1485,49 @@
     </section>
 
   </main>
+
+  <!-- Player Attendance Profile Modal (Opened by clicking any player on Roster) -->
+  <div id="playerAttendanceModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:580px;width:96%;max-height:90vh;display:flex;flex-direction:column;padding:20px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;">
+        <div>
+          <span class="badge badge-navy" id="playerAttModalTeamBadge">Team Roster</span>
+          <h3 id="playerAttModalName" style="margin:5px 0 2px;font-size:1.15rem;font-weight:900;color:#0A2647;">Player Name</h3>
+          <div id="playerAttModalPositions" style="font-size:0.76rem;font-weight:700;color:#64748b;">Positions: —</div>
+        </div>
+        <button type="button" id="closePlayerAttModalBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <!-- Summary Stat Cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+        <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:8px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:900;color:#065f46;" id="playerAttStatRate">100%</div>
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#047857;">Attendance</div>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:900;color:#0A2647;" id="playerAttStatPresent">0</div>
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#1e4e8c;">Present</div>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:8px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:900;color:#92400e;" id="playerAttStatExcused">0</div>
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#b45309;">Excused</div>
+        </div>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:8px;text-align:center;">
+          <div style="font-size:1.1rem;font-weight:900;color:#991b1b;" id="playerAttStatUnexcused">0</div>
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#dc2626;">Unexcused</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#475569;margin-bottom:6px;">
+        Chronological Session &amp; Game Attendance Log
+      </div>
+      <div id="playerAttHistoryList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px;"></div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn btn-primary btn-sm" id="donePlayerAttModalBtn">Close Profile</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Custom Modal Dialog (Input + Video Metadata/Tag Editor) -->
   <div id="customModalBackdrop" class="modal-backdrop">
@@ -1642,7 +1725,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.3';
+    const APP_VERSION = '2.6.5';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1654,17 +1737,19 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.5', date: '2026-11-22', note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.' },
+        { version: '2.6.4', date: '2026-11-22', note: 'Step 5 Attendance & Scrimmage Builder: Present/Excused/Unexcused session attendance with absence reasons, auto-filtered Scrimmage Team Generator (Navy vs White), and clickable Player Attendance Profile on Roster.' },
         { version: '2.6.3', date: '2026-11-22', note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.' },
         { version: '2.6.2', date: '2026-11-22', note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).' },
         { version: '2.6.1', date: '2026-11-22', note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.3')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.5')) {
       versionHistoryLog.unshift({
-        version: '2.6.3',
+        version: '2.6.5',
         date: '2026-11-22',
-        note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.'
+        note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1811,10 +1896,55 @@
       } catch (e) {}
     }
 
+    function markCoachInviteAccepted(email, displayName) {
+      const cleanEmail = String(email || '').trim().toLowerCase();
+      if (!cleanEmail) return;
+      const todayStr = getLocalTodayIso();
+      let changed = false;
+
+      coachInvitesRegistry.forEach(inv => {
+        if (String(inv.email || '').trim().toLowerCase() === cleanEmail) {
+          if (!inv.accepted) {
+            inv.accepted = true;
+            inv.acceptedAt = todayStr;
+            if (displayName && (!inv.name || inv.name === cleanEmail.split('@')[0])) {
+              inv.name = displayName;
+            }
+            changed = true;
+          }
+        }
+      });
+
+      const existingProf = userAccessRegistry[cleanEmail] || { email: cleanEmail, teams: [] };
+      if (!existingProf.acceptedAt) {
+        const seedPerms = computeUserPermissions(cleanEmail);
+        saveUserAccessProfile(cleanEmail, {
+          name: displayName || existingProf.name || cleanEmail.split('@')[0],
+          role: existingProf.role || seedPerms.role,
+          teams: Array.isArray(existingProf.teams) && existingProf.teams.length > 0 ? existingProf.teams : seedPerms.teams,
+          libraryAccess: existingProf.libraryAccess || seedPerms.libraryAccess,
+          acceptedAt: todayStr,
+          lastSignedInAt: todayStr
+        });
+        changed = true;
+      } else if (existingProf.lastSignedInAt !== todayStr) {
+        saveUserAccessProfile(cleanEmail, {
+          name: displayName || existingProf.name,
+          lastSignedInAt: todayStr
+        });
+        changed = true;
+      }
+
+      if (changed) {
+        try {
+          localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry));
+        } catch (e) {}
+      }
+    }
+
     function buildMergedUsersDirectory() {
       const map = new Map();
 
-      // Primary Club Admin
       const adminLower = CLUB_ADMIN_EMAIL.toLowerCase();
       map.set(adminLower, {
         email: adminLower,
@@ -1822,40 +1952,56 @@
         role: 'Club Admin',
         teams: clubTeamsRegistry.map(t => t.name),
         libraryAccess: { drills: true, videos: true },
-        status: 'Primary Admin',
+        inviteAccepted: true,
+        acceptedAt: '',
+        invitedAt: '',
         isPrimaryAdmin: true
       });
 
-      // Invited Coaches
       coachInvitesRegistry.forEach(inv => {
         const em = String(inv.email || '').trim().toLowerCase();
         if (!em || map.has(em)) return;
         const perms = computeUserPermissions(em);
+        const prof = userAccessRegistry[em] || {};
+        const isAccepted = Boolean(inv.accepted || inv.acceptedAt || prof.acceptedAt || prof.lastSignedInAt);
+        const accDate = inv.acceptedAt || prof.acceptedAt || prof.lastSignedInAt || '';
         map.set(em, {
           email: em,
-          name: inv.name || em.split('@')[0],
+          name: prof.name || inv.name || em.split('@')[0],
           role: perms.role,
           teams: perms.teams,
           libraryAccess: perms.libraryAccess,
-          status: userAccessRegistry[em] ? 'Active' : 'Invited',
+          inviteAccepted: isAccepted,
+          acceptedAt: accDate,
+          invitedAt: inv.invitedAt || '',
           isPrimaryAdmin: false
         });
       });
 
-      // Registered / Active Profiles
       Object.keys(userAccessRegistry).forEach(emKey => {
         const em = String(emKey || '').trim().toLowerCase();
         if (!em) return;
         const prof = userAccessRegistry[em] || {};
+        const inv = coachInvitesRegistry.find(i => String(i.email || '').trim().toLowerCase() === em);
         const perms = computeUserPermissions(em);
         const existing = map.get(em);
+        const isAccepted = em === adminLower || Boolean(
+          (existing && existing.inviteAccepted) ||
+          (inv && (inv.accepted || inv.acceptedAt)) ||
+          prof.acceptedAt ||
+          prof.lastSignedInAt
+        );
+        const accDate = (existing && existing.acceptedAt) || (inv && inv.acceptedAt) || prof.acceptedAt || prof.lastSignedInAt || '';
+
         map.set(em, {
           email: em,
           name: prof.name || (existing && existing.name) || em.split('@')[0],
           role: perms.role,
           teams: perms.teams,
           libraryAccess: perms.libraryAccess,
-          status: em === adminLower ? 'Primary Admin' : 'Active',
+          inviteAccepted: isAccepted,
+          acceptedAt: accDate,
+          invitedAt: (inv && inv.invitedAt) || (existing && existing.invitedAt) || '',
           isPrimaryAdmin: em === adminLower
         });
       });
@@ -2072,17 +2218,28 @@
       }
     }
 
+    function normalizePlayerAttendanceModel(p) {
+      if (!p) return p;
+      if (!p.attendanceStatus) {
+        p.attendanceStatus = p.present === false ? 'unexcused' : 'present';
+      }
+      p.present = p.attendanceStatus === 'present';
+      if (typeof p.absenceReason !== 'string') p.absenceReason = '';
+      if (!Array.isArray(p.attendanceHistory)) p.attendanceHistory = [];
+      return p;
+    }
+
     function applyCloudTeamData(teamName, cloud) {
       if (!cloud || !teamName) return;
-      const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster : [];
+      const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster.map(normalizePlayerAttendanceModel) : [];
       const cloudSessions = Array.isArray(cloud.sessions) ? cloud.sessions : [];
       const cloudGames = Array.isArray(cloud.games) ? cloud.games : [];
-      const cloudGameRoster = Array.isArray(cloud.gameRoster) ? cloud.gameRoster : [];
+      const cloudGameRoster = Array.isArray(cloud.gameRoster) ? cloud.gameRoster.map(normalizePlayerAttendanceModel) : [];
       const cloudUpdated = Number(cloud.updatedAt || 0);
 
       let localRaw = null;
       try { localRaw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null'); } catch (e) {}
-      const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster : [];
+      const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster.map(normalizePlayerAttendanceModel) : [];
       const localUpdated = (localRaw && localRaw.updatedAt) || 0;
 
       if (cloudUpdated > localUpdated || (localRoster.length === 0 && cloudRoster.length > 0)) {
@@ -2107,6 +2264,7 @@
           gameRosterPlayers = mergedState.gameRoster;
           renderCalendar();
           renderRoster();
+          renderSessionParts();
           renderGameRoster();
           renderGamePitch();
           updateWorkspaceBadges();
@@ -2132,8 +2290,13 @@
       if (Array.isArray(data.coachInvites)) {
         const mergedInvites = [...data.coachInvites];
         coachInvitesRegistry.forEach(localInv => {
-          if (localInv && localInv.email && !mergedInvites.some(ci => ci.email.toLowerCase() === localInv.email.toLowerCase() && JSON.stringify(getInviteTeamsArray(ci)) === JSON.stringify(getInviteTeamsArray(localInv)))) {
+          if (!localInv || !localInv.email) return;
+          const match = mergedInvites.find(ci => ci.email.toLowerCase() === localInv.email.toLowerCase() && JSON.stringify(getInviteTeamsArray(ci)) === JSON.stringify(getInviteTeamsArray(localInv)));
+          if (!match) {
             mergedInvites.unshift(localInv);
+          } else if (localInv.accepted && !match.accepted) {
+            match.accepted = true;
+            match.acceptedAt = localInv.acceptedAt || getLocalTodayIso();
           }
         });
         coachInvitesRegistry = mergedInvites;
@@ -2144,7 +2307,12 @@
           const cloudProf = data.userAccessRegistry[emailKey];
           const localProf = userAccessRegistry[emailKey];
           if (!localProf || (cloudProf.updatedAt || 0) >= (localProf.updatedAt || 0)) {
-            userAccessRegistry[emailKey] = cloudProf;
+            userAccessRegistry[emailKey] = Object.assign({}, localProf || {}, cloudProf, {
+              acceptedAt: cloudProf.acceptedAt || (localProf && localProf.acceptedAt) || '',
+              lastSignedInAt: cloudProf.lastSignedInAt || (localProf && localProf.lastSignedInAt) || ''
+            });
+          } else if (cloudProf.acceptedAt && !localProf.acceptedAt) {
+            localProf.acceptedAt = cloudProf.acceptedAt;
           }
         });
         try { localStorage.setItem('afc_user_access_registry', JSON.stringify(userAccessRegistry)); } catch (e) {}
@@ -2250,8 +2418,8 @@
           foundSavedState = true;
           savedSessions = Array.isArray(raw.sessions) ? raw.sessions : [];
           savedGames = Array.isArray(raw.games) ? raw.games : [];
-          rosterPlayers = Array.isArray(raw.roster) ? raw.roster : [];
-          gameRosterPlayers = Array.isArray(raw.gameRoster) ? raw.gameRoster : JSON.parse(JSON.stringify(rosterPlayers));
+          rosterPlayers = Array.isArray(raw.roster) ? raw.roster.map(normalizePlayerAttendanceModel) : [];
+          gameRosterPlayers = Array.isArray(raw.gameRoster) ? raw.gameRoster.map(normalizePlayerAttendanceModel) : JSON.parse(JSON.stringify(rosterPlayers));
         }
       } catch (e) {}
 
@@ -2259,7 +2427,7 @@
         try {
           const backupRaw = JSON.parse(localStorage.getItem(rosterBackupKey) || 'null');
           if (Array.isArray(backupRaw)) {
-            rosterPlayers = backupRaw;
+            rosterPlayers = backupRaw.map(normalizePlayerAttendanceModel);
             gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
           }
         } catch (e) {}
@@ -2268,6 +2436,7 @@
       populateTeamDropdowns();
       renderCalendar();
       renderRoster();
+      renderSessionParts();
       renderGameRoster();
       updateWorkspaceBadges();
       attachFirestoreTeamSync(teamName);
@@ -2346,6 +2515,143 @@
         modal.classList.remove('open');
         if (typeof onConfirm === 'function') onConfirm(val);
       };
+    }
+
+    /* =========================================================
+       STEP 5: ATTENDANCE STATS, LOGGING & PLAYER PROFILE MODAL
+       ========================================================= */
+    function getPlayerAttendanceStats(player) {
+      normalizePlayerAttendanceModel(player);
+      const history = Array.isArray(player.attendanceHistory) ? player.attendanceHistory : [];
+      let present = 0;
+      let excused = 0;
+      let unexcused = 0;
+
+      history.forEach(entry => {
+        if (entry.status === 'present') present++;
+        else if (entry.status === 'excused') excused++;
+        else unexcused++;
+      });
+
+      const total = present + excused + unexcused;
+      const rate = total > 0 ? Math.round((present / total) * 100) : 100;
+      return { total, present, excused, unexcused, rate, history };
+    }
+
+    function recordEventAttendanceSnapshot(eventMeta) {
+      if (!eventMeta || !eventMeta.eventId) return;
+      const targetList = eventMeta.eventType === 'game' ? gameRosterPlayers : rosterPlayers;
+      const statusByName = new Map();
+      targetList.forEach(p => {
+        normalizePlayerAttendanceModel(p);
+        statusByName.set(String(p.name || '').trim().toLowerCase(), {
+          status: p.attendanceStatus || (p.present ? 'present' : 'unexcused'),
+          reason: p.absenceReason || ''
+        });
+      });
+
+      rosterPlayers.forEach(masterPlayer => {
+        normalizePlayerAttendanceModel(masterPlayer);
+        const key = String(masterPlayer.name || '').trim().toLowerCase();
+        const found = statusByName.get(key);
+        if (!found) return;
+
+        const entry = {
+          eventId: eventMeta.eventId,
+          eventType: eventMeta.eventType,
+          title: eventMeta.title || (eventMeta.eventType === 'game' ? 'Match' : 'Training Session'),
+          date: eventMeta.date || getLocalTodayIso(),
+          status: found.status,
+          reason: found.status === 'present' ? '' : (found.reason || '')
+        };
+
+        const existingIdx = masterPlayer.attendanceHistory.findIndex(h => h.eventId === eventMeta.eventId);
+        if (existingIdx >= 0) {
+          masterPlayer.attendanceHistory[existingIdx] = entry;
+        } else {
+          masterPlayer.attendanceHistory.unshift(entry);
+        }
+        masterPlayer.attendanceHistory.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+      });
+    }
+
+    let activeAttendanceProfilePlayerIdx = -1;
+
+    function openPlayerAttendanceModal(playerIdx) {
+      const player = rosterPlayers[playerIdx];
+      const modal = document.getElementById('playerAttendanceModal');
+      if (!player || !modal) return;
+      activeAttendanceProfilePlayerIdx = playerIdx;
+
+      const stats = getPlayerAttendanceStats(player);
+      const nameEl = document.getElementById('playerAttModalName');
+      const badgeEl = document.getElementById('playerAttModalTeamBadge');
+      const posEl = document.getElementById('playerAttModalPositions');
+      const rateEl = document.getElementById('playerAttStatRate');
+      const presEl = document.getElementById('playerAttStatPresent');
+      const excEl = document.getElementById('playerAttStatExcused');
+      const unexcEl = document.getElementById('playerAttStatUnexcused');
+      const listEl = document.getElementById('playerAttHistoryList');
+
+      if (badgeEl) badgeEl.textContent = activeTeamName || 'Team Roster';
+      if (nameEl) nameEl.textContent = player.name;
+      if (posEl) posEl.textContent = 'Positions: ' + ((player.positions && player.positions.length) ? player.positions.join(', ') : 'Unassigned');
+      if (rateEl) rateEl.textContent = stats.total > 0 ? (stats.rate + '%') : '—';
+      if (presEl) presEl.textContent = String(stats.present);
+      if (excEl) excEl.textContent = String(stats.excused);
+      if (unexcEl) unexcEl.textContent = String(stats.unexcused);
+
+      if (listEl) {
+        if (stats.history.length === 0) {
+          listEl.innerHTML = '<div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:18px;text-align:center;font-size:0.8rem;color:#64748b;">' +
+            'No saved training sessions or games logged for <strong>' + escapeHtml(player.name) + '</strong> yet.<br>' +
+            'Mark attendance in the <strong>Session Builder</strong> and click <strong>Save to Calendar</strong> to build their history.' +
+          '</div>';
+        } else {
+          listEl.innerHTML = stats.history.map((item, hIdx) => {
+            const isPres = item.status === 'present';
+            const isExc = item.status === 'excused';
+            const badgeClass = isPres ? 'badge-emerald' : (isExc ? 'badge-amber' : 'badge-red');
+            const statusLabel = isPres ? 'Present' : (isExc ? 'Excused Absent' : 'Unexcused Absent');
+            return '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
+              '<div style="flex:1;min-width:190px;">' +
+                '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">' +
+                  '<span class="badge ' + badgeClass + '">' + statusLabel + '</span>' +
+                  '<span style="font-size:0.72rem;font-weight:700;color:#64748b;">' + escapeHtml(item.date || '') + ' • ' + (item.eventType === 'game' ? 'Match' : 'Training') + '</span>' +
+                '</div>' +
+                '<div style="font-size:0.84rem;font-weight:800;color:#0A2647;">' + escapeHtml(item.title || 'Session') + '</div>' +
+                (!isPres
+                  ? '<div style="font-size:0.75rem;color:#991b1b;margin-top:3px;"><strong>Reason:</strong> ' + escapeHtml(item.reason || 'No reason noted') + '</div>'
+                  : '') +
+              '</div>' +
+              '<button type="button" class="btn btn-outline btn-sm edit-att-history-note-btn" data-hidx="' + hIdx + '" style="font-size:0.7rem;">Edit Note</button>' +
+            '</div>';
+          }).join('');
+
+          listEl.querySelectorAll('.edit-att-history-note-btn').forEach(btn => {
+            btn.onclick = function() {
+              const hIdx = parseInt(this.getAttribute('data-hidx'), 10);
+              const entry = player.attendanceHistory[hIdx];
+              if (!entry) return;
+              openCustomPromptModal(
+                'Update Absence Reason (' + (entry.date || '') + ')',
+                'Enter reason why ' + player.name + ' missed ' + (entry.title || 'this event') + ':',
+                entry.reason || '',
+                (newReason) => {
+                  entry.reason = (newReason || '').trim();
+                  if (entry.status === 'present' && entry.reason) entry.status = 'excused';
+                  persistCurrentTeamState();
+                  openPlayerAttendanceModal(playerIdx);
+                  renderRoster();
+                  showToast('Updated attendance note for ' + player.name);
+                }
+              );
+            };
+          });
+        }
+      }
+
+      modal.classList.add('open');
     }
 
     /* =========================================================
@@ -2757,7 +3063,9 @@
               duration: d.duration || 15,
               gifUrl: d.gifUrl || '',
               coachingPoints: d.coachingPoints || '',
-              notes: d.notes || ''
+              notes: d.notes || '',
+              scrimmageNavy: [],
+              scrimmageWhite: []
             });
             renderSessionParts();
             switchTab('builder');
@@ -3427,7 +3735,7 @@
     }
 
     /* =========================================================
-       ROSTER POSITION BOARD (GK, CB, WB, CM, AM, ST) & BULK PARSER
+       ROSTER POSITION BOARD (GK, CB, WB, CM, AM, ST) & ATTENDANCE
        ========================================================= */
     const POSITION_COLUMNS = [
       { key: 'GK', label: 'GK' },
@@ -3503,35 +3811,60 @@
         id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         name,
         positions,
-        present: true
+        present: true,
+        attendanceStatus: 'present',
+        absenceReason: '',
+        attendanceHistory: []
       };
     }
 
     function renderRoster() {
+      rosterPlayers.forEach(normalizePlayerAttendanceModel);
       const grid = document.getElementById('rosterGrid');
       const masterGrid = document.getElementById('masterRosterGrid');
-      const presentCount = rosterPlayers.filter(p => p.present).length;
+      const presentCount = rosterPlayers.filter(p => p.attendanceStatus === 'present').length;
+      const excusedCount = rosterPlayers.filter(p => p.attendanceStatus === 'excused').length;
+      const unexcusedCount = rosterPlayers.filter(p => p.attendanceStatus === 'unexcused').length;
+
       const summaryEl = document.getElementById('rosterSummaryText');
       const masterSummaryEl = document.getElementById('masterRosterSummaryText');
-      if (summaryEl) summaryEl.textContent = presentCount + ' of ' + rosterPlayers.length + ' Present';
-      if (masterSummaryEl) masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster';
+      if (summaryEl) {
+        summaryEl.textContent = presentCount + ' Present • ' + excusedCount + ' Excused • ' + unexcusedCount + ' Unexcused (Absent players auto-filtered out of Scrimmage Lineups)';
+      }
+      if (masterSummaryEl) {
+        masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster • Click any player card to view attendance history';
+      }
 
       if (grid) {
-        grid.innerHTML = rosterPlayers.map((p, idx) =>
-          '<div style="display:flex;align-items:center;justify-content:space-between;background:' + (p.present ? '#f0fdf4' : '#f8fafc') + ';border:1px solid ' + (p.present ? '#86efac' : '#cbd5e1') + ';border-radius:10px;padding:8px 12px;">' +
-            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:0.84rem;color:#0A2647;">' +
-              '<input type="checkbox" class="roster-present-cb" data-idx="' + idx + '"' + (p.present ? ' checked' : '') + '>' +
-              '<span>' + escapeHtml(p.name) + '</span>' +
-              ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
-            '</label>' +
-            '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:2px 7px;">&times;</button>' +
-          '</div>'
-        ).join('');
+        grid.innerHTML = rosterPlayers.map((p, idx) => {
+          const st = p.attendanceStatus || 'present';
+          const bg = st === 'present' ? '#f0fdf4' : (st === 'excused' ? '#fffbeb' : '#fef2f2');
+          const border = st === 'present' ? '#86efac' : (st === 'excused' ? '#fcd34d' : '#fca5a5');
+          return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:11px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">' +
+              '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+                '<span style="font-weight:800;font-size:0.84rem;color:#0A2647;">' + escapeHtml(p.name) + '</span>' +
+                ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
+              '</div>' +
+              '<div style="display:flex;align-items:center;gap:4px;">' +
+                '<select class="session-att-status-select" data-idx="' + idx + '" style="font-size:0.72rem;font-weight:800;border-radius:6px;padding:3px 6px;border:1px solid #cbd5e1;background:#ffffff;color:#0A2647;cursor:pointer;">' +
+                  '<option value="present"' + (st === 'present' ? ' selected' : '') + '>Present</option>' +
+                  '<option value="excused"' + (st === 'excused' ? ' selected' : '') + '>Excused Absent</option>' +
+                  '<option value="unexcused"' + (st === 'unexcused' ? ' selected' : '') + '>Unexcused Absent</option>' +
+                '</select>' +
+                '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn no-clean-preview" data-idx="' + idx + '" style="padding:2px 6px;">&times;</button>' +
+              '</div>' +
+            '</div>' +
+            (st !== 'present'
+              ? '<input type="text" class="input session-absence-reason-input" data-idx="' + idx + '" value="' + escapeHtml(p.absenceReason || '') + '" placeholder="Absence reason (e.g. Injured, Sick, Family Trip)..." style="padding:5px 8px;font-size:0.75rem;background:#ffffff;" />'
+              : '') +
+          '</div>';
+        }).join('');
       }
 
       if (masterGrid) {
         masterGrid.style.display = 'grid';
-        masterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(175px, 1fr))';
+        masterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(185px, 1fr))';
         masterGrid.style.gap = '12px';
 
         const buckets = { GK: [], CB: [], WB: [], CM: [], AM: [], ST: [], UNASSIGNED: [] };
@@ -3552,45 +3885,82 @@
             '</div>' +
             (items.length === 0
               ? '<div style="font-size:0.74rem;color:#94a3b8;text-align:center;padding:12px 4px;">No players</div>'
-              : items.map(({ player, idx }) =>
-                  '<div style="background:' + (player.present ? '#ffffff' : '#f1f5f9') + ';border:1px solid ' + (player.present ? '#86efac' : '#cbd5e1') + ';border-radius:9px;padding:7px 9px;display:flex;flex-direction:column;gap:5px;">' +
+              : items.map(({ player, idx }) => {
+                  const stats = getPlayerAttendanceStats(player);
+                  const attBadgeText = stats.total > 0
+                    ? (stats.present + '/' + stats.total + ' (' + stats.rate + '%)')
+                    : (player.present ? 'Present' : 'Absent');
+                  const attBadgeStyle = stats.total > 0
+                    ? (stats.rate >= 80 ? 'background:#d1fae5;color:#065f46;' : 'background:#fef3c7;color:#92400e;')
+                    : (player.present ? 'background:#e0f2fe;color:#075985;' : 'background:#fee2e2;color:#991b1b;');
+
+                  return '<div style="background:' + (player.present ? '#ffffff' : '#fef2f2') + ';border:1px solid ' + (player.present ? '#86efac' : '#fca5a5') + ';border-radius:9px;padding:7px 9px;display:flex;flex-direction:column;gap:5px;">' +
                     '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
-                      '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;font-size:0.8rem;color:#0A2647;">' +
-                        '<input type="checkbox" class="roster-present-cb" data-idx="' + idx + '"' + (player.present ? ' checked' : '') + '>' +
-                        '<span>' + escapeHtml(player.name) + '</span>' +
-                      '</label>' +
+                      '<button type="button" class="open-player-att-profile-btn" data-idx="' + idx + '" title="Click to view attendance log" style="background:none;border:none;padding:0;text-align:left;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.81rem;color:#0A2647;text-decoration:underline dotted #94a3b8;">' +
+                        escapeHtml(player.name) +
+                      '</button>' +
                       '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:1px 6px;">&times;</button>' +
                     '</div>' +
-                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
-                      '<select class="roster-col-select" data-idx="' + idx + '" style="font-size:0.68rem;font-weight:800;color:#0A2647;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:2px 4px;cursor:pointer;">' +
-                        POSITION_COLUMNS.map(c => '<option value="' + c.key + '"' + (col.key === c.key ? ' selected' : '') + '>' + c.label + '</option>').join('') +
-                        (col.key === 'UNASSIGNED' ? '<option value="UNASSIGNED" selected>Pos...</option>' : '') +
-                      '</select>' +
-                      '<button type="button" class="pos-pill edit-roster-player-btn" data-idx="' + idx + '" style="border:none;">' +
-                        escapeHtml((player.positions && player.positions.length) ? player.positions.join('/') : 'Edit') +
+                    '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;">' +
+                      '<button type="button" class="open-player-att-profile-btn" data-idx="' + idx + '" style="border:none;border-radius:999px;padding:2px 7px;font-size:0.66rem;font-weight:800;cursor:pointer;' + attBadgeStyle + '">' +
+                        escapeHtml(attBadgeText) +
                       '</button>' +
+                      '<div style="display:flex;align-items:center;gap:4px;">' +
+                        '<select class="roster-col-select" data-idx="' + idx + '" style="font-size:0.66rem;font-weight:800;color:#0A2647;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:1px 4px;cursor:pointer;">' +
+                          POSITION_COLUMNS.map(c => '<option value="' + c.key + '"' + (col.key === c.key ? ' selected' : '') + '>' + c.label + '</option>').join('') +
+                          (col.key === 'UNASSIGNED' ? '<option value="UNASSIGNED" selected>Pos...</option>' : '') +
+                        '</select>' +
+                        '<button type="button" class="pos-pill edit-roster-player-btn" data-idx="' + idx + '" style="border:none;">' +
+                          escapeHtml((player.positions && player.positions.length) ? player.positions.join('/') : 'Edit') +
+                        '</button>' +
+                      '</div>' +
                     '</div>' +
-                  '</div>'
-                ).join('')
+                  '</div>';
+                }).join('')
             ) +
           '</div>';
         }).join('');
       }
 
-      document.querySelectorAll('.roster-present-cb').forEach(cb => {
-        cb.onchange = function() {
-          rosterPlayers[parseInt(this.dataset.idx, 10)].present = this.checked;
+      document.querySelectorAll('.session-att-status-select').forEach(sel => {
+        sel.onchange = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          const p = rosterPlayers[i];
+          if (!p) return;
+          p.attendanceStatus = this.value;
+          p.present = this.value === 'present';
+          if (p.present) p.absenceReason = '';
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
         };
       });
+
+      document.querySelectorAll('.session-absence-reason-input').forEach(inp => {
+        inp.onchange = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          if (rosterPlayers[i]) {
+            rosterPlayers[i].absenceReason = this.value.trim();
+            persistCurrentTeamState();
+          }
+        };
+      });
+
+      document.querySelectorAll('.open-player-att-profile-btn').forEach(btn => {
+        btn.onclick = function() {
+          openPlayerAttendanceModal(parseInt(this.dataset.idx, 10));
+        };
+      });
+
       document.querySelectorAll('.remove-roster-player-btn').forEach(btn => {
         btn.onclick = function() {
           rosterPlayers.splice(parseInt(this.dataset.idx, 10), 1);
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
         };
       });
+
       document.querySelectorAll('.roster-col-select').forEach(sel => {
         sel.onchange = function() {
           const i = parseInt(this.dataset.idx, 10);
@@ -3603,6 +3973,7 @@
           }
         };
       });
+
       document.querySelectorAll('.edit-roster-player-btn').forEach(btn => {
         btn.onclick = function() {
           const i = parseInt(this.dataset.idx, 10);
@@ -3834,7 +4205,9 @@
 
       grid.querySelectorAll('.game-roster-cb').forEach(cb => {
         cb.onchange = function() {
-          gameRosterPlayers[parseInt(this.dataset.idx, 10)].present = this.checked;
+          const p = gameRosterPlayers[parseInt(this.dataset.idx, 10)];
+          p.present = this.checked;
+          p.attendanceStatus = this.checked ? 'present' : 'unexcused';
           renderGameRoster();
           renderGamePitch();
         };
@@ -4088,12 +4461,24 @@
       document.getElementById('sessionDateInput').value = s.date || getLocalTodayIso();
       document.getElementById('sessionCoachInput').value = s.coach || 'Ambassadors FC Staff';
       currentSessionParts = Array.isArray(s.parts) ? JSON.parse(JSON.stringify(s.parts)) : [];
+      if (Array.isArray(s.attendanceSnapshot)) {
+        const snapMap = new Map(s.attendanceSnapshot.map(item => [String(item.name || '').toLowerCase(), item]));
+        rosterPlayers.forEach(p => {
+          const found = snapMap.get(String(p.name || '').toLowerCase());
+          if (found) {
+            p.attendanceStatus = found.status || 'present';
+            p.present = p.attendanceStatus === 'present';
+            p.absenceReason = found.reason || '';
+          }
+        });
+      }
+      renderRoster();
       renderSessionParts();
       switchTab('builder');
     }
 
     /* =========================================================
-       SESSION BUILDER
+       SESSION BUILDER + AUTO-FILTERED SCRIMMAGE LINEUP BUILDER
        ========================================================= */
     let currentSessionParts = [
       {
@@ -4103,7 +4488,9 @@
         duration: 15,
         gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
         coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
-        notes: '4 central poles spaced 6 yards apart with left and right passing lanes.'
+        notes: '4 central poles spaced 6 yards apart with left and right passing lanes.',
+        scrimmageNavy: [],
+        scrimmageWhite: []
       }
     ];
 
@@ -4112,9 +4499,84 @@
       const totalEl = document.getElementById('totalSessionMinutes');
       if (!container) return;
       let totalMins = 0;
+
+      const presentPlayers = rosterPlayers.filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present');
+      const presentNamesSet = new Set(presentPlayers.map(p => p.name));
+
       container.innerHTML = currentSessionParts.map((part, idx) => {
         totalMins += Number(part.duration || 0);
         const resolvedGif = resolveDrillMediaUrl(part.gifUrl);
+        const isScrimmage = String(part.type || '').toLowerCase() === 'scrimmage' || /scrimmage/i.test(String(part.title || ''));
+
+        let scrimmagePanelHtml = '';
+        if (isScrimmage) {
+          part.scrimmageNavy = (Array.isArray(part.scrimmageNavy) ? part.scrimmageNavy : []).filter(n => presentNamesSet.has(n));
+          part.scrimmageWhite = (Array.isArray(part.scrimmageWhite) ? part.scrimmageWhite : []).filter(n => presentNamesSet.has(n));
+
+          const assignedSet = new Set([...part.scrimmageNavy, ...part.scrimmageWhite]);
+          const unassignedPresent = presentPlayers.filter(p => !assignedSet.has(p.name));
+
+          scrimmagePanelHtml = '<div class="scrimmage-builder-panel">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
+              '<div>' +
+                '<span style="font-size:0.8rem;font-weight:900;color:#0A2647;">&#9917; Scrimmage Lineup Generator (Auto-Filtered by Present Players)</span>' +
+                '<div style="font-size:0.71rem;color:#64748b;">Showing only the <strong>' + presentPlayers.length + ' Present</strong> players from today\'s attendance. Absent players are automatically excluded.</div>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;" class="no-clean-preview">' +
+                '<button type="button" class="btn btn-primary btn-sm auto-split-scrimmage-btn" data-part-idx="' + idx + '">Auto-Split Present Players</button>' +
+                '<button type="button" class="btn btn-outline btn-sm clear-scrimmage-btn" data-part-idx="' + idx + '">Clear Teams</button>' +
+              '</div>' +
+            '</div>' +
+
+            (unassignedPresent.length > 0
+              ? '<div style="margin-top:8px;padding:7px 9px;background:#ffffff;border:1px dashed #94a3b8;border-radius:9px;" class="no-clean-preview">' +
+                  '<div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:4px;">Unassigned Present Pool (' + unassignedPresent.length + ') — Click to assign:</div>' +
+                  unassignedPresent.map(p =>
+                    '<span style="display:inline-flex;align-items:center;gap:4px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:999px;padding:3px 8px;font-size:0.73rem;font-weight:800;color:#065f46;margin:2px 4px 2px 0;">' +
+                      '<span>' + escapeHtml(p.name) + ((p.positions && p.positions.length) ? ' (' + escapeHtml(p.positions[0]) + ')' : '') + '</span>' +
+                      '<button type="button" class="assign-scrim-side-btn" data-part-idx="' + idx + '" data-side="navy" data-player="' + escapeHtml(p.name) + '" style="background:#0A2647;color:#fff;border:none;border-radius:4px;padding:1px 5px;font-size:0.65rem;font-weight:800;cursor:pointer;">+Navy</button>' +
+                      '<button type="button" class="assign-scrim-side-btn" data-part-idx="' + idx + '" data-side="white" data-player="' + escapeHtml(p.name) + '" style="background:#e2e8f0;color:#0A2647;border:1px solid #0A2647;border-radius:4px;padding:0 5px;font-size:0.65rem;font-weight:800;cursor:pointer;">+White</button>' +
+                    '</span>'
+                  ).join('') +
+                '</div>'
+              : '') +
+
+            '<div class="scrimmage-teams-grid">' +
+              '<div class="scrimmage-side-box" style="border-top:3px solid #0A2647;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                  '<span style="font-size:0.78rem;font-weight:900;color:#0A2647;">NAVY BIBS (' + part.scrimmageNavy.length + ')</span>' +
+                  '<span style="font-size:0.68rem;color:#64748b;">Click player to swap/remove</span>' +
+                '</div>' +
+                (part.scrimmageNavy.length === 0
+                  ? '<div style="font-size:0.74rem;color:#94a3b8;padding:6px 0;">No players assigned to Navy yet.</div>'
+                  : part.scrimmageNavy.map(name => {
+                      const pObj = presentPlayers.find(x => x.name === name);
+                      const posTag = (pObj && pObj.positions && pObj.positions.length) ? ' (' + pObj.positions[0] + ')' : '';
+                      return '<span class="scrimmage-player-pill navy toggle-scrim-player-btn" data-part-idx="' + idx + '" data-from="navy" data-player="' + escapeHtml(name) + '" title="Click to move to White">' +
+                        escapeHtml(name + posTag) + ' &harr;' +
+                      '</span>';
+                    }).join('')) +
+              '</div>' +
+
+              '<div class="scrimmage-side-box" style="border-top:3px solid #64748b;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+                  '<span style="font-size:0.78rem;font-weight:900;color:#0f172a;">WHITE / PINNIES (' + part.scrimmageWhite.length + ')</span>' +
+                  '<span style="font-size:0.68rem;color:#64748b;">Click player to unassign</span>' +
+                '</div>' +
+                (part.scrimmageWhite.length === 0
+                  ? '<div style="font-size:0.74rem;color:#94a3b8;padding:6px 0;">No players assigned to White yet.</div>'
+                  : part.scrimmageWhite.map(name => {
+                      const pObj = presentPlayers.find(x => x.name === name);
+                      const posTag = (pObj && pObj.positions && pObj.positions.length) ? ' (' + pObj.positions[0] + ')' : '';
+                      return '<span class="scrimmage-player-pill white toggle-scrim-player-btn" data-part-idx="' + idx + '" data-from="white" data-player="' + escapeHtml(name) + '" title="Click to return to Pool">' +
+                        escapeHtml(name + posTag) + ' &times;' +
+                      '</span>';
+                    }).join('')) +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }
+
         return '<div class="session-part-card">' +
           '<div class="part-header">' +
             '<div class="part-header-left">' +
@@ -4123,7 +4585,7 @@
             '</div>' +
             '<div class="part-header-right">' +
               '<label class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</label>' +
-              '<button type="button" class="btn btn-danger btn-sm remove-part-btn" data-part-idx="' + idx + '">Remove</button>' +
+              '<button type="button" class="btn btn-danger btn-sm remove-part-btn no-clean-preview" data-part-idx="' + idx + '">Remove</button>' +
             '</div>' +
           '</div>' +
           '<div class="part-body">' +
@@ -4133,13 +4595,14 @@
                     '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
                     '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
                   '</div>'
-                : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
+                : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">' + (isScrimmage ? 'Small-Sided Scrimmage / Match Play' : 'No GIF diagram attached') + '</div>') +
             '</div>' +
             '<div style="display:flex;flex-direction:column;gap:10px;">' +
               '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
               '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
             '</div>' +
           '</div>' +
+          scrimmagePanelHtml +
         '</div>';
       }).join('');
       if (totalEl) totalEl.textContent = String(totalMins);
@@ -4163,6 +4626,72 @@
         wrap.onclick = function() {
           const p = currentSessionParts[parseInt(this.dataset.partIdx, 10)];
           if (p) openEnlargedDiagramModal(p.title, p.gifUrl, p.coachingPoints);
+        };
+      });
+
+      container.querySelectorAll('.auto-split-scrimmage-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.dataset.partIdx, 10);
+          const part = currentSessionParts[pIdx];
+          if (!part) return;
+          if (presentPlayers.length === 0) {
+            return showToast('Mark at least 2 players Present in Session Attendance below first.');
+          }
+          const sorted = [...presentPlayers].sort((a, b) =>
+            mapPositionToColumnKey(a.positions).localeCompare(mapPositionToColumnKey(b.positions))
+          );
+          const navy = [];
+          const white = [];
+          sorted.forEach((pl, i) => {
+            if (i % 2 === 0) navy.push(pl.name);
+            else white.push(pl.name);
+          });
+          part.scrimmageNavy = navy;
+          part.scrimmageWhite = white;
+          renderSessionParts();
+          showToast('Auto-balanced ' + presentPlayers.length + ' present players into Navy (' + navy.length + ') vs White (' + white.length + ')!');
+        };
+      });
+
+      container.querySelectorAll('.clear-scrimmage-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.dataset.partIdx, 10);
+          const part = currentSessionParts[pIdx];
+          if (!part) return;
+          part.scrimmageNavy = [];
+          part.scrimmageWhite = [];
+          renderSessionParts();
+        };
+      });
+
+      container.querySelectorAll('.assign-scrim-side-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.dataset.partIdx, 10);
+          const side = this.dataset.side;
+          const playerName = this.dataset.player;
+          const part = currentSessionParts[pIdx];
+          if (!part || !playerName) return;
+          part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
+          part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
+          if (side === 'navy') part.scrimmageNavy.push(playerName);
+          else part.scrimmageWhite.push(playerName);
+          renderSessionParts();
+        };
+      });
+
+      container.querySelectorAll('.toggle-scrim-player-btn').forEach(pill => {
+        pill.onclick = function() {
+          const pIdx = parseInt(this.dataset.partIdx, 10);
+          const fromSide = this.dataset.from;
+          const playerName = this.dataset.player;
+          const part = currentSessionParts[pIdx];
+          if (!part || !playerName) return;
+          part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
+          part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
+          if (fromSide === 'navy') {
+            part.scrimmageWhite.push(playerName);
+          }
+          renderSessionParts();
         };
       });
     }
@@ -4199,6 +4728,7 @@
           '<thead>' +
             '<tr>' +
               '<th>Coach / User</th>' +
+              '<th>Invite Status</th>' +
               '<th>Role</th>' +
               '<th>Team Access</th>' +
               '<th>Library Access</th>' +
@@ -4211,8 +4741,23 @@
               const isAdminRow = u.role === 'Club Admin';
               const isSuspendedRow = u.role === 'Suspended / No Access';
 
+              let inviteStatusHtml = '';
+              if (isPrimary) {
+                inviteStatusHtml = '<span class="badge badge-navy">Club Owner</span>';
+              } else if (u.inviteAccepted) {
+                inviteStatusHtml = '<div>' +
+                  '<span class="badge badge-emerald">&#10003; Accepted</span>' +
+                  (u.acceptedAt ? '<div style="font-size:0.68rem;color:#047857;font-weight:700;margin-top:3px;">Joined ' + escapeHtml(u.acceptedAt) + '</div>' : '') +
+                '</div>';
+              } else {
+                inviteStatusHtml = '<div>' +
+                  '<span class="badge badge-amber">&#9203; Pending Invite</span>' +
+                  (u.invitedAt ? '<div style="font-size:0.68rem;color:#92400e;font-weight:700;margin-top:3px;">Sent ' + escapeHtml(u.invitedAt) + '</div>' : '') +
+                '</div>';
+              }
+
               const roleCell = isPrimary
-                ? '<span class="badge badge-navy">Club Admin (Owner)</span>'
+                ? '<span class="badge badge-navy">Club Admin</span>'
                 : '<select class="select perm-role-select" data-email="' + escapeHtml(u.email) + '" style="padding:4px 8px;font-size:0.75rem;min-width:155px;">' +
                     ROLES_LIST.map(r => '<option value="' + escapeHtml(r) + '"' + (u.role === r ? ' selected' : '') + '>' + escapeHtml(r) + '</option>').join('') +
                   '</select>';
@@ -4253,8 +4798,9 @@
               return '<tr>' +
                 '<td>' +
                   '<div style="font-weight:800;color:#0A2647;">' + escapeHtml(u.name) + '</div>' +
-                  '<div style="font-size:0.71rem;color:#64748b;">' + escapeHtml(u.email) + ' • <span style="font-weight:700;color:#1e4e8c;">' + escapeHtml(u.status) + '</span></div>' +
+                  '<div style="font-size:0.71rem;color:#64748b;">' + escapeHtml(u.email) + '</div>' +
                 '</td>' +
+                '<td>' + inviteStatusHtml + '</td>' +
                 '<td>' + roleCell + '</td>' +
                 '<td>' + teamsCell + '</td>' +
                 '<td>' + libCell + '</td>' +
@@ -4265,7 +4811,6 @@
         '</table>' +
       '</div>';
 
-      // Bind Role Dropdowns
       container.querySelectorAll('.perm-role-select').forEach(sel => {
         sel.onchange = function() {
           const targetEmail = this.getAttribute('data-email');
@@ -4289,7 +4834,6 @@
         };
       });
 
-      // Bind Team Access Checkboxes
       container.querySelectorAll('.perm-team-cb').forEach(cb => {
         cb.onchange = function() {
           const targetEmail = this.getAttribute('data-email');
@@ -4314,7 +4858,6 @@
         };
       });
 
-      // Bind Library Access Toggles
       container.querySelectorAll('.perm-lib-cb').forEach(cb => {
         cb.onchange = function() {
           const targetEmail = this.getAttribute('data-email');
@@ -4338,7 +4881,6 @@
         };
       });
 
-      // Bind Remove User
       container.querySelectorAll('.perm-remove-user-btn').forEach(btn => {
         btn.onclick = function() {
           const targetEmail = this.getAttribute('data-email');
@@ -4368,25 +4910,40 @@
       if (verCurr) verCurr.textContent = 'v' + APP_VERSION;
 
       if (invitesBadge) {
-        invitesBadge.textContent = coachInvitesRegistry.length + ' Coach' + (coachInvitesRegistry.length === 1 ? '' : 'es');
+        const acceptedCount = coachInvitesRegistry.filter(inv => {
+          const em = String(inv.email || '').trim().toLowerCase();
+          const prof = userAccessRegistry[em] || {};
+          return Boolean(inv.accepted || inv.acceptedAt || prof.acceptedAt || prof.lastSignedInAt);
+        }).length;
+        invitesBadge.textContent = coachInvitesRegistry.length + ' Invited (' + acceptedCount + ' Accepted)';
       }
 
       if (invitesList && isClubAdmin) {
         invitesList.innerHTML = coachInvitesRegistry.length === 0
           ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Select teams and enter a coach email above to send a Direct-to-Registration invite.</div>'
           : coachInvitesRegistry.map((inv, idx) => {
+              const em = String(inv.email || '').trim().toLowerCase();
+              const prof = userAccessRegistry[em] || {};
+              const isAccepted = Boolean(inv.accepted || inv.acceptedAt || prof.acceptedAt || prof.lastSignedInAt);
+              const acceptedDate = inv.acceptedAt || prof.acceptedAt || prof.lastSignedInAt || '';
+
               const invTeams = getInviteTeamsArray(inv);
               const teamBadgesHtml = invTeams.includes('ALL_TEAMS')
                 ? '<span class="badge badge-emerald">All Club Teams</span>'
-                : invTeams.map(tName => '<span class="badge badge-emerald">' + escapeHtml(tName) + '</span>').join('');
-              return '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid #cbd5e1;border-radius:9px;padding:8px 11px;font-size:0.8rem;">' +
+                : invTeams.map(tName => '<span class="badge badge-navy">' + escapeHtml(tName) + '</span>').join('');
+
+              const acceptanceBadgeHtml = isAccepted
+                ? '<span class="badge badge-emerald">&#10003; Accepted' + (acceptedDate ? ' (' + escapeHtml(acceptedDate) + ')' : '') + '</span>'
+                : '<span class="badge badge-amber">&#9203; Pending (Sent ' + escapeHtml(inv.invitedAt || '') + ')</span>';
+
+              return '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid ' + (isAccepted ? '#6ee7b7' : '#fcd34d') + ';border-radius:9px;padding:8px 11px;font-size:0.8rem;">' +
                 '<div>' +
                   '<strong style="color:#0A2647;">' + escapeHtml(inv.name || inv.email) + '</strong> ' +
                   '<span style="color:#64748b;">(' + escapeHtml(inv.email) + ')</span>' +
                   '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">' +
+                    acceptanceBadgeHtml +
                     '<span class="badge badge-navy">' + escapeHtml(inv.role || 'Assistant Coach') + '</span>' +
                     teamBadgesHtml +
-                    '<span style="font-size:0.7rem;color:#64748b;">Sent ' + escapeHtml(inv.invitedAt || '') + '</span>' +
                   '</div>' +
                 '</div>' +
                 '<div style="display:flex;gap:6px;">' +
@@ -4483,7 +5040,7 @@
 
       if (tabKey === 'calendar') renderCalendar();
       if (tabKey === 'gameday') { renderGameRoster(); renderGamePitch(); }
-      if (tabKey === 'builder') { renderSessionParts(); renderRoster(); }
+      if (tabKey === 'builder') { renderRoster(); renderSessionParts(); }
       if (tabKey === 'drills') renderDrillLibrary();
       if (tabKey === 'videos') renderVideoLibrary();
       if (tabKey === 'roster') renderRoster();
@@ -4508,8 +5065,11 @@
         name: currentUser.displayName || cleanEmail.split('@')[0],
         role: existing.role || 'Assistant Coach',
         teams: updatedTeams,
-        libraryAccess: { drills: true, videos: true }
+        libraryAccess: { drills: true, videos: true },
+        acceptedAt: existing.acceptedAt || getLocalTodayIso(),
+        lastSignedInAt: getLocalTodayIso()
       });
+      markCoachInviteAccepted(cleanEmail, currentUser.displayName);
       persistCurrentTeamState();
       applyAccessControlUI();
       if (!activeTeamName || !userTeams.includes(activeTeamName)) {
@@ -4527,14 +5087,22 @@
       isDemoUser = Boolean(isBypass);
 
       const cleanEmail = String(currentUser.email || '').trim().toLowerCase();
-      if (cleanEmail && !userAccessRegistry[cleanEmail]) {
-        const seedPerms = computeUserPermissions(cleanEmail);
-        saveUserAccessProfile(cleanEmail, {
-          name: currentUser.displayName || cleanEmail.split('@')[0],
-          role: seedPerms.role,
-          teams: seedPerms.teams,
-          libraryAccess: seedPerms.libraryAccess
-        });
+      if (cleanEmail) {
+        if (!userAccessRegistry[cleanEmail]) {
+          const seedPerms = computeUserPermissions(cleanEmail);
+          saveUserAccessProfile(cleanEmail, {
+            name: currentUser.displayName || cleanEmail.split('@')[0],
+            role: seedPerms.role,
+            teams: seedPerms.teams,
+            libraryAccess: seedPerms.libraryAccess,
+            acceptedAt: getLocalTodayIso(),
+            lastSignedInAt: getLocalTodayIso()
+          });
+        }
+        if (!isBypass) {
+          markCoachInviteAccepted(cleanEmail, currentUser.displayName);
+          persistCurrentTeamState();
+        }
       }
 
       const overlay = document.getElementById('authGateOverlay');
@@ -4580,7 +5148,6 @@
        DOM CONTENT LOADED INITIALIZATION
        ========================================================= */
     document.addEventListener('DOMContentLoaded', () => {
-      // Parse Smart Invite URL Parameters (?mode=register&email=...&name=...&codes=...)
       const urlParams = new URLSearchParams(window.location.search || '');
       const paramMode = (urlParams.get('mode') || '').trim().toLowerCase();
       const paramEmail = (urlParams.get('email') || '').trim();
@@ -4588,7 +5155,6 @@
       const paramCodes = (urlParams.get('codes') || '').trim().toUpperCase();
       const isSmartInviteLink = paramMode === 'register' || Boolean(paramCodes);
 
-      // Show preview-only bypass button strictly in hosted preview environments
       const previewBypassWrap = document.getElementById('previewBypassWrap');
       const previewBypassBtn = document.getElementById('previewBypassLoginBtn');
       if (previewBypassWrap && isHostedPreviewEnvironment()) {
@@ -4601,7 +5167,6 @@
         };
       }
 
-      // Restore cached coach session ONLY if not opening a fresh Smart Invite Registration link
       if (!isSmartInviteLink) {
         try {
           const cachedCoach = JSON.parse(localStorage.getItem('afc_last_signed_in_coach') || 'null');
@@ -4611,19 +5176,32 @@
         } catch (e) {}
       }
 
-      // Default dates
       const todayIso = getLocalTodayIso();
       const sessDateEl = document.getElementById('sessionDateInput');
       const gameDateEl = document.getElementById('gameDateInput');
       if (sessDateEl && !sessDateEl.value) sessDateEl.value = todayIso;
       if (gameDateEl && !gameDateEl.value) gameDateEl.value = todayIso;
 
-      // Initial background sync
       renderSessionParts();
       renderGamePitch();
       renderSubLogList();
       syncDrillsFromGitHubRepo();
       syncVideosFromGoogleSheet();
+
+      // Player Attendance Profile Modal Close Handlers
+      const playerAttModal = document.getElementById('playerAttendanceModal');
+      const closePlayerAttBtn = document.getElementById('closePlayerAttModalBtn');
+      const donePlayerAttBtn = document.getElementById('donePlayerAttModalBtn');
+      const closePlayerAttProfile = () => {
+        if (playerAttModal) playerAttModal.classList.remove('open');
+      };
+      if (closePlayerAttBtn) closePlayerAttBtn.onclick = closePlayerAttProfile;
+      if (donePlayerAttBtn) donePlayerAttBtn.onclick = closePlayerAttProfile;
+      if (playerAttModal) {
+        playerAttModal.addEventListener('click', (e) => {
+          if (e.target === playerAttModal) closePlayerAttProfile();
+        });
+      }
 
       // Pending Access Gate & Library Lock Unlock Buttons
       const pendingUnlockBtn = document.getElementById('pendingGateUnlockBtn');
@@ -4669,7 +5247,6 @@
         };
       }
 
-      // Settings: Select All Teams Toggle for Invite Form
       const inviteSelectAllBtn = document.getElementById('inviteSelectAllTeamsBtn');
       if (inviteSelectAllBtn) {
         inviteSelectAllBtn.onclick = () => {
@@ -4720,6 +5297,7 @@
           sendCoachInviteBtn.textContent = 'Sending Invite...';
 
           const existingIdx = coachInvitesRegistry.findIndex(c => c.email.toLowerCase() === email);
+          const existingInv = existingIdx >= 0 ? coachInvitesRegistry[existingIdx] : null;
           const record = {
             email,
             name,
@@ -4727,7 +5305,9 @@
             teams: selectedTeams,
             role,
             invitedBy: (currentUser && currentUser.email) || CLUB_ADMIN_EMAIL,
-            invitedAt: getLocalTodayIso()
+            invitedAt: getLocalTodayIso(),
+            accepted: Boolean(existingInv && existingInv.accepted),
+            acceptedAt: (existingInv && existingInv.acceptedAt) || ''
           };
           if (existingIdx >= 0) coachInvitesRegistry[existingIdx] = record;
           else coachInvitesRegistry.unshift(record);
@@ -4817,7 +5397,6 @@
         };
       }
 
-      // Firebase Auth State Listener (ignores anonymous background auth users)
       if (auth) {
         auth.onAuthStateChanged((user) => {
           if (user && !user.isAnonymous && user.email) {
@@ -4826,7 +5405,6 @@
         });
       }
 
-      // Google Sign-In Button
       const googleBtn = document.getElementById('googleSignInBtn');
       const authStatusEl = document.getElementById('authStatusText');
       if (googleBtn) {
@@ -4853,7 +5431,6 @@
                   }
                 }
                 enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName || res.user.email.split('@')[0] }, false);
-                persistCurrentTeamState();
                 showToast('Signed in with Google!');
                 return;
               }
@@ -4877,7 +5454,6 @@
         };
       }
 
-      // Google Account Picker Fallback Modal Controls (Preview Only)
       const pickerModal = document.getElementById('googleAccountPickerModal');
       if (pickerModal) {
         const closeBtn = document.getElementById('pickerCloseBtn');
@@ -4909,7 +5485,6 @@
         }
       }
 
-      // Email / Password Form + Registration Team Join Code Validation
       const emailForm = document.getElementById('emailPasswordForm');
       const toggleModeBtn = document.getElementById('toggleAuthModeBtn');
       const nameFieldWrap = document.getElementById('authNameFieldWrap');
@@ -4942,7 +5517,6 @@
         toggleModeBtn.onclick = () => setRegistrationMode(!isRegisterMode);
       }
 
-      // Apply Smart Invite URL Pre-fill (?mode=register&email=...&name=...&codes=...)
       if (isSmartInviteLink) {
         setRegistrationMode(true);
         const inviteBanner = document.getElementById('invitePrefillBanner');
@@ -5044,7 +5618,6 @@
 
               enterWorkspaceAsCoach({ email: finalEmail, displayName: (u && u.displayName) || nameVal || finalEmail.split('@')[0] }, false);
               if (isRegisterMode && validatedRegTeams.length > 0) {
-                persistCurrentTeamState();
                 showToast('Registered & unlocked ' + validatedRegTeams.join(', ') + '!');
               } else {
                 showToast(isRegisterMode ? 'Account created & signed in!' : 'Signed in!');
@@ -5072,18 +5645,15 @@
         };
       }
 
-      // Sign Out button in Settings
       const settingsSignOutBtn = document.getElementById('settingsSignOutBtn');
       if (settingsSignOutBtn) {
         settingsSignOutBtn.onclick = () => signOutCoach();
       }
 
-      // Tab buttons
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
       });
 
-      // Team Selectors (Session Builder, Game Day & Master Roster)
       const handleTeamChange = (newTeam) => {
         if (newTeam && newTeam !== activeTeamName && userTeams.includes(newTeam)) {
           persistCurrentTeamState();
@@ -5098,7 +5668,6 @@
       if (gameTeamSel) gameTeamSel.onchange = function() { handleTeamChange(this.value); };
       if (rosterTeamSel) rosterTeamSel.onchange = function() { handleTeamChange(this.value); };
 
-      // Calendar View Switchers & Navigation
       document.querySelectorAll('.cal-view-btn').forEach(btn => {
         btn.onclick = function() {
           calendarViewMode = this.getAttribute('data-cal-view') || 'month';
@@ -5172,9 +5741,18 @@
           if (existingIdx >= 0) savedGames[existingIdx] = gameRecord;
           else savedGames.push(gameRecord);
           currentEditingGameId = gameRecord.id;
+
+          recordEventAttendanceSnapshot({
+            eventId: gameRecord.id,
+            eventType: 'game',
+            title: 'Match vs ' + gameRecord.opponent,
+            date: gameRecord.date
+          });
+
           persistCurrentTeamState();
           renderCalendar();
-          showToast('Game vs ' + gameRecord.opponent + ' saved to Calendar!');
+          renderRoster();
+          showToast('Game vs ' + gameRecord.opponent + ' & attendance saved!');
         };
       }
       const newBlankGameBtn = document.getElementById('newBlankGameBtn');
@@ -5236,7 +5814,6 @@
         };
       });
 
-      // Game Day Lineup & Subs Controls
       const h1Btn = document.getElementById('selectHalf1Btn');
       const h2Btn = document.getElementById('selectHalf2Btn');
       if (h1Btn && h2Btn) {
@@ -5364,7 +5941,9 @@
             duration: 15,
             gifUrl: '',
             coachingPoints: '',
-            notes: ''
+            notes: '',
+            scrimmageNavy: [],
+            scrimmageWhite: []
           });
           renderSessionParts();
         };
@@ -5374,21 +5953,40 @@
       if (saveSessionBtn) {
         saveSessionBtn.onclick = () => {
           if (!activeTeamName) return showToast('Join a team first to save sessions.');
+          const attendanceSnapshot = rosterPlayers.map(p => {
+            normalizePlayerAttendanceModel(p);
+            return {
+              name: p.name,
+              status: p.attendanceStatus,
+              reason: p.attendanceStatus === 'present' ? '' : (p.absenceReason || '')
+            };
+          });
+
           const sessRecord = {
             id: currentEditingSessionId || ('sess_' + Date.now()),
             team: activeTeamName,
             title: (document.getElementById('sessionTitleInput').value || 'Training Session').trim(),
             date: document.getElementById('sessionDateInput').value || getLocalTodayIso(),
             coach: document.getElementById('sessionCoachInput').value || 'Ambassadors FC Staff',
-            parts: JSON.parse(JSON.stringify(currentSessionParts))
+            parts: JSON.parse(JSON.stringify(currentSessionParts)),
+            attendanceSnapshot
           };
           const idx = savedSessions.findIndex(s => s.id === sessRecord.id);
           if (idx >= 0) savedSessions[idx] = sessRecord;
           else savedSessions.push(sessRecord);
           currentEditingSessionId = sessRecord.id;
+
+          recordEventAttendanceSnapshot({
+            eventId: sessRecord.id,
+            eventType: 'session',
+            title: sessRecord.title,
+            date: sessRecord.date
+          });
+
           persistCurrentTeamState();
           renderCalendar();
-          showToast('Saved "' + sessRecord.title + '" to Calendar!');
+          renderRoster();
+          showToast('Saved "' + sessRecord.title + '" & attendance log to Calendar!');
         };
       }
 
@@ -5419,14 +6017,20 @@
           newPlayerInput.value = '';
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
         };
       }
       const markAllBtn = document.getElementById('markAllPresentBtn');
       if (markAllBtn) {
         markAllBtn.onclick = () => {
-          rosterPlayers.forEach(p => p.present = true);
+          rosterPlayers.forEach(p => {
+            p.present = true;
+            p.attendanceStatus = 'present';
+            p.absenceReason = '';
+          });
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
         };
       }
 
@@ -5440,6 +6044,7 @@
           masterInput.value = '';
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
           showToast('Added ' + parsed.name + ' to ' + activeTeamName + ' roster!');
         };
         masterAddBtn.onclick = handleMasterAdd;
@@ -5449,9 +6054,14 @@
       const masterAllPresentBtn = document.getElementById('masterMarkAllPresentBtn');
       if (masterAllPresentBtn) {
         masterAllPresentBtn.onclick = () => {
-          rosterPlayers.forEach(p => p.present = true);
+          rosterPlayers.forEach(p => {
+            p.present = true;
+            p.attendanceStatus = 'present';
+            p.absenceReason = '';
+          });
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
           showToast('Marked all players present!');
         };
       }
@@ -5499,6 +6109,7 @@
           bulkTextarea.value = '';
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
           showToast('Added ' + parsedList.length + ' players to ' + activeTeamName + '!');
         };
       }
@@ -5511,6 +6122,7 @@
           bulkTextarea.value = '';
           persistCurrentTeamState();
           renderRoster();
+          renderSessionParts();
           renderGameRoster();
           showToast('Replaced roster with ' + parsedList.length + ' players!');
         };
@@ -5600,6 +6212,7 @@
       }
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          if (playerAttModal && playerAttModal.classList.contains('open')) closePlayerAttProfile();
           if (diagModal && diagModal.classList.contains('open')) closeDiagramLightbox();
           if (vidModal && vidModal.classList.contains('open')) closeVideoPlayer();
         }
