@@ -1232,7 +1232,7 @@
       </div>
     </section>
 
-    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite + Automatic Backend Sync) -->
+    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite + Live Automatic Backend Sync) -->
     <section id="tab-drills" class="workspace-section">
       <div id="drillLibraryLockedPanel" style="display:none;">
         <div class="locked-gate-card">
@@ -1253,7 +1253,7 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your Google Sheet drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Live-synced automatically from your Google Sheet drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
           </div>
         </div>
 
@@ -1378,7 +1378,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.8</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.9</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1472,7 +1472,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.8</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.9</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1725,13 +1725,16 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.8';
+    const APP_VERSION = '2.6.9';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
+    const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
 
     let drillsGoogleSheetId = DRILLS_GOOGLE_SHEET_ID;
+    let drillsLiveSyncTimer = null;
+    let isDrillsSyncInFlight = false;
     try {
       localStorage.setItem('afc_drills_google_sheet_id', DRILLS_GOOGLE_SHEET_ID);
     } catch (e) {}
@@ -1743,6 +1746,7 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.9', date: '2026-11-23', note: 'Live Auto-Refreshing Drill Library Sync: Multi-endpoint CSV + GViz + GID sync with automatic live updates as new URLs and rows are added to the spreadsheet.' },
         { version: '2.6.8', date: '2026-11-22', note: 'Connected Drills Google Sheet (1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4) directly into the backend for automatic background syncing.' },
         { version: '2.6.7', date: '2026-11-22', note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.' },
         { version: '2.6.6', date: '2026-11-22', note: 'Google Sheet Drill Library Sync: Added backend Google Sheet drill loader supporting Title, Category, Duration, GIF_URL, Tags, Coaching_Points, and Notes.' },
@@ -1754,11 +1758,11 @@
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.8')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.9')) {
       versionHistoryLog.unshift({
-        version: '2.6.8',
-        date: '2026-11-22',
-        note: 'Connected Drills Google Sheet (1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4) directly into the backend for automatic background syncing.'
+        version: '2.6.9',
+        date: '2026-11-23',
+        note: 'Live Auto-Refreshing Drill Library Sync: Multi-endpoint CSV + GViz + GID sync with automatic live updates as new URLs and rows are added to the spreadsheet.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2671,7 +2675,7 @@
     }
 
     /* =========================================================
-       DRILL LIBRARY & AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB)
+       DRILL LIBRARY & LIVE AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB)
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
@@ -2718,80 +2722,102 @@
     })();
 
     async function syncDrillsFromGoogleSheet() {
-      if (!drillsGoogleSheetId) return false;
-      const parseCsvRows = (csvText) => {
-        const rows = [];
-        let row = [];
-        let cur = '';
-        let inQuotes = false;
-        for (let i = 0; i < csvText.length; i++) {
-          const ch = csvText[i];
-          const next = csvText[i + 1];
-          if (inQuotes) {
-            if (ch === '"' && next === '"') { cur += '"'; i++; }
-            else if (ch === '"') { inQuotes = false; }
-            else { cur += ch; }
-          } else {
-            if (ch === '"') { inQuotes = true; }
-            else if (ch === ',') { row.push(cur.trim()); cur = ''; }
-            else if (ch === '\r' && next === '\n') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; i++; }
-            else if (ch === '\n' || ch === '\r') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; }
-            else { cur += ch; }
+      if (!drillsGoogleSheetId || isDrillsSyncInFlight) return false;
+      isDrillsSyncInFlight = true;
+      try {
+        const parseCsvRows = (csvText) => {
+          const rows = [];
+          let row = [];
+          let cur = '';
+          let inQuotes = false;
+          for (let i = 0; i < csvText.length; i++) {
+            const ch = csvText[i];
+            const next = csvText[i + 1];
+            if (inQuotes) {
+              if (ch === '"' && next === '"') { cur += '"'; i++; }
+              else if (ch === '"') { inQuotes = false; }
+              else { cur += ch; }
+            } else {
+              if (ch === '"') { inQuotes = true; }
+              else if (ch === ',') { row.push(cur.trim()); cur = ''; }
+              else if (ch === '\r' && next === '\n') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; i++; }
+              else if (ch === '\n' || ch === '\r') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; }
+              else { cur += ch; }
+            }
           }
+          if (cur.length > 0 || row.length > 0) { row.push(cur.trim()); rows.push(row); }
+          return rows;
+        };
+
+        const normalizeCategoryLabel = (raw) => {
+          const s = String(raw || '').trim().toLowerCase();
+          if (!s) return 'Technical';
+          if (s.includes('warm')) return 'Warm-Up';
+          if (s.includes('tactic')) return 'Tactical';
+          if (s.includes('scrim')) return 'Scrimmage';
+          if (s.includes('fit') || s.includes('cond')) return 'Fitness';
+          return 'Technical';
+        };
+
+        const targets = [];
+        const seenSheetKeys = new Set();
+        const gidToNameMap = {};
+
+        const addTarget = (sheetName, gid) => {
+          const cleanName = String(sheetName || '').trim();
+          const cleanGid = String(gid || '').trim();
+          const key = cleanGid ? ('gid:' + cleanGid) : ('name:' + cleanName.toLowerCase());
+          if (!cleanName && !cleanGid) return;
+          if (seenSheetKeys.has(key)) return;
+          seenSheetKeys.add(key);
+          targets.push({ sheetName: cleanName, gid: cleanGid });
+        };
+
+        for (const pubEndpoint of ['pubhtml', 'htmlview', 'edit']) {
+          try {
+            const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/' + pubEndpoint + '?cb=' + Date.now(), { cache: 'no-store' });
+            if (pubResp.ok) {
+              const html = await pubResp.text();
+              for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"[^}]*gid=(\d+)/g)) {
+                if (m[1] && m[2]) {
+                  gidToNameMap[m[2].trim()] = m[1].trim();
+                  addTarget(m[1].trim(), m[2].trim());
+                }
+              }
+              for (const m of html.matchAll(/\[(\d{4,}),\s*\d+,\s*"([^"\\]+)"/g)) {
+                if (m[1] && m[2]) {
+                  gidToNameMap[m[1].trim()] = m[2].trim();
+                  addTarget(m[2].trim(), m[1].trim());
+                }
+              }
+              for (const m of html.matchAll(/id="sheet-button-(\d+)"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
+                if (m[1] && m[2]) {
+                  gidToNameMap[m[1].trim()] = m[2].trim();
+                  addTarget(m[2].trim(), m[1].trim());
+                }
+              }
+              for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"/g)) {
+                if (m[1]) addTarget(m[1].trim(), '');
+              }
+            }
+          } catch (e) {}
         }
-        if (cur.length > 0 || row.length > 0) { row.push(cur.trim()); rows.push(row); }
-        return rows;
-      };
 
-      const normalizeCategoryLabel = (raw) => {
-        const s = String(raw || '').trim().toLowerCase();
-        if (!s) return 'Technical';
-        if (s.includes('warm')) return 'Warm-Up';
-        if (s.includes('tactic')) return 'Tactical';
-        if (s.includes('scrim')) return 'Scrimmage';
-        if (s.includes('fit') || s.includes('cond')) return 'Fitness';
-        return 'Technical';
-      };
+        ['Warm-Up', 'Technical', 'Tactical', 'Scrimmage', 'Fitness', 'Sheet1'].forEach(t => addTarget(t, ''));
+        DRILLS_DEFAULT_GIDS.forEach(g => addTarget(gidToNameMap[g] || '', g));
 
-      const discoveredTabNames = new Set(['Warm-Up', 'Technical', 'Tactical', 'Scrimmage', 'Fitness']);
-      for (const pubEndpoint of ['pubhtml', 'htmlview', 'edit']) {
-        try {
-          const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/' + pubEndpoint, { cache: 'no-store' });
-          if (pubResp.ok) {
-            const html = await pubResp.text();
-            for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"/g)) {
-              if (m[1]) discoveredTabNames.add(m[1].trim());
-            }
-            for (const m of html.matchAll(/id="sheet-button-\d+"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
-              if (m[1]) discoveredTabNames.add(m[1].trim());
-            }
-            for (const m of html.matchAll(/\[\d{4,},\s*\d+,\s*"([^"\\]+)"/g)) {
-              if (m[1]) discoveredTabNames.add(m[1].trim());
-            }
-          }
-        } catch (e) {}
-      }
+        const sheetDrills = [];
+        const seenRecords = new Set();
 
-      const targets = Array.from(discoveredTabNames).map(t => ({ sheetName: t }));
-      const sheetDrills = [];
-      const seenTitles = new Set();
-
-      for (const target of targets) {
-        try {
-          const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
-            '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(target.sheetName) + '&cb=' + Date.now();
-          const resp = await fetch(csvUrl, { cache: 'no-store' });
-          if (!resp.ok) continue;
-          const text = await resp.text();
-          if (!text || text.trim().startsWith('<!DOCTYPE')) continue;
-          const matrix = parseCsvRows(text);
-          if (!matrix.length) continue;
-
+        const ingestDrillMatrix = (matrix, fallbackCatLabel) => {
+          if (!Array.isArray(matrix) || !matrix.length) return;
           let headerMap = null;
+
           matrix.forEach((vals, rIdx) => {
             if (!vals || !vals.some(Boolean)) return;
             const lower = vals.map(v => String(v || '').toLowerCase().trim());
-            if (!headerMap && lower.some(h => h === 'title' || h === 'drill' || h === 'name' || h.includes('gif') || h.includes('coaching'))) {
+
+            if (!headerMap && lower.some(h => h === 'title' || h === 'drill' || h === 'name' || h.includes('gif') || h.includes('coaching') || h === 'url' || h === 'link')) {
               headerMap = {
                 titleIdx: lower.findIndex(h => h.includes('title') || h === 'drill' || h === 'name'),
                 catIdx: lower.findIndex(h => h.includes('cat')),
@@ -2804,27 +2830,47 @@
               return;
             }
 
-            const titleVal = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : vals[0] || '').trim();
-            if (!titleVal || /^title$/i.test(titleVal)) return;
-
-            const rawCat = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : (target.sheetName || vals[1] || '')).trim();
+            let titleVal = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : vals[0] || '').trim();
+            const rawCat = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : (fallbackCatLabel || vals[1] || '')).trim();
             const rawDur = (headerMap && headerMap.durIdx >= 0 ? vals[headerMap.durIdx] : vals[2] || '15').trim();
-            const rawGif = (headerMap && headerMap.gifIdx >= 0 ? vals[headerMap.gifIdx] : vals[3] || '').trim();
+            let rawGif = (headerMap && headerMap.gifIdx >= 0 ? vals[headerMap.gifIdx] : vals[3] || '').trim();
             const rawTags = (headerMap && headerMap.tagsIdx >= 0 ? vals[headerMap.tagsIdx] : vals[4] || '').trim();
             const rawCp = (headerMap && headerMap.cpIdx >= 0 ? vals[headerMap.cpIdx] : vals[5] || '').trim();
             const rawNotes = (headerMap && headerMap.notesIdx >= 0 ? vals[headerMap.notesIdx] : vals[6] || '').trim();
 
-            const dedupeKey = titleVal.toLowerCase();
-            if (seenTitles.has(dedupeKey)) return;
-            seenTitles.add(dedupeKey);
+            if (!rawGif) {
+              const urlInRow = vals.find(c => /^(https?:\/\/|drills\/)/i.test(String(c || '').trim()));
+              if (urlInRow) rawGif = urlInRow.trim();
+            }
+
+            if (/^(https?:\/\/|drills\/)/i.test(titleVal) && !rawGif) {
+              rawGif = titleVal;
+              titleVal = '';
+            }
+
+            if (!titleVal && rawGif) {
+              const nonUrlText = vals.find(c => c && c.trim() !== rawGif && !/^\d+$/.test(c.trim()) && !/^(warm-up|technical|tactical|scrimmage|fitness)$/i.test(c.trim()));
+              if (nonUrlText) {
+                titleVal = nonUrlText.trim();
+              } else {
+                const fileSeg = decodeURIComponent(rawGif.split('/').pop().split('?')[0] || '');
+                titleVal = fileSeg.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()) || ('Drill #' + (sheetDrills.length + 1));
+              }
+            }
+
+            if (!titleVal || /^title$/i.test(titleVal)) return;
+
+            const dedupeKey = (titleVal.toLowerCase() + '|' + rawGif.toLowerCase());
+            if (seenRecords.has(dedupeKey)) return;
+            seenRecords.add(dedupeKey);
 
             const formattedCp = rawCp.replace(/\s*\|\s*/g, '\n');
             const tagsArr = rawTags ? rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean) : [];
 
             sheetDrills.push({
-              id: 'gs_drill_' + rIdx + '_' + dedupeKey.replace(/[^a-z0-9]/g, '_'),
+              id: 'gs_drill_' + rIdx + '_' + titleVal.toLowerCase().replace(/[^a-z0-9]/g, '_'),
               title: titleVal,
-              category: normalizeCategoryLabel(rawCat || target.sheetName),
+              category: normalizeCategoryLabel(rawCat || fallbackCatLabel),
               duration: parseInt(rawDur, 10) || 15,
               gifUrl: rawGif,
               tags: tagsArr,
@@ -2832,24 +2878,86 @@
               notes: rawNotes
             });
           });
-        } catch (e) {}
-      }
+        };
 
-      if (sheetDrills.length > 0) {
-        const merged = [...sheetDrills];
-        const sheetTitles = new Set(sheetDrills.map(d => d.title.toLowerCase()));
-        drillLibrary.forEach(existing => {
-          if (!sheetTitles.has(String(existing.title || '').toLowerCase())) {
-            merged.push(existing);
+        for (const target of targets) {
+          let loadedTarget = false;
+          const queryParam = target.gid
+            ? ('gid=' + encodeURIComponent(target.gid))
+            : ('sheet=' + encodeURIComponent(target.sheetName));
+
+          try {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
+              '/gviz/tq?tqx=out:csv&' + queryParam + '&cb=' + Date.now();
+            const resp = await fetch(csvUrl, { cache: 'no-store' });
+            if (resp.ok) {
+              const text = await resp.text();
+              if (text && !text.trim().startsWith('<!DOCTYPE')) {
+                const matrix = parseCsvRows(text);
+                if (matrix.length > 0) {
+                  ingestDrillMatrix(matrix, target.sheetName || gidToNameMap[target.gid] || '');
+                  loadedTarget = true;
+                }
+              }
+            }
+          } catch (e) {}
+
+          if (!loadedTarget) {
+            try {
+              const gvizUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
+                '/gviz/tq?tqx=out:json&' + queryParam + '&cb=' + Date.now();
+              const resp = await fetch(gvizUrl, { cache: 'no-store' });
+              if (resp.ok) {
+                const text = await resp.text();
+                const jsonStr = text.replace(/^[^{]+/, '').replace(/[^}]+$/, '');
+                const data = JSON.parse(jsonStr);
+                if (data.status !== 'error' && data.table && Array.isArray(data.table.rows)) {
+                  const cols = (data.table.cols || []).map(c => String((c && c.label) || '').trim());
+                  const matrix = [];
+                  if (cols.some(Boolean)) matrix.push(cols);
+                  data.table.rows.forEach(r => {
+                    const cells = (r && r.c) || [];
+                    matrix.push(cells.map(c => {
+                      if (!c) return '';
+                      const vStr = c.v != null ? String(c.v).trim() : '';
+                      const fStr = c.f != null ? String(c.f).trim() : '';
+                      if (/^https?:\/\//i.test(vStr)) return vStr;
+                      if (/^https?:\/\//i.test(fStr)) return fStr;
+                      const hrefMatch = fStr.match(/href=["'](https?:\/\/[^"']+)["']/i);
+                      if (hrefMatch) return hrefMatch[1];
+                      return vStr || fStr;
+                    }));
+                  });
+                  ingestDrillMatrix(matrix, target.sheetName || gidToNameMap[target.gid] || '');
+                }
+              }
+            } catch (e) {}
           }
-        });
-        drillLibrary = merged;
-        persistCurrentTeamState();
-        renderDrillLibrary();
-        updateWorkspaceBadges();
-        return true;
+        }
+
+        if (sheetDrills.length > 0) {
+          const prevFingerprint = JSON.stringify(drillLibrary.map(d => [d.title, d.category, d.gifUrl, d.duration, d.coachingPoints]));
+          const merged = [...sheetDrills];
+          const sheetTitles = new Set(sheetDrills.map(d => d.title.toLowerCase()));
+          drillLibrary.forEach(existing => {
+            if (!sheetTitles.has(String(existing.title || '').toLowerCase())) {
+              merged.push(existing);
+            }
+          });
+          const nextFingerprint = JSON.stringify(merged.map(d => [d.title, d.category, d.gifUrl, d.duration, d.coachingPoints]));
+
+          if (prevFingerprint !== nextFingerprint) {
+            drillLibrary = merged;
+            persistCurrentTeamState();
+            renderDrillLibrary();
+            updateWorkspaceBadges();
+          }
+          return true;
+        }
+        return false;
+      } finally {
+        isDrillsSyncInFlight = false;
       }
-      return false;
     }
 
     function resolveDrillMediaUrl(rawUrl) {
@@ -5222,7 +5330,10 @@
       if (tabKey === 'calendar') renderCalendar();
       if (tabKey === 'gameday') { renderGameRoster(); renderGamePitch(); }
       if (tabKey === 'builder') { renderRoster(); renderSessionParts(); }
-      if (tabKey === 'drills') renderDrillLibrary();
+      if (tabKey === 'drills') {
+        renderDrillLibrary();
+        syncDrillsFromGoogleSheet();
+      }
       if (tabKey === 'videos') renderVideoLibrary();
       if (tabKey === 'roster') renderRoster();
       if (tabKey === 'settings') renderSettingsPanel();
@@ -5369,6 +5480,25 @@
       syncDrillsFromGoogleSheet();
       syncDrillsFromGitHubRepo();
       syncVideosFromGoogleSheet();
+
+      // Automatic live background refresh as new URLs are added to the Drills Google Sheet
+      if (!drillsLiveSyncTimer) {
+        drillsLiveSyncTimer = setInterval(() => {
+          if (document.visibilityState === 'visible' && activeTabKey === 'drills') {
+            syncDrillsFromGoogleSheet();
+          }
+        }, 25000);
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          syncDrillsFromGoogleSheet();
+        }
+      });
+      window.addEventListener('focus', () => {
+        if (activeTabKey === 'drills') {
+          syncDrillsFromGoogleSheet();
+        }
+      });
 
       // Player Attendance Profile Modal Close Handlers
       const playerAttModal = document.getElementById('playerAttendanceModal');
