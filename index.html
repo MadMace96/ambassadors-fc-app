@@ -528,6 +528,31 @@
       border-radius: 999px;
       margin: 2px 4px 2px 0;
     }
+    .quick-tag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f5f9;
+      color: #0A2647;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.71rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      margin: 2px 4px 2px 0;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .quick-tag-btn:hover {
+      background: #eff6ff;
+      border-color: #1e4e8c;
+    }
+    .quick-tag-btn.active {
+      background: #0A2647;
+      color: #ffffff;
+      border-color: #0A2647;
+    }
 
     /* Locked Access Gate Panel */
     .locked-gate-card {
@@ -1386,7 +1411,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.4</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.5</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1480,7 +1505,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.4</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.5</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1532,6 +1557,58 @@
 
       <div style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;">
         <button type="button" class="btn btn-primary btn-sm" id="donePlayerAttModalBtn">Close Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin-Only Drill Tags & Info Editor Modal -->
+  <div id="drillEditModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:520px;width:96%;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+        <div>
+          <span class="badge badge-navy">Admin Drill Editor</span>
+          <h3 style="margin:4px 0 0;font-size:1.05rem;font-weight:900;color:#0A2647;">Edit Drill Tags &amp; Info</h3>
+        </div>
+        <button type="button" id="closeDrillEditModalBtn" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#0f172a;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <p style="margin:0 0 12px;font-size:0.78rem;color:#64748b;">Assign multiple #tags (e.g. <strong>Finishing, Give and Go</strong>) and update coaching points. Syncs across all coaches' devices.</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label class="label" for="modalDrillTitleInput">Drill Title</label>
+          <input type="text" id="modalDrillTitleInput" class="input" placeholder="e.g. Double Give and Go Finishing">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 84px;gap:8px;">
+          <div>
+            <label class="label" for="modalDrillCategoryInput">Category</label>
+            <input type="text" id="modalDrillCategoryInput" class="input" placeholder="Technical">
+          </div>
+          <div>
+            <label class="label" for="modalDrillSubCategoryInput">Sub-Category</label>
+            <input type="text" id="modalDrillSubCategoryInput" class="input" placeholder="Passing">
+          </div>
+          <div>
+            <label class="label" for="modalDrillDurationInput">Mins</label>
+            <input type="number" id="modalDrillDurationInput" class="input" min="1" max="120" value="15">
+          </div>
+        </div>
+        <div>
+          <label class="label" for="modalDrillTagsInput">Multiple #Tags (comma-separated)</label>
+          <input type="text" id="modalDrillTagsInput" class="input" placeholder="e.g. Finishing, Give and Go, 1-touch, Shooting">
+          <div style="margin-top:6px;">
+            <div style="font-size:0.68rem;font-weight:800;color:#64748b;margin-bottom:4px;">Quick-Toggle Common Tags:</div>
+            <div id="modalDrillQuickTagsWrap" style="display:flex;flex-wrap:wrap;"></div>
+          </div>
+        </div>
+        <div>
+          <label class="label" for="modalDrillPointsInput">Coaching Points</label>
+          <textarea id="modalDrillPointsInput" class="textarea" rows="3" placeholder="• Check shoulder before receiving&#10;• Firm 1-touch wall passes"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn btn-outline btn-sm" id="cancelDrillEditModalBtn">Cancel</button>
+        <button type="button" class="btn btn-emerald btn-sm" id="saveDrillEditModalBtn">Save Drill Changes</button>
       </div>
     </div>
   </div>
@@ -1722,7 +1799,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.7.4';
+    const APP_VERSION = '2.7.5';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
@@ -1743,19 +1820,18 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.7.5', date: '2026-11-23', note: 'Added Admin-Only "Edit Tags & Info" button on Drill Library cards with multi-tag quick-toggle chips (Finishing, Give and Go, Passing, Triangle Passing, etc.) and Firestore cloud persistence.' },
         { version: '2.7.4', date: '2026-11-23', note: 'Removed the Drill Library filter subtitle text and added exact GIF path diagnostics inside the enlarged modal when a GitHub link fails to load.' },
-        { version: '2.7.3', date: '2026-11-23', note: 'Removed the Download Banner-Free .GIF box from the enlarged GIF modal and added smart GitHub path & filename fallback resolution (handling subfolders, raw.githubusercontent.com, and github.io paths) so GIFs display cleanly.' },
+        { version: '2.7.3', date: '2026-11-23', note: 'Removed the Download Banner-Free .GIF box from the enlarged GIF modal and added smart GitHub path & filename fallback resolution.' },
         { version: '2.7.2', date: '2026-11-23', note: '3-Tier Drill Hierarchy (Category -> Sub-Category -> Tags) & Same-Origin GitHub Pages GIF Loader.' },
-        { version: '2.7.1', date: '2026-11-23', note: 'Fixed GitHub /blob/ GIF URLs & Sub-Category Parsing.' },
-        { version: '2.7.0', date: '2026-11-23', note: 'Fixed Drill Library Google Drive Media & Full Multi-Tab HTML/CSV Sync.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.4')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.5')) {
       versionHistoryLog.unshift({
-        version: '2.7.4',
+        version: '2.7.5',
         date: '2026-11-23',
-        note: 'Removed the Drill Library filter subtitle text and added exact GIF path diagnostics inside the enlarged modal when a GitHub link fails to load.'
+        note: 'Added Admin-Only "Edit Tags & Info" button on Drill Library cards with multi-tag quick-toggle chips (Finishing, Give and Go, Passing, Triangle Passing, etc.) and Firestore cloud persistence.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2290,6 +2366,28 @@
         try { localStorage.setItem('afc_drills_google_sheet_id', drillsGoogleSheetId); } catch (e) {}
         syncDrillsFromGoogleSheet();
       }
+      if (Array.isArray(data.drills) && data.drills.length > 0) {
+        const customEditedMap = new Map();
+        data.drills.forEach(cd => {
+          if (cd && cd.customEdited) {
+            customEditedMap.set(String(cd.gifUrl || cd.title || '').toLowerCase(), cd);
+          }
+        });
+        if (customEditedMap.size > 0) {
+          let updatedAny = false;
+          drillLibrary.forEach(localD => {
+            const k = String(localD.gifUrl || localD.title || '').toLowerCase();
+            const match = customEditedMap.get(k);
+            if (match && (!localD.updatedAt || (match.updatedAt || 0) > localD.updatedAt)) {
+              Object.assign(localD, match);
+              updatedAny = true;
+            }
+          });
+          if (updatedAny) {
+            try { localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary)); } catch (e) {}
+          }
+        }
+      }
       if (Array.isArray(data.clubTeams) && data.clubTeams.length > 0) {
         const mergedTeams = [...clubTeamsRegistry];
         data.clubTeams.forEach(ct => {
@@ -2669,7 +2767,7 @@
 
     /* =========================================================
        DRILL LIBRARY: 3-TIER HIERARCHY (CATEGORY -> SUB-CATEGORY -> TAGS)
-       & LIVE AUTOMATIC BACKEND SYNC (GOOGLE SHEET + GITHUB PAGES)
+       & ADMIN-ONLY MULTI-TAG & INFO EDITOR
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
@@ -2695,6 +2793,81 @@
         notes: '5-player triangle passing and angle-support rotation.'
       }
     ];
+
+    const COMMON_DRILL_QUICK_TAGS = [
+      'Finishing',
+      'Give and Go',
+      'Passing',
+      'Triangle Passing',
+      '3rd Person Passing',
+      'Return Pass',
+      'Set Pass',
+      '1-Touch',
+      'Dribbling',
+      'Shooting',
+      'Defending',
+      'Transition',
+      'Possession',
+      'First Touch'
+    ];
+
+    let activeEditingDrillItem = null;
+
+    function openAdminDrillMetadataModal(drillItem) {
+      if (!isClubAdmin || !drillItem) return;
+      const modal = document.getElementById('drillEditModal');
+      const titleInput = document.getElementById('modalDrillTitleInput');
+      const catInput = document.getElementById('modalDrillCategoryInput');
+      const subCatInput = document.getElementById('modalDrillSubCategoryInput');
+      const durInput = document.getElementById('modalDrillDurationInput');
+      const tagsInput = document.getElementById('modalDrillTagsInput');
+      const pointsInput = document.getElementById('modalDrillPointsInput');
+      const quickWrap = document.getElementById('modalDrillQuickTagsWrap');
+      if (!modal || !titleInput || !tagsInput) return;
+
+      activeEditingDrillItem = drillItem;
+      titleInput.value = drillItem.title || '';
+      if (catInput) catInput.value = drillItem.category || 'Technical';
+      if (subCatInput) subCatInput.value = drillItem.subCategory || '';
+      if (durInput) durInput.value = drillItem.duration || 15;
+      tagsInput.value = Array.isArray(drillItem.tags) ? drillItem.tags.join(', ') : '';
+      if (pointsInput) pointsInput.value = drillItem.coachingPoints || '';
+
+      const renderQuickTagChips = () => {
+        if (!quickWrap) return;
+        const currentTagsLower = new Set(
+          tagsInput.value.split(',').map(t => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)
+        );
+        const existingItemTags = Array.isArray(drillItem.tags) ? drillItem.tags : [];
+        const allChipLabels = Array.from(new Set([...COMMON_DRILL_QUICK_TAGS, ...existingItemTags]));
+
+        quickWrap.innerHTML = allChipLabels.map(tagLabel => {
+          const isActive = currentTagsLower.has(tagLabel.toLowerCase());
+          return '<button type="button" class="quick-tag-btn' + (isActive ? ' active' : '') + '" data-tag="' + escapeHtml(tagLabel) + '">' +
+            (isActive ? '&#10003; #' : '+ #') + escapeHtml(tagLabel) +
+          '</button>';
+        }).join('');
+
+        quickWrap.querySelectorAll('.quick-tag-btn').forEach(chipBtn => {
+          chipBtn.onclick = () => {
+            const tagName = chipBtn.getAttribute('data-tag') || '';
+            const parts = tagsInput.value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+            const idx = parts.findIndex(t => t.toLowerCase() === tagName.toLowerCase());
+            if (idx >= 0) {
+              parts.splice(idx, 1);
+            } else {
+              parts.push(tagName);
+            }
+            tagsInput.value = parts.join(', ');
+            renderQuickTagChips();
+          };
+        });
+      };
+
+      tagsInput.oninput = renderQuickTagChips;
+      renderQuickTagChips();
+      modal.classList.add('open');
+    }
 
     const BROAD_SUBCATEGORY_KEYWORDS = [
       'passing', 'dribbling', 'shooting', 'finishing', 'defending', 'defensive',
@@ -3190,8 +3363,32 @@
         }
 
         if (sheetDrills.length > 0) {
-          const prevFingerprint = JSON.stringify(drillLibrary.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints]));
-          const merged = [...sheetDrills];
+          const prevFingerprint = JSON.stringify(drillLibrary.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints, d.customEdited]));
+          const existingByGifOrTitle = new Map();
+          drillLibrary.forEach(ex => {
+            if (!ex) return;
+            if (ex.gifUrl) existingByGifOrTitle.set('gif:' + String(ex.gifUrl).toLowerCase(), ex);
+            if (ex.title) existingByGifOrTitle.set('title:' + String(ex.title).toLowerCase(), ex);
+          });
+
+          const merged = sheetDrills.map(sd => {
+            const match = existingByGifOrTitle.get('gif:' + String(sd.gifUrl).toLowerCase()) ||
+              existingByGifOrTitle.get('title:' + String(sd.title).toLowerCase());
+            if (match && match.customEdited) {
+              return Object.assign({}, sd, {
+                title: match.title || sd.title,
+                category: match.category || sd.category,
+                subCategory: match.subCategory !== undefined ? match.subCategory : sd.subCategory,
+                duration: match.duration || sd.duration,
+                tags: Array.isArray(match.tags) ? match.tags : sd.tags,
+                coachingPoints: match.coachingPoints !== undefined ? match.coachingPoints : sd.coachingPoints,
+                customEdited: true,
+                updatedAt: match.updatedAt || Date.now()
+              });
+            }
+            return sd;
+          });
+
           const sheetTitles = new Set(sheetDrills.map(d => d.title.toLowerCase()));
           drillLibrary.forEach(existing => {
             if (!existing.gifUrl) return;
@@ -3199,7 +3396,7 @@
               merged.push(existing);
             }
           });
-          const nextFingerprint = JSON.stringify(merged.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints]));
+          const nextFingerprint = JSON.stringify(merged.map(d => [d.title, d.category, d.subCategory, d.tags, d.gifUrl, d.duration, d.coachingPoints, d.customEdited]));
 
           if (prevFingerprint !== nextFingerprint) {
             drillLibrary = merged;
@@ -3341,7 +3538,10 @@
               '</div>' +
               '<div class="lib-card-footer">' +
                 '<button type="button" class="btn btn-primary btn-sm add-drill-to-session-btn" data-drill-idx="' + idx + '">+ Add to Session</button>' +
-                (resolvedGif ? '<button type="button" class="btn btn-outline btn-sm enlarge-drill-gif-btn" data-drill-idx="' + idx + '">Enlarge GIF</button>' : '') +
+                '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+                  (isClubAdmin ? '<button type="button" class="btn btn-outline btn-sm edit-lib-drill-tags-btn" data-drill-idx="' + idx + '">&#127991; Edit Tags &amp; Info</button>' : '') +
+                  (resolvedGif ? '<button type="button" class="btn btn-outline btn-sm enlarge-drill-gif-btn" data-drill-idx="' + idx + '">Enlarge GIF</button>' : '') +
+                '</div>' +
               '</div>' +
             '</div>';
           }).join('');
@@ -3350,6 +3550,13 @@
         el.onclick = function() {
           const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
           if (d) openEnlargedDiagramModal(d.title, d.gifUrl, d.coachingPoints);
+        };
+      });
+      grid.querySelectorAll('.edit-lib-drill-tags-btn').forEach(btn => {
+        btn.onclick = function() {
+          if (!isClubAdmin) return;
+          const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
+          if (d) openAdminDrillMetadataModal(d);
         };
       });
       grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
@@ -5509,6 +5716,50 @@
         }
       });
 
+      // Admin-Only Drill Editor Modal Save & Close Handlers
+      const drillEditModal = document.getElementById('drillEditModal');
+      const closeDrillEditBtn = document.getElementById('closeDrillEditModalBtn');
+      const cancelDrillEditBtn = document.getElementById('cancelDrillEditModalBtn');
+      const saveDrillEditBtn = document.getElementById('saveDrillEditModalBtn');
+      const closeDrillEditor = () => {
+        activeEditingDrillItem = null;
+        if (drillEditModal) drillEditModal.classList.remove('open');
+      };
+      if (closeDrillEditBtn) closeDrillEditBtn.onclick = closeDrillEditor;
+      if (cancelDrillEditBtn) cancelDrillEditBtn.onclick = closeDrillEditor;
+      if (drillEditModal) {
+        drillEditModal.addEventListener('click', (e) => {
+          if (e.target === drillEditModal) closeDrillEditor();
+        });
+      }
+      if (saveDrillEditBtn) {
+        saveDrillEditBtn.onclick = () => {
+          if (!isClubAdmin || !activeEditingDrillItem) return;
+          const newTitle = (document.getElementById('modalDrillTitleInput').value || '').trim();
+          const newCat = (document.getElementById('modalDrillCategoryInput').value || '').trim();
+          const newSubCat = (document.getElementById('modalDrillSubCategoryInput').value || '').trim();
+          const newDur = parseInt(document.getElementById('modalDrillDurationInput').value, 10);
+          const rawTags = document.getElementById('modalDrillTagsInput').value || '';
+          const newPoints = document.getElementById('modalDrillPointsInput').value || '';
+
+          if (newTitle) activeEditingDrillItem.title = newTitle;
+          if (newCat) activeEditingDrillItem.category = newCat;
+          activeEditingDrillItem.subCategory = newSubCat;
+          if (!isNaN(newDur) && newDur > 0) activeEditingDrillItem.duration = newDur;
+          activeEditingDrillItem.tags = Array.from(new Set(
+            rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean)
+          ));
+          activeEditingDrillItem.coachingPoints = newPoints;
+          activeEditingDrillItem.customEdited = true;
+          activeEditingDrillItem.updatedAt = Date.now();
+
+          closeDrillEditor();
+          persistCurrentTeamState();
+          renderDrillLibrary();
+          showToast('Saved drill tags & info!');
+        };
+      }
+
       // Player Attendance Profile Modal Close Handlers
       const playerAttModal = document.getElementById('playerAttendanceModal');
       const closePlayerAttBtn = document.getElementById('closePlayerAttModalBtn');
@@ -6544,6 +6795,7 @@
       }
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          if (drillEditModal && drillEditModal.classList.contains('open')) closeDrillEditor();
           if (playerAttModal && playerAttModal.classList.contains('open')) closePlayerAttProfile();
           if (diagModal && diagModal.classList.contains('open')) closeDiagramLightbox();
           if (vidModal && vidModal.classList.contains('open')) closeVideoPlayer();
