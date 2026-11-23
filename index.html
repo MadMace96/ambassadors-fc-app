@@ -204,6 +204,31 @@
       margin-bottom: 5px;
     }
 
+    /* Multi-Team Checkboxes in Invite Form */
+    .team-checkbox-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #0A2647;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.12s ease;
+    }
+    .team-checkbox-pill:hover {
+      border-color: #1e4e8c;
+      background: #eff6ff;
+    }
+    .team-checkbox-pill input {
+      accent-color: #0A2647;
+      cursor: pointer;
+    }
+
     /* Session Builder Header & Toolbar */
     .builder-toolbar {
       display: flex;
@@ -691,6 +716,12 @@
       </div>
       <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Ambassadors FC</div>
       <h1 style="margin:4px 0 8px;font-size:1.35rem;font-weight:900;color:#0A2647;">Training App</h1>
+
+      <!-- Smart Invite Banner (Automatically revealed when opened via ?mode=register&email=...&codes=...) -->
+      <div id="invitePrefillBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:0.77rem;font-weight:700;color:#065f46;text-align:left;line-height:1.4;">
+        &#10003; Coach Invitation Detected — Your email and team join code(s) have been pre-filled below. Set a password to unlock your teams!
+      </div>
+
       <p id="authSubtitleText" style="margin:0 0 16px;font-size:0.81rem;color:#64748b;line-height:1.45;">
         Sign in with Google or your Coach Email &amp; Password to access your authorized team workspaces and libraries.
       </p>
@@ -724,7 +755,7 @@
         </div>
         <div id="authTeamCodeFieldWrap" style="display:none;">
           <label class="label" for="authTeamCodeInput">Team Join Code (or Invite Code) *</label>
-          <input type="text" id="authTeamCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;" placeholder="e.g. AFC-1112 (or AFC-1112, AFC-0910)" />
+          <input type="text" id="authTeamCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;font-weight:700;" placeholder="e.g. AFC-1112 (or AFC-1112, AFC-0910)" />
           <div style="font-size:0.69rem;color:#64748b;margin-top:3px;">Required to unlock team workspaces and Drill/Video libraries.</div>
         </div>
         <button type="submit" id="authSubmitBtn" class="btn btn-emerald" style="width:100%;padding:11px;font-size:0.88rem;border-radius:10px;margin-top:4px;">
@@ -1247,7 +1278,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.1</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.2</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1274,13 +1305,13 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
-                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Invite Coach by Email &amp; Team Access</h3>
-                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Grant assistant coaches or staff access to specific Ambassadors FC teams via email.</p>
+                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Invite Coach by Email &amp; Multi-Team Access</h3>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Select one or more teams and click <strong>Send Invite</strong> to email the coach automatically with a Direct-to-Registration link.</p>
                 </div>
                 <span class="badge badge-emerald" id="invitedCoachesCountBadge">0 Coaches</span>
               </div>
 
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;align-items:end;margin-bottom:12px;">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end;margin-bottom:10px;">
                 <div>
                   <label class="label" for="inviteCoachEmailInput">Coach Email Address *</label>
                   <input type="email" id="inviteCoachEmailInput" class="input" placeholder="assistant@ambassadorsfootball.org" />
@@ -1290,10 +1321,6 @@
                   <input type="text" id="inviteCoachNameInput" class="input" placeholder="e.g. Coach Jordan" />
                 </div>
                 <div>
-                  <label class="label" for="inviteCoachTeamSelect">Assign Team Access</label>
-                  <select id="inviteCoachTeamSelect" class="select"></select>
-                </div>
-                <div>
                   <label class="label" for="inviteCoachRoleSelect">Role</label>
                   <select id="inviteCoachRoleSelect" class="select">
                     <option value="Assistant Coach">Assistant Coach</option>
@@ -1301,13 +1328,29 @@
                     <option value="Club Admin">Club Admin</option>
                   </select>
                 </div>
-                <button type="button" class="btn btn-emerald" id="sendCoachInviteBtn" style="height:37px;">&#9993; Invite Coach</button>
+              </div>
+
+              <div style="margin-bottom:12px;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">
+                  <label class="label" style="margin-bottom:0;">Assign Team Access (Select One or Multiple Teams) *</label>
+                  <button type="button" id="inviteSelectAllTeamsBtn" class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:0.7rem;">Select All Teams</button>
+                </div>
+                <div id="inviteTeamsCheckboxesContainer" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+              </div>
+
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+                <button type="button" class="btn btn-emerald" id="sendCoachInviteBtn">&#9993; Send Invite</button>
               </div>
 
               <div id="latestInviteShareBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:0.78rem;color:#065f46;">
                 <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
                   <div id="latestInviteShareText" style="font-weight:700;"></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <a id="openMailClientInviteBtn" href="#" class="btn btn-outline btn-sm" style="text-decoration:none;">Open in Email App</a>
+                    <button type="button" id="copyLatestInviteUrlBtn" class="btn btn-emerald btn-sm">Copy Direct Registration Link</button>
+                  </div>
                 </div>
+                <div id="latestInviteUrlDisplay" style="margin-top:6px;font-family:monospace;font-size:0.72rem;background:#ffffff;border:1px solid #a7f3d0;border-radius:6px;padding:5px 8px;word-break:break-all;color:#0A2647;"></div>
               </div>
 
               <div id="invitedCoachesList" style="display:flex;flex-direction:column;gap:6px;"></div>
@@ -1315,7 +1358,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.1</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.2</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1461,6 +1504,38 @@
         window.location.hostname === '127.0.0.1';
     }
 
+    function getBaseAppUrl() {
+      if ((window.location.protocol === 'http:' || window.location.protocol === 'https:') && !isHostedPreviewEnvironment()) {
+        return window.location.origin + window.location.pathname;
+      }
+      return 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/';
+    }
+
+    function buildSmartRegistrationInviteUrl(inviteRecord) {
+      const baseUrl = getBaseAppUrl();
+      const teamsList = Array.isArray(inviteRecord.teams) && inviteRecord.teams.length > 0
+        ? inviteRecord.teams
+        : (inviteRecord.team ? [inviteRecord.team] : []);
+
+      const resolvedTeamNames = teamsList.includes('ALL_TEAMS')
+        ? clubTeamsRegistry.map(t => t.name)
+        : teamsList;
+
+      const joinCodes = resolvedTeamNames
+        .map(tName => {
+          const found = clubTeamsRegistry.find(ct => ct.name === tName);
+          return found ? found.code : '';
+        })
+        .filter(Boolean);
+
+      const params = new URLSearchParams();
+      params.set('mode', 'register');
+      if (inviteRecord.email) params.set('email', inviteRecord.email);
+      if (inviteRecord.name) params.set('name', inviteRecord.name);
+      if (joinCodes.length > 0) params.set('codes', joinCodes.join(','));
+      return baseUrl + '?' + params.toString();
+    }
+
     /* =========================================================
        FIREBASE CONFIG & CORE STATE
        ========================================================= */
@@ -1491,8 +1566,9 @@
     let currentUserRole = 'Assistant Coach';
     let isRegisterMode = false;
     let activeTabKey = 'calendar';
+    let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.1';
+    const APP_VERSION = '2.6.2';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1504,16 +1580,16 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.2', date: '2026-11-22', note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).' },
         { version: '2.6.1', date: '2026-11-22', note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.' },
-        { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' },
-        { version: '2.4', date: '2026-11-21', note: 'Fixed Google OAuth & Preview-only bypass, Sign Out, Join/Create Team, Calendar Month/Week/Day views, Game Day Timer & Save/New Game, GitHub drills auto-sync, and Video Tag editor.' }
+        { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.1')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.2')) {
       versionHistoryLog.unshift({
-        version: '2.6.1',
+        version: '2.6.2',
         date: '2026-11-22',
-        note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.'
+        note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1570,13 +1646,19 @@
       return { matchedTeams, invalidCodes };
     }
 
+    function getInviteTeamsArray(inv) {
+      if (!inv) return [];
+      if (Array.isArray(inv.teams) && inv.teams.length > 0) return inv.teams;
+      if (inv.team) return [inv.team];
+      return [];
+    }
+
     function computeUserPermissions(email) {
       const cleanEmail = String(email || '').trim().toLowerCase();
       if (!cleanEmail) {
         return { isAdmin: false, role: 'Assistant Coach', teams: [], libraryAccess: { drills: false, videos: false } };
       }
 
-      // 1. Primary Club Admin Allowlist
       if (cleanEmail === CLUB_ADMIN_EMAIL.toLowerCase()) {
         return {
           isAdmin: true,
@@ -1586,7 +1668,6 @@
         };
       }
 
-      // 2. Check explicit user access profile (saved locally or synced from Firestore)
       const profile = userAccessRegistry[cleanEmail] || null;
       const matchingInvites = coachInvitesRegistry.filter(inv => String(inv.email || '').trim().toLowerCase() === cleanEmail);
 
@@ -1607,7 +1688,6 @@
         };
       }
 
-      // 3. Collect authorized teams strictly from explicit profile + valid invites
       const teamSet = new Set();
       let hasAllTeams = false;
 
@@ -1619,8 +1699,11 @@
       }
 
       matchingInvites.forEach(inv => {
-        if (inv.team === 'ALL_TEAMS') hasAllTeams = true;
-        else if (inv.team && clubTeamsRegistry.some(ct => ct.name === inv.team)) teamSet.add(inv.team);
+        const invTeams = getInviteTeamsArray(inv);
+        invTeams.forEach(tName => {
+          if (tName === 'ALL_TEAMS') hasAllTeams = true;
+          else if (tName && clubTeamsRegistry.some(ct => ct.name === tName)) teamSet.add(tName);
+        });
       });
 
       const resolvedTeams = hasAllTeams ? clubTeamsRegistry.map(t => t.name) : Array.from(teamSet);
@@ -1659,13 +1742,11 @@
       userTeams = perms.teams;
       userLibraryAccess = perms.libraryAccess;
 
-      // Update Top Bar User Badge
       const badgeText = document.getElementById('navUserBadgeText');
       if (badgeText) {
         badgeText.textContent = (currentUser.displayName || 'Coach') + (isClubAdmin ? ' (Club Admin)' : ' (' + currentUserRole + ')');
       }
 
-      // Role-Based UI Enforcement in Settings
       const adminPanel = document.getElementById('adminAccessPanel');
       const createTeamBtn = document.getElementById('createNewTeamFromSettingsBtn');
       const roleBadge = document.getElementById('settingsRoleBadge');
@@ -1683,13 +1764,11 @@
         libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : 'badge-red');
       }
 
-      // Update Nav Tab Lock Indicators
       const drillNavBtn = document.querySelector('.nav-tab[data-tab="drills"]');
       const videoNavBtn = document.querySelector('.nav-tab[data-tab="videos"]');
       if (drillNavBtn) drillNavBtn.classList.toggle('locked-tab', !userLibraryAccess.drills);
       if (videoNavBtn) videoNavBtn.classList.toggle('locked-tab', !userLibraryAccess.videos);
 
-      // Gate Drill Library & Video Library Views
       const drillLocked = document.getElementById('drillLibraryLockedPanel');
       const drillCard = document.getElementById('drillLibraryContentCard');
       if (drillLocked && drillCard) {
@@ -1704,7 +1783,6 @@
         videoCard.style.display = userLibraryAccess.videos ? 'block' : 'none';
       }
 
-      // Gate Team Workspaces (Calendar, Session Builder, Game Day, Roster) if user has 0 teams
       const pendingGate = document.getElementById('pendingTeamAccessGate');
       const teamTabs = ['calendar', 'builder', 'gameday', 'roster'];
       const hasAnyTeam = userTeams.length > 0;
@@ -1922,7 +2000,7 @@
       if (Array.isArray(data.coachInvites)) {
         const mergedInvites = [...data.coachInvites];
         coachInvitesRegistry.forEach(localInv => {
-          if (localInv && localInv.email && !mergedInvites.some(ci => ci.email.toLowerCase() === localInv.email.toLowerCase() && ci.team === localInv.team)) {
+          if (localInv && localInv.email && !mergedInvites.some(ci => ci.email.toLowerCase() === localInv.email.toLowerCase() && JSON.stringify(getInviteTeamsArray(ci)) === JSON.stringify(getInviteTeamsArray(localInv)))) {
             mergedInvites.unshift(localInv);
           }
         });
@@ -2062,23 +2140,33 @@
     }
 
     function populateTeamDropdowns() {
-      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect', 'inviteCoachTeamSelect'];
+      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
       selects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
-        if (id === 'inviteCoachTeamSelect') {
-          const adminTeams = clubTeamsRegistry.map(t => t.name);
-          sel.innerHTML = '<option value="ALL_TEAMS">All Club Teams</option>' + adminTeams.map(t =>
-            '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
-          ).join('');
-          return;
-        }
         sel.innerHTML = userTeams.length === 0
           ? '<option value="">No Teams Assigned</option>'
           : userTeams.map(t =>
               '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
             ).join('');
       });
+
+      const inviteBoxWrap = document.getElementById('inviteTeamsCheckboxesContainer');
+      if (inviteBoxWrap) {
+        const prevChecked = new Set(
+          Array.from(inviteBoxWrap.querySelectorAll('input.invite-team-cb:checked')).map(cb => cb.value)
+        );
+        inviteBoxWrap.innerHTML = clubTeamsRegistry.map((t, idx) => {
+          const shouldCheck = prevChecked.size > 0
+            ? prevChecked.has(t.name)
+            : (t.name === activeTeamName || idx === 0);
+          return '<label class="team-checkbox-pill">' +
+            '<input type="checkbox" class="invite-team-cb" value="' + escapeHtml(t.name) + '"' + (shouldCheck ? ' checked' : '') + '>' +
+            '<span>' + escapeHtml(t.name) + '</span>' +
+            '<span style="font-family:monospace;font-size:0.68rem;color:#64748b;">(' + escapeHtml(t.code) + ')</span>' +
+          '</label>';
+        }).join('');
+      }
     }
 
     function updateWorkspaceBadges() {
@@ -3948,6 +4036,18 @@
     /* =========================================================
        SETTINGS & TEAM JOIN / CREATE
        ========================================================= */
+    function copyTextToClipboard(textStr) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textStr).catch(() => {});
+      }
+      const tmp = document.createElement('textarea');
+      tmp.value = textStr;
+      document.body.appendChild(tmp);
+      tmp.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(tmp);
+    }
+
     function renderSettingsPanel() {
       const nameEl = document.getElementById('settingsCoachNameText');
       const emailEl = document.getElementById('settingsCoachEmailText');
@@ -3969,39 +4069,36 @@
 
       if (invitesList && isClubAdmin) {
         invitesList.innerHTML = coachInvitesRegistry.length === 0
-          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Enter a coach email above to grant team access.</div>'
-          : coachInvitesRegistry.map((inv, idx) =>
-              '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid #cbd5e1;border-radius:9px;padding:8px 11px;font-size:0.8rem;">' +
+          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Select teams and enter a coach email above to send a Direct-to-Registration invite.</div>'
+          : coachInvitesRegistry.map((inv, idx) => {
+              const invTeams = getInviteTeamsArray(inv);
+              const teamBadgesHtml = invTeams.includes('ALL_TEAMS')
+                ? '<span class="badge badge-emerald">All Club Teams</span>'
+                : invTeams.map(tName => '<span class="badge badge-emerald">' + escapeHtml(tName) + '</span>').join('');
+              return '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid #cbd5e1;border-radius:9px;padding:8px 11px;font-size:0.8rem;">' +
                 '<div>' +
                   '<strong style="color:#0A2647;">' + escapeHtml(inv.name || inv.email) + '</strong> ' +
                   '<span style="color:#64748b;">(' + escapeHtml(inv.email) + ')</span>' +
-                  '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">' +
+                  '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">' +
                     '<span class="badge badge-navy">' + escapeHtml(inv.role || 'Assistant Coach') + '</span>' +
-                    '<span class="badge badge-emerald">' + escapeHtml(inv.team === 'ALL_TEAMS' ? 'All Club Teams' : (inv.team || activeTeamName)) + '</span>' +
-                    '<span style="font-size:0.7rem;color:#64748b;">Invited ' + escapeHtml(inv.invitedAt || '') + '</span>' +
+                    teamBadgesHtml +
+                    '<span style="font-size:0.7rem;color:#64748b;">Sent ' + escapeHtml(inv.invitedAt || '') + '</span>' +
                   '</div>' +
                 '</div>' +
                 '<div style="display:flex;gap:6px;">' +
-                  '<button type="button" class="btn btn-outline btn-sm copy-invite-link-btn" data-idx="' + idx + '">Copy Invite</button>' +
+                  '<button type="button" class="btn btn-outline btn-sm copy-invite-link-btn" data-idx="' + idx + '">Copy Reg Link</button>' +
                   '<button type="button" class="btn btn-danger btn-sm remove-coach-invite-btn" data-idx="' + idx + '">Revoke</button>' +
                 '</div>' +
-              '</div>'
-            ).join('');
+              '</div>';
+            }).join('');
 
         invitesList.querySelectorAll('.copy-invite-link-btn').forEach(btn => {
           btn.onclick = function() {
             const inv = coachInvitesRegistry[parseInt(this.getAttribute('data-idx'), 10)];
             if (!inv) return;
-            const teamObj = clubTeamsRegistry.find(t => t.name === inv.team) || clubTeamsRegistry[0];
-            const codeHint = teamObj ? ' (Join Code: ' + teamObj.code + ')' : '';
-            const inviteMsg = 'You have been invited as ' + inv.role + ' for ' + (inv.team === 'ALL_TEAMS' ? 'Ambassadors FC' : inv.team) + codeHint + '. Sign in with ' + inv.email + ' at ' + window.location.origin + window.location.pathname;
-            const tmp = document.createElement('textarea');
-            tmp.value = inviteMsg;
-            document.body.appendChild(tmp);
-            tmp.select();
-            try { document.execCommand('copy'); } catch (e) {}
-            document.body.removeChild(tmp);
-            showToast('Copied invite message & join code for ' + inv.email + '!');
+            const regUrl = buildSmartRegistrationInviteUrl(inv);
+            copyTextToClipboard(regUrl);
+            showToast('Copied direct registration link for ' + inv.email + '!');
           };
         });
 
@@ -4011,7 +4108,7 @@
             const removed = coachInvitesRegistry.splice(idx, 1)[0];
             persistCurrentTeamState();
             renderSettingsPanel();
-            if (removed) showToast('Revoked access for ' + removed.email);
+            if (removed) showToast('Revoked invite for ' + removed.email);
           };
         });
       }
@@ -4164,6 +4261,14 @@
        DOM CONTENT LOADED INITIALIZATION
        ========================================================= */
     document.addEventListener('DOMContentLoaded', () => {
+      // Parse Smart Invite URL Parameters (?mode=register&email=...&name=...&codes=...)
+      const urlParams = new URLSearchParams(window.location.search || '');
+      const paramMode = (urlParams.get('mode') || '').trim().toLowerCase();
+      const paramEmail = (urlParams.get('email') || '').trim();
+      const paramName = (urlParams.get('name') || '').trim();
+      const paramCodes = (urlParams.get('codes') || '').trim().toUpperCase();
+      const isSmartInviteLink = paramMode === 'register' || Boolean(paramCodes);
+
       // Show preview-only bypass button strictly in hosted preview environments
       const previewBypassWrap = document.getElementById('previewBypassWrap');
       const previewBypassBtn = document.getElementById('previewBypassLoginBtn');
@@ -4177,13 +4282,15 @@
         };
       }
 
-      // Restore cached coach session if available
-      try {
-        const cachedCoach = JSON.parse(localStorage.getItem('afc_last_signed_in_coach') || 'null');
-        if (cachedCoach && cachedCoach.email) {
-          enterWorkspaceAsCoach(cachedCoach, false);
-        }
-      } catch (e) {}
+      // Restore cached coach session ONLY if not opening a fresh Smart Invite Registration link
+      if (!isSmartInviteLink) {
+        try {
+          const cachedCoach = JSON.parse(localStorage.getItem('afc_last_signed_in_coach') || 'null');
+          if (cachedCoach && cachedCoach.email) {
+            enterWorkspaceAsCoach(cachedCoach, false);
+          }
+        } catch (e) {}
+      }
 
       // Default dates
       const todayIso = getLocalTodayIso();
@@ -4243,14 +4350,32 @@
         };
       }
 
-      // Settings: Invite Coach by Email (Club Admin Only)
+      // Settings: Select All Teams Toggle for Invite Form
+      const inviteSelectAllBtn = document.getElementById('inviteSelectAllTeamsBtn');
+      if (inviteSelectAllBtn) {
+        inviteSelectAllBtn.onclick = () => {
+          const cbs = Array.from(document.querySelectorAll('#inviteTeamsCheckboxesContainer input.invite-team-cb'));
+          const allChecked = cbs.length > 0 && cbs.every(cb => cb.checked);
+          cbs.forEach(cb => { cb.checked = !allChecked; });
+        };
+      }
+
+      const copyLatestInviteUrlBtn = document.getElementById('copyLatestInviteUrlBtn');
+      if (copyLatestInviteUrlBtn) {
+        copyLatestInviteUrlBtn.onclick = () => {
+          if (!latestGeneratedInviteUrl) return;
+          copyTextToClipboard(latestGeneratedInviteUrl);
+          showToast('Copied Direct-to-Registration link!');
+        };
+      }
+
+      // Settings: Send Invite (Dispatches email via Firebase mail queue + opens mail client if cloud mail isn't configured + copies link)
       const sendCoachInviteBtn = document.getElementById('sendCoachInviteBtn');
       if (sendCoachInviteBtn) {
         sendCoachInviteBtn.onclick = async () => {
-          if (!isClubAdmin) return showToast('Only Club Admins can invite coaches.');
+          if (!isClubAdmin) return showToast('Only Club Admins can send invites.');
           const emailInput = document.getElementById('inviteCoachEmailInput');
           const nameInput = document.getElementById('inviteCoachNameInput');
-          const teamSel = document.getElementById('inviteCoachTeamSelect');
           const roleSel = document.getElementById('inviteCoachRoleSelect');
 
           const email = (emailInput && emailInput.value || '').trim().toLowerCase();
@@ -4258,19 +4383,29 @@
             showToast('Please enter a valid coach email address.');
             return;
           }
+
+          const selectedTeams = Array.from(document.querySelectorAll('#inviteTeamsCheckboxesContainer input.invite-team-cb:checked'))
+            .map(cb => cb.value)
+            .filter(Boolean);
+
+          if (selectedTeams.length === 0) {
+            showToast('Please check at least one team to assign to this coach.');
+            return;
+          }
+
           const name = (nameInput && nameInput.value || '').trim() || email.split('@')[0];
-          const team = (teamSel && teamSel.value) || activeTeamName || (clubTeamsRegistry[0] && clubTeamsRegistry[0].name);
           const role = (roleSel && roleSel.value) || 'Assistant Coach';
 
           sendCoachInviteBtn.disabled = true;
           const origBtnLabel = sendCoachInviteBtn.innerHTML;
-          sendCoachInviteBtn.textContent = 'Sending...';
+          sendCoachInviteBtn.textContent = 'Sending Invite...';
 
-          const existingIdx = coachInvitesRegistry.findIndex(c => c.email.toLowerCase() === email && c.team === team);
+          const existingIdx = coachInvitesRegistry.findIndex(c => c.email.toLowerCase() === email);
           const record = {
             email,
             name,
-            team,
+            team: selectedTeams.length === clubTeamsRegistry.length ? 'ALL_TEAMS' : selectedTeams[0],
+            teams: selectedTeams,
             role,
             invitedBy: (currentUser && currentUser.email) || CLUB_ADMIN_EMAIL,
             invitedAt: getLocalTodayIso()
@@ -4278,25 +4413,38 @@
           if (existingIdx >= 0) coachInvitesRegistry[existingIdx] = record;
           else coachInvitesRegistry.unshift(record);
 
+          const regInviteUrl = buildSmartRegistrationInviteUrl(record);
+          latestGeneratedInviteUrl = regInviteUrl;
+          copyTextToClipboard(regInviteUrl);
+
           if (emailInput) emailInput.value = '';
           if (nameInput) nameInput.value = '';
           persistCurrentTeamState();
           renderSettingsPanel();
 
-          const appUrl = (window.location.protocol === 'http:' || window.location.protocol === 'https:') && !isHostedPreviewEnvironment()
-            ? (window.location.origin + window.location.pathname)
-            : ('https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/');
-          const teamObj = clubTeamsRegistry.find(t => t.name === team) || clubTeamsRegistry[0];
-          const teamDisplay = team === 'ALL_TEAMS' ? 'All Club Teams' : team;
-          const subject = 'Ambassadors FC Training App Invitation (' + teamDisplay + ')';
+          const assignedCodes = selectedTeams
+            .map(tName => {
+              const found = clubTeamsRegistry.find(t => t.name === tName);
+              return found ? found.code : '';
+            })
+            .filter(Boolean);
+          const teamsDisplay = selectedTeams.join(', ');
+          const subject = 'Ambassadors FC Training App Invitation (' + teamsDisplay + ')';
           const inviteText =
             'Hi ' + name + ',\n\n' +
-            'You have been invited as ' + role + ' for ' + teamDisplay + ' on the Ambassadors FC Training App.\n' +
-            (teamObj ? 'Team Join Code: ' + teamObj.code + '\n\n' : '\n') +
-            'Sign in using your email (' + email + ') at:\n' + appUrl;
+            'You have been invited as ' + role + ' for ' + teamsDisplay + ' on the Ambassadors FC Training App.\n' +
+            (assignedCodes.length ? 'Team Join Code(s): ' + assignedCodes.join(', ') + '\n\n' : '\n') +
+            'Click your Direct Registration Link below (your email & team codes will be pre-filled automatically):\n' +
+            regInviteUrl;
 
+          const mailtoHref = 'mailto:' + encodeURIComponent(email) +
+            '?subject=' + encodeURIComponent(subject) +
+            '&body=' + encodeURIComponent(inviteText);
+
+          let queuedInCloudMail = false;
           if (db) {
             try {
+              await ensureFirebaseAuthReady();
               await db.collection('mail').add({
                 to: [email],
                 message: {
@@ -4305,28 +4453,41 @@
                   html: '<div style="font-family:Inter,Arial,sans-serif;color:#0f172a;line-height:1.5;">' +
                     '<h2 style="color:#0A2647;margin-bottom:8px;">Ambassadors FC Training App Invitation</h2>' +
                     '<p>Hi <strong>' + escapeHtml(name) + '</strong>,</p>' +
-                    '<p>You have been invited as <strong>' + escapeHtml(role) + '</strong> for <strong>' + escapeHtml(teamDisplay) + '</strong>.</p>' +
-                    (teamObj ? '<p style="background:#eff6ff;border:1px solid #bfdbfe;padding:10px 14px;border-radius:8px;display:inline-block;"><strong>Team Join Code:</strong> <code style="font-size:1.05em;">' + escapeHtml(teamObj.code) + '</code></p>' : '') +
-                    '<p><a href="' + escapeHtml(appUrl) + '" style="display:inline-block;background:#0A2647;color:#ffffff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:bold;">Open Ambassadors FC App &rarr;</a></p>' +
-                    '<p style="font-size:12px;color:#64748b;">Sign in using your email address: ' + escapeHtml(email) + '</p>' +
+                    '<p>You have been invited as <strong>' + escapeHtml(role) + '</strong> for <strong>' + escapeHtml(teamsDisplay) + '</strong>.</p>' +
+                    (assignedCodes.length ? '<p style="background:#eff6ff;border:1px solid #bfdbfe;padding:10px 14px;border-radius:8px;display:inline-block;"><strong>Team Join Code(s):</strong> <code style="font-size:1.05em;">' + escapeHtml(assignedCodes.join(', ')) + '</code></p>' : '') +
+                    '<p><a href="' + escapeHtml(regInviteUrl) + '" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:bold;">Complete Coach Registration &rarr;</a></p>' +
+                    '<p style="font-size:12px;color:#64748b;">Your email (' + escapeHtml(email) + ') and team join code(s) will auto-fill on the registration screen.</p>' +
                   '</div>'
                 },
                 inviteMeta: record,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
               });
+              queuedInCloudMail = true;
             } catch (e) {}
           }
 
           const shareBanner = document.getElementById('latestInviteShareBanner');
           const shareTextEl = document.getElementById('latestInviteShareText');
+          const shareUrlEl = document.getElementById('latestInviteUrlDisplay');
+          const mailClientBtn = document.getElementById('openMailClientInviteBtn');
+          if (mailClientBtn) mailClientBtn.href = mailtoHref;
           if (shareBanner && shareTextEl) {
-            shareTextEl.textContent = '✓ Invite saved & queued for ' + email + ' (' + teamDisplay + ').';
+            shareTextEl.textContent = queuedInCloudMail
+              ? '✓ Invite email sent to ' + email + ' (' + teamsDisplay + ') and registration link copied!'
+              : '✓ Invite saved & registration link copied for ' + email + ' (' + teamsDisplay + ').';
+            if (shareUrlEl) shareUrlEl.textContent = regInviteUrl;
             shareBanner.style.display = 'block';
+          }
+
+          if (!queuedInCloudMail) {
+            try { window.location.href = mailtoHref; } catch (mailErr) {}
           }
 
           sendCoachInviteBtn.disabled = false;
           sendCoachInviteBtn.innerHTML = origBtnLabel;
-          showToast('Invite created for ' + email + '!');
+          showToast(queuedInCloudMail
+            ? 'Invite sent to ' + email + '!'
+            : 'Invite ready for ' + email + ' (link copied)!');
         };
       }
 
@@ -4345,13 +4506,28 @@
       if (googleBtn) {
         googleBtn.onclick = async () => {
           if (authStatusEl) authStatusEl.textContent = '';
+          const prefillCodes = (document.getElementById('authTeamCodeInput') ? document.getElementById('authTeamCodeInput').value : '').trim();
           if (auth && typeof firebase !== 'undefined') {
             try {
               const provider = new firebase.auth.GoogleAuthProvider();
               provider.setCustomParameters({ prompt: 'select_account' });
               const res = await auth.signInWithPopup(provider);
               if (res && res.user && res.user.email) {
+                if (prefillCodes) {
+                  const { matchedTeams } = parseAndRedeemJoinCodes(prefillCodes);
+                  if (matchedTeams.length > 0 && res.user.email.toLowerCase() !== CLUB_ADMIN_EMAIL.toLowerCase()) {
+                    const existingProf = userAccessRegistry[res.user.email.toLowerCase()] || {};
+                    const mergedTeams = Array.from(new Set([...(existingProf.teams || []), ...matchedTeams]));
+                    saveUserAccessProfile(res.user.email, {
+                      name: res.user.displayName || res.user.email.split('@')[0],
+                      role: existingProf.role || 'Assistant Coach',
+                      teams: mergedTeams,
+                      libraryAccess: { drills: true, videos: true }
+                    });
+                  }
+                }
                 enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName || res.user.email.split('@')[0] }, false);
+                persistCurrentTeamState();
                 showToast('Signed in with Google!');
                 return;
               }
@@ -4360,7 +4536,7 @@
               if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
               if (!isHostedPreviewEnvironment()) {
                 if (authStatusEl) {
-                  authStatusEl.textContent = 'Google Sign-In could not complete (' + (err && err.message ? err.message : code) + '). Please allow popups or sign in with your Coach Email & Password below.';
+                  authStatusEl.textContent = 'Google Sign-In could not complete (' + (err && err.message ? err.message : code) + '). Please allow popups or complete registration with Coach Email & Password below.';
                 }
                 return;
               }
@@ -4431,13 +4607,26 @@
         if (nameFieldWrap) nameFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
         if (teamCodeFieldWrap) teamCodeFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
         if (teamCodeInput) teamCodeInput.required = isRegisterMode;
-        if (submitBtn) submitBtn.innerHTML = isRegisterMode ? 'Create Coach Account &rarr;' : 'Sign In &amp; Sync Cloud Workspace &rarr;';
+        if (submitBtn) submitBtn.innerHTML = isRegisterMode ? 'Create Coach Account &amp; Unlock Teams &rarr;' : 'Sign In &amp; Sync Cloud Workspace &rarr;';
         if (toggleModeBtn) toggleModeBtn.textContent = isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Register';
         if (authStatusEl) authStatusEl.textContent = '';
       }
 
       if (toggleModeBtn) {
         toggleModeBtn.onclick = () => setRegistrationMode(!isRegisterMode);
+      }
+
+      // Apply Smart Invite URL Pre-fill (?mode=register&email=...&name=...&codes=...)
+      if (isSmartInviteLink) {
+        setRegistrationMode(true);
+        const inviteBanner = document.getElementById('invitePrefillBanner');
+        const emailField = document.getElementById('authEmailInput');
+        const nameField = document.getElementById('authNameInput');
+        if (inviteBanner) inviteBanner.style.display = 'block';
+        if (emailField && paramEmail) emailField.value = paramEmail;
+        if (nameField && paramName) nameField.value = paramName;
+        if (teamCodeInput && paramCodes) teamCodeInput.value = paramCodes;
+        if (pwdInput) setTimeout(() => pwdInput.focus(), 80);
       }
 
       if (forgotPwdBtn) {
@@ -4475,7 +4664,6 @@
 
           if (!emailVal || !pwdVal) return;
 
-          // Step 2: Validate Team Join Code (or pre-existing Club Admin / Invited status) on Registration
           let validatedRegTeams = [];
           if (isRegisterMode) {
             const isPrimaryAdmin = emailVal === CLUB_ADMIN_EMAIL.toLowerCase();
@@ -4522,6 +4710,10 @@
                   teams: mergedTeams,
                   libraryAccess: { drills: mergedTeams.length > 0, videos: mergedTeams.length > 0 }
                 });
+              }
+
+              if (isSmartInviteLink && window.history && window.history.replaceState) {
+                try { window.history.replaceState({}, document.title, window.location.pathname); } catch (histErr) {}
               }
 
               enterWorkspaceAsCoach({ email: finalEmail, displayName: (u && u.displayName) || nameVal || finalEmail.split('@')[0] }, false);
