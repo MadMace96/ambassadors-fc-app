@@ -76,6 +76,41 @@
     .brand-title { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.15; }
     .brand-sub { font-size: 0.72rem; color: #bae6fd; font-weight: 600; }
 
+    /* Global Top-Bar Team Switcher Pill */
+    .top-team-switcher-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 8px;
+      padding: 2px 7px;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .top-team-switcher-wrap:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #7dd3fc;
+    }
+    .top-team-select {
+      appearance: auto;
+      background: transparent;
+      border: none;
+      color: #e0f2fe;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      padding: 1px 2px;
+      max-width: 195px;
+    }
+    .top-team-select option {
+      background: #0A2647;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
     /* Navigation Tabs */
     .nav-tabs {
       display: flex;
@@ -127,9 +162,98 @@
     .nav-tab.active .tab-pill { background: #0A2647; color: #ffffff; }
 
     /* Main Workspace Container */
-    .workspace-wrap { max-width: 1220px; margin: 20px auto 48px; padding: 0 16px; }
+    .workspace-wrap { max-width: 1220px; margin: 20px auto 84px; padding: 0 16px; }
     .workspace-section { display: none; }
     .workspace-section.active { display: block; }
+
+    /* Sticky Bottom Action Bar & Unsaved Indicator */
+    .sticky-action-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 48;
+      background: rgba(10, 38, 71, 0.96);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      border-top: 2px solid #1e4e8c;
+      padding: 9px 16px calc(9px + env(safe-area-inset-bottom, 0px));
+      box-shadow: 0 -6px 20px rgba(10, 38, 71, 0.24);
+      display: none;
+    }
+    .sticky-action-bar.visible {
+      display: block;
+    }
+    .sticky-action-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .unsaved-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #bae6fd;
+    }
+    .unsaved-status-pill.dirty {
+      background: rgba(245, 158, 11, 0.24);
+      border: 1px solid rgba(251, 191, 36, 0.65);
+      color: #fde68a;
+    }
+    .unsaved-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34d399;
+      flex-shrink: 0;
+    }
+    .unsaved-status-pill.dirty .unsaved-dot {
+      background: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.32);
+    }
+
+    /* Master Roster Quick-Filter Pills */
+    .roster-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 9px 12px;
+      margin-bottom: 14px;
+    }
+    .roster-filter-pill {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .roster-filter-pill:hover {
+      border-color: #1e4e8c;
+      color: #0A2647;
+    }
+    .roster-filter-pill.active {
+      background: #0A2647;
+      color: #ffffff;
+      border-color: #0A2647;
+    }
 
     /* Buttons */
     .btn {
@@ -157,7 +281,101 @@
     .btn-danger:hover { background: #fee2e2; }
     .btn-sm { font-size: 0.74rem; padding: 5px 10px; border-radius: 7px; }
 
-    /* Session Attendance Check / X Toggle Buttons */
+    /* "Today / Next Up" Sideline Banner on Calendar */
+    .next-up-banner {
+      background: linear-gradient(135deg, #0A2647 0%, #144272 60%, #1e4e8c 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 6px 18px rgba(10, 38, 71, 0.14);
+      border: 1px solid rgba(125, 211, 252, 0.35);
+    }
+    .next-up-banner.game-next-up {
+      background: linear-gradient(135deg, #0A2647 0%, #065f46 100%);
+      border-color: rgba(110, 231, 183, 0.45);
+    }
+
+    /* Slide-Over In-Builder Drill Picker Drawer */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      z-index: 160;
+      display: none;
+      justify-content: flex-end;
+    }
+    .drawer-backdrop.open {
+      display: flex;
+    }
+    .drawer-panel {
+      width: 100%;
+      max-width: 500px;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: -10px 0 32px rgba(10, 38, 71, 0.25);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideDrawerIn 0.18s ease-out;
+    }
+    @keyframes slideDrawerIn {
+      from { transform: translateX(28px); opacity: 0.7; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .drawer-header {
+      background: #0A2647;
+      color: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 3px solid #1e4e8c;
+    }
+    .drawer-filters {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f1f5f9;
+    }
+    .drawer-footer {
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .drawer-drill-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Session & Game Attendance Check / X Toggle Buttons */
     .att-toggle-btn {
       width: 30px;
       height: 28px;
@@ -464,7 +682,7 @@
     }
     .scrimmage-teams-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 215px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) 230px minmax(0, 1fr);
       gap: 12px;
       margin-top: 12px;
       align-items: start;
@@ -538,12 +756,34 @@
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
       transition: transform 0.1s ease, border-color 0.12s ease, background-color 0.12s ease;
     }
+    .scrimmage-bench-chip.guest-chip {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+    .scrimmage-bench-chip.guest-chip:hover {
+      background: #fef3c7;
+      border-color: #d97706;
+    }
     .scrimmage-bench-chip:hover {
       background: #d1fae5;
       border-color: #059669;
     }
     .scrimmage-bench-chip:active {
       cursor: grabbing;
+    }
+    .scrimmage-bench-chip.selected-bench-chip {
+      background: #0A2647;
+      color: #ffffff;
+      border-color: #0A2647;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.55);
+    }
+    .scrimmage-bench-chip.selected-bench-chip .pos-pill {
+      background: #38bdf8;
+      color: #0A2647;
+    }
+    .scrimmage-pitch.awaiting-bench-tap {
+      box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.24), 0 0 0 3px #38bdf8;
     }
 
     /* GIF Preview Box */
@@ -663,6 +903,20 @@
       background: #0A2647;
       color: #ffffff;
       border-color: #0A2647;
+    }
+    .quick-tag-btn.recent-tag-chip {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+    .quick-tag-btn.recent-tag-chip:hover {
+      background: #fde68a;
+      border-color: #d97706;
+    }
+    .quick-tag-btn.recent-tag-chip.active {
+      background: #059669;
+      color: #ffffff;
+      border-color: #059669;
     }
 
     /* Locked Access Gate Panel */
@@ -863,9 +1117,11 @@
       text-transform: uppercase;
     }
 
-    /* Clean Preview Mode */
+    /* Clean Preview & Print Mode */
     body.clean-preview-mode .top-bar,
-    body.clean-preview-mode .no-clean-preview { display: none !important; }
+    body.clean-preview-mode .no-clean-preview,
+    body.clean-preview-mode .open-slot-token,
+    body.clean-preview-mode .sticky-action-bar { display: none !important; }
     #exitCleanPreviewBar {
       display: none;
       position: sticky;
@@ -902,7 +1158,7 @@
     }
 
     /* Toast & Custom Modal */
-    #toastContainer { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+    #toastContainer { position: fixed; bottom: 68px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
     .toast {
       background: #0A2647;
       color: #ffffff;
@@ -934,7 +1190,7 @@
     }
 
     @media print {
-      .top-bar, .no-clean-preview, #exitCleanPreviewBar, #toastContainer, .auth-overlay { display: none !important; }
+      .top-bar, .no-clean-preview, .open-slot-token, #exitCleanPreviewBar, #toastContainer, .auth-overlay, .drawer-backdrop, .sticky-action-bar { display: none !important; }
       body { background: #ffffff !important; }
       .workspace-wrap { margin: 0; padding: 0; max-width: 100%; }
     }
@@ -959,6 +1215,14 @@
       </div>
       <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Ambassadors FC</div>
       <h1 style="margin:4px 0 8px;font-size:1.35rem;font-weight:900;color:#0A2647;">Training App</h1>
+
+      <!-- Instant Preview Entry (Shown in Hosted Preview Sandbox) -->
+      <div id="previewBypassWrap" style="display:none;margin-bottom:14px;">
+        <button type="button" id="previewBypassLoginBtn" class="btn btn-emerald" style="width:100%;padding:11px;font-size:0.9rem;border-radius:11px;box-shadow:0 4px 14px rgba(5,150,105,0.28);">
+          &#9889; Open Live App Preview (Admin Mode) &rarr;
+        </button>
+        <div style="font-size:0.7rem;color:#64748b;margin-top:4px;">Instant preview access with sample teams &amp; drill library</div>
+      </div>
 
       <!-- Smart Invite Banner -->
       <div id="invitePrefillBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:0.77rem;font-weight:700;color:#065f46;text-align:left;line-height:1.4;">
@@ -1011,13 +1275,6 @@
         <button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:#64748b;font-weight:700;cursor:pointer;padding:0;">Forgot Password?</button>
       </div>
 
-      <!-- Strictly visible ONLY in preview environments -->
-      <div id="previewBypassWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;">
-        <button type="button" id="previewBypassLoginBtn" class="btn btn-outline btn-sm" style="width:100%;color:#0A2647;border-color:#93c5fd;background:#eff6ff;font-weight:800;">
-          &#9889; Bypass Login (Preview Admin Mode)
-        </button>
-      </div>
-
       <div id="authStatusText" style="margin-top:12px;font-size:0.76rem;font-weight:700;color:#dc2626;line-height:1.4;"></div>
     </div>
   </div>
@@ -1044,7 +1301,7 @@
     </div>
   </div>
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Navigation Bar with Global Team Switcher -->
   <header class="top-bar">
     <div class="top-bar-inner">
       <div class="brand-group">
@@ -1053,7 +1310,13 @@
         </div>
         <div>
           <div class="brand-title">Ambassadors FC</div>
-          <div class="brand-sub" id="topBarActiveTeamSub">No Active Team</div>
+          <div id="topBarTeamSwitcherWrap" class="top-team-switcher-wrap" title="Switch active team workspace">
+            <span style="font-size:0.68rem;color:#7dd3fc;font-weight:800;">TEAM:</span>
+            <select id="topBarTeamSelect" class="top-team-select" aria-label="Global Active Team Switcher">
+              <option value="">No Active Team</option>
+            </select>
+          </div>
+          <div class="brand-sub" id="topBarActiveTeamSub" style="display:none;">No Active Team</div>
         </div>
       </div>
 
@@ -1108,6 +1371,9 @@
 
     <!-- 1. CALENDAR TAB -->
     <section id="tab-calendar" class="workspace-section active">
+      <!-- "Today / Next Up" Sideline Banner -->
+      <div id="calendarNextUpBanner" style="display:none;"></div>
+
       <div class="card">
         <div class="card-header">
           <div>
@@ -1133,7 +1399,7 @@
           <div id="calendarGrid" class="calendar-grid"></div>
           <div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:16px;">
             <h3 style="margin:0 0 10px;font-size:0.9rem;font-weight:800;color:#0A2647;">Scheduled Sessions &amp; Games (<span id="calendarActiveTeamLabel">11/12 AFC Boys</span>)</h3>
-            <div id="savedSessionsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;"></div>
+            <div id="savedSessionsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:10px;"></div>
           </div>
         </div>
       </div>
@@ -1145,6 +1411,7 @@
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
           <button type="button" class="btn btn-emerald" id="saveGameBtn">Save Game to Calendar</button>
           <button type="button" class="btn btn-outline" id="newBlankGameBtn">+ New Game</button>
+          <button type="button" class="btn btn-outline" id="copyLastGameLineupBtn" title="Pull forward starting lineups & formation from your previous match">&#128203; Copy Last Game's Lineup</button>
         </div>
       </div>
 
@@ -1210,7 +1477,7 @@
             <button type="button" class="btn btn-primary btn-sm" id="selectHalf1Btn">1st Half Lineup</button>
             <button type="button" class="btn btn-outline btn-sm" id="selectHalf2Btn">2nd Half Lineup</button>
           </div>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+          <div style="display:flex;flex-wrap:wrap:align-items:center;gap:8px;">
             <div class="team-shape-picker">
               Formation:
               <select id="gameFormationSelect">
@@ -1283,17 +1550,18 @@
       <div class="card">
         <div class="card-header">
           <div>
-            <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;" id="gameRosterTitle">Game Day Roster</h3>
-            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="gameRosterSummaryText">0 Available for Match</p>
+            <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;" id="gameRosterTitle">Game Day Attendance &amp; Availability</h3>
+            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="gameRosterSummaryText">0 Available • 0 Not Available</p>
           </div>
           <div class="no-clean-preview" style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button type="button" class="btn btn-outline btn-sm" id="markAllGamePresentBtn">All Available</button>
             <button type="button" class="btn btn-outline btn-sm" id="copyTrainingRosterToGameBtn">Copy Training Roster</button>
             <input type="text" id="newGamePlayerNameInput" class="input" style="width:200px;padding:5px 9px;" placeholder="e.g. Lucas Miller (GK)">
             <button type="button" class="btn btn-primary btn-sm" id="addGamePlayerBtn">+ Add Player</button>
           </div>
         </div>
         <div class="card-body">
-          <div id="gameRosterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px;"></div>
+          <div id="gameRosterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:10px;"></div>
         </div>
       </div>
     </section>
@@ -1303,6 +1571,7 @@
       <div class="builder-toolbar no-clean-preview">
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
           <button type="button" class="btn btn-emerald" id="saveSessionBtn">Save to Calendar</button>
+          <button type="button" class="btn btn-outline" id="duplicateCurrentSessionBtn" title="Clone this session onto a new date with fresh attendance">&#128203; Duplicate Session</button>
           <button type="button" class="btn btn-outline" id="newBlankSessionBtn">New Blank Session</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
@@ -1344,17 +1613,19 @@
 
       <div id="sessionPartsContainer"></div>
 
-      <div class="no-clean-preview" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px;background:#ffffff;border:1px solid #cbd5e1;border-radius:14px;padding:12px 16px;">
-        <label for="newPartTypeSelect" style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#0A2647;">Add Activity:</label>
-        <select id="newPartTypeSelect" style="border:1px solid #cbd5e1;border-radius:9px;padding:7px 11px;font-family:inherit;font-size:0.84rem;font-weight:700;color:#0f172a;background:#f8fafc;">
-          <option value="warmup">Warm-Up</option>
-          <option value="technical" selected>Technical</option>
-          <option value="tactical">Tactical</option>
-          <option value="scrimmage">Scrimmage</option>
-          <option value="devotional">Devotional</option>
-          <option value="fitness">Fitness / Conditioning</option>
-        </select>
-        <button type="button" id="addSessionPartBtn" class="btn btn-primary">+ Add Session Part</button>
+      <div class="no-clean-preview" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;background:#ffffff;border:1px solid #cbd5e1;border-radius:14px;padding:14px 16px;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#0A2647;">Add Activity Part (Tap to Add or Pick from Library):</span>
+          <button type="button" class="btn btn-emerald btn-sm" id="openInBuilderDrillDrawerBtn">&#128218; + Add From Drill Library</button>
+        </div>
+        <div id="quickAddActivityButtons" style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="warmup">+ Warm-Up</button>
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="technical">+ Technical</button>
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="tactical">+ Tactical</button>
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="scrimmage">+ Scrimmage</button>
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="devotional">+ Devotional</button>
+          <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="fitness">+ Fitness</button>
+        </div>
       </div>
 
       <!-- Session Attendance & Absence Reasons Card -->
@@ -1459,7 +1730,7 @@
       </div>
     </section>
 
-    <!-- 5B. MASTER TEAM ROSTER TAB (6-Column Position Board + Clickable Player Attendance Profile) -->
+    <!-- 5B. MASTER TEAM ROSTER TAB (6-Column Position Board + Quick Search & Status Filter Bar) -->
     <section id="tab-roster" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
@@ -1481,6 +1752,16 @@
             <input type="text" id="masterNewPlayerNameInput" class="input" style="flex:1;min-width:210px;" placeholder="First & Last Name + Positions (e.g. Lucas Miller (GK), Mason Smith - CB, CM)">
             <button type="button" class="btn btn-primary" id="masterAddPlayerBtn">+ Add Player to Roster</button>
             <button type="button" class="btn btn-outline" id="toggleBulkRosterPasteBtn">&#128203; Bulk Copy / Paste Roster</button>
+          </div>
+
+          <!-- Quick Search & Status Filter Bar on Master Roster -->
+          <div class="roster-filter-bar">
+            <input type="text" id="masterRosterSearchInput" class="input" style="max-width:250px;padding:6px 10px;font-size:0.8rem;" placeholder="&#128269; Search player name or pos...">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;" id="masterRosterFilterPills">
+              <button type="button" class="roster-filter-pill active" data-roster-filter="ALL">All (<span id="rosterFilterCountAll">0</span>)</button>
+              <button type="button" class="roster-filter-pill" data-roster-filter="PRESENT">&#10003; Present (<span id="rosterFilterCountPresent">0</span>)</button>
+              <button type="button" class="roster-filter-pill" data-roster-filter="ABSENT">&#10005; Not Present (<span id="rosterFilterCountAbsent">0</span>)</button>
+            </div>
           </div>
 
           <div id="bulkRosterPasteDrawer" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin-bottom:16px;">
@@ -1522,7 +1803,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Account</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.13</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.8.0-ux2</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Staff</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1617,7 +1898,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.13</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.8.0-ux2</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1630,6 +1911,49 @@
     </section>
 
   </main>
+
+  <!-- Sticky Bottom Action Bar (Session Builder & Game Day) -->
+  <div id="stickyBottomActionBar" class="sticky-action-bar">
+    <div class="sticky-action-inner">
+      <div id="unsavedStatusPill" class="unsaved-status-pill">
+        <span class="unsaved-dot"></span>
+        <span id="unsavedStatusText">All changes saved</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button type="button" class="btn btn-outline btn-sm" id="stickySecondaryActionBtn" style="background:rgba(255,255,255,0.12);color:#ffffff;border-color:rgba(255,255,255,0.28);">+ Drills</button>
+        <button type="button" class="btn btn-emerald btn-sm" id="stickyPrimarySaveBtn">Save to Calendar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instant In-Builder Drill Picker Slide-Over Drawer -->
+  <div id="inBuilderDrillDrawerBackdrop" class="drawer-backdrop">
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Add Drills from Library">
+      <div class="drawer-header">
+        <div>
+          <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#7dd3fc;">Session Builder Quick-Pick</div>
+          <h3 style="margin:2px 0 0;font-size:1.05rem;font-weight:900;">Add Drills From Library</h3>
+        </div>
+        <button type="button" id="closeInBuilderDrillDrawerBtn" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.28);border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#ffffff;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <div class="drawer-filters">
+        <input type="text" id="drawerDrillSearchInput" class="input" placeholder="Search drills by title, #tag, or coaching point...">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select id="drawerDrillCategoryFilter" class="select">
+            <option value="ALL">All Categories</option>
+          </select>
+          <select id="drawerDrillTagFilter" class="select">
+            <option value="ALL">All #Tags</option>
+          </select>
+        </div>
+      </div>
+      <div id="drawerDrillListBody" class="drawer-body"></div>
+      <div class="drawer-footer">
+        <span id="drawerAddedCountBadge" style="font-size:0.76rem;font-weight:800;color:#0A2647;">Tap "+ Add" to insert drills</span>
+        <button type="button" class="btn btn-primary btn-sm" id="doneInBuilderDrillDrawerBtn">Done &amp; Return to Plan</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Player Attendance Profile Modal -->
   <div id="playerAttendanceModal" class="modal-backdrop">
@@ -1707,6 +2031,10 @@
         <div>
           <label class="label" for="modalDrillTagsInput">Multiple #Tags (comma-separated)</label>
           <input type="text" id="modalDrillTagsInput" class="input" placeholder="e.g. Finishing, Give and Go, 1-touch, Shooting">
+          <div id="modalDrillRecentTagsSection" style="display:none;margin-top:7px;background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:7px 9px;">
+            <div style="font-size:0.68rem;font-weight:800;color:#92400e;margin-bottom:4px;">&#9201; Recently Used Tags (Batch Memory):</div>
+            <div id="modalDrillRecentTagsWrap" style="display:flex;flex-wrap:wrap;"></div>
+          </div>
           <div style="margin-top:6px;">
             <div style="font-size:0.68rem;font-weight:800;color:#64748b;margin-bottom:4px;">Quick-Toggle Common Tags:</div>
             <div id="modalDrillQuickTagsWrap" style="display:flex;flex-wrap:wrap;"></div>
@@ -1911,7 +2239,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.7.13';
+    const APP_VERSION = '2.8.0-ux2';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
@@ -1932,24 +2260,10 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
-        { version: '2.7.13', date: '2026-11-23', note: 'Fixed strict per-team roster isolation so adding, editing, or deleting players on 11/12 AFC Boys never leaks onto 09/10 AFC Boys (or any other team) during team switches or cloud syncs.' },
-        { version: '2.7.12', date: '2026-11-23', note: 'Added Warm-Up reference links box & clickable link pills in Session Builder, and streamlined Session Attendance to two clean buttons (✓ Present / ✕ Not Present) with automatic absence reason input and no accidental delete button.' },
-        { version: '2.7.11', date: '2026-11-23', note: 'Added the Team Manager role with full access to Calendar, Session Plan attendance, Game Day attendance, and Roster while hiding Drills and Videos tabs automatically.' },
-        { version: '2.7.10', date: '2026-11-23', note: 'Enabled free drag-and-drop repositioning of any position slot (filled or open) anywhere on the side-by-side Scrimmage fields so coaches can shape custom formations directly on the pitch while keeping player swapping and bench drops intact.' },
-        { version: '2.7.9', date: '2026-11-23', note: 'Redesigned Scrimmage assignment layout with Navy Field on the left, Present Roster Bench in the center, and White Field on the right with full drag-and-drop between fields and back to the bench.' },
-        { version: '2.7.8', date: '2026-11-23', note: 'Removed empty dashed placeholder box from Scrimmage session parts so Coaching Points and Setup & Rules appear cleanly at the top above the dual tactical fields.' },
-        { version: '2.7.7', date: '2026-11-23', note: 'Upgraded position-aware auto-placement across both Scrimmage dual tactical fields and Game Day lineups so players are matched directly to their primary/secondary positions (GK, CB, WB/LB/RB, CM, AM/LM/RM, ST).' },
-        { version: '2.7.6', date: '2026-11-23', note: 'Added dual side-by-side interactive Tactical Field Views (Navy Bibs vs White / Pinnies) inside Session Builder Scrimmage parts with independent formation selectors and draggable player tokens.' },
-        { version: '2.7.5', date: '2026-11-23', note: 'Added Admin-Only "Edit Tags & Info" button on Drill Library cards with multi-tag quick-toggle chips (Finishing, Give and Go, Passing, Triangle Passing, etc.) and Firestore cloud persistence.' },
-        { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
+        { version: '2.8.0-ux2', date: '2026-11-23', note: 'Sideline UX Slice 2: Added Sticky Bottom Mobile Save Bar with live Unsaved Changes indicator, one-tap Duplicate Session (on Calendar & Builder), one-tap Copy Last Game\'s Lineup in Game Day, and Quick Search & Present/Absent Filter Bar on the Master Roster.' },
+        { version: '2.8.0-ux1', date: '2026-11-23', note: 'Sideline UX Slice 1: Added Global Top-Bar Team Switcher pill, "Today / Next Up" Sideline Banner on the Calendar with one-tap Open & Attendance shortcuts, and Instant In-Builder Drill Picker Drawer (+ Add From Drill Library).' },
+        { version: '2.7.14', date: '2026-11-23', note: 'Completed v2.7 close-out polish: added Batch Tagging Memory ("Recently Used Tags") in Admin Drill Editor, hid empty Open slots in Clean Preview & Print, protected Master Roster deletion (× and bulk replace) for Head Coaches & Club Admins, added temporary Scrimmage Guest / Coach player input, iPad/touch bench-to-field placement, one-tap mobile activity buttons, and matching ✓/✕ Game Day attendance.' }
       ];
-      try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.13')) {
-      versionHistoryLog.unshift({
-        version: '2.7.13',
-        date: '2026-11-23',
-        note: 'Fixed strict per-team roster isolation so adding, editing, or deleting players on 11/12 AFC Boys never leaks onto 09/10 AFC Boys (or any other team) during team switches or cloud syncs.'
-      });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
 
@@ -1986,6 +2300,66 @@
       const storedAccess = JSON.parse(localStorage.getItem('afc_user_access_registry') || '{}');
       if (storedAccess && typeof storedAccess === 'object') userAccessRegistry = storedAccess;
     } catch (e) {}
+
+    /* =========================================================
+       STICKY MOBILE ACTION BAR & UNSAVED CHANGES TRACKING
+       ========================================================= */
+    let hasUnsavedSessionChanges = false;
+    let hasUnsavedGameChanges = false;
+
+    function markSessionDirty(isDirty) {
+      hasUnsavedSessionChanges = Boolean(isDirty);
+      updateStickyActionBar();
+    }
+
+    function markGameDirty(isDirty) {
+      hasUnsavedGameChanges = Boolean(isDirty);
+      updateStickyActionBar();
+    }
+
+    function updateStickyActionBar() {
+      const bar = document.getElementById('stickyBottomActionBar');
+      const pill = document.getElementById('unsavedStatusPill');
+      const statusText = document.getElementById('unsavedStatusText');
+      const primaryBtn = document.getElementById('stickyPrimarySaveBtn');
+      const secondaryBtn = document.getElementById('stickySecondaryActionBtn');
+      if (!bar || !pill || !statusText || !primaryBtn || !secondaryBtn) return;
+
+      const showBar = Boolean(currentUser && userTeams.length > 0 && (activeTabKey === 'builder' || activeTabKey === 'gameday'));
+      bar.classList.toggle('visible', showBar);
+      if (!showBar) return;
+
+      if (activeTabKey === 'builder') {
+        pill.classList.toggle('dirty', hasUnsavedSessionChanges);
+        statusText.textContent = hasUnsavedSessionChanges ? 'Unsaved session changes' : 'Session saved to Calendar';
+        primaryBtn.textContent = 'Save Session';
+        secondaryBtn.style.display = userLibraryAccess.drills ? 'inline-flex' : 'none';
+        secondaryBtn.innerHTML = '&#128218; + Drills';
+        primaryBtn.onclick = () => {
+          const btn = document.getElementById('saveSessionBtn');
+          if (btn) btn.click();
+        };
+        secondaryBtn.onclick = () => openInBuilderDrillDrawer();
+      } else if (activeTabKey === 'gameday') {
+        pill.classList.toggle('dirty', hasUnsavedGameChanges);
+        statusText.textContent = hasUnsavedGameChanges ? 'Unsaved match changes' : 'Game saved to Calendar';
+        primaryBtn.textContent = 'Save Game';
+        secondaryBtn.style.display = 'inline-flex';
+        secondaryBtn.textContent = 'Auto-Fill';
+        primaryBtn.onclick = () => {
+          const btn = document.getElementById('saveGameBtn');
+          if (btn) btn.click();
+        };
+        secondaryBtn.onclick = () => {
+          const btn = document.getElementById('autoFillGameHalfBtn');
+          if (btn) btn.click();
+        };
+      }
+    }
+
+    function canManageMasterRosterDeletes() {
+      return Boolean(isClubAdmin || currentUserRole === 'Club Admin' || currentUserRole === 'Head Coach');
+    }
 
     function parseAndRedeemJoinCodes(rawCodeString) {
       const codes = String(rawCodeString || '')
@@ -2255,6 +2629,16 @@
         }
       }
 
+      const bulkReplaceBtn = document.getElementById('bulkReplaceRosterBtn');
+      if (bulkReplaceBtn) {
+        bulkReplaceBtn.style.display = canManageMasterRosterDeletes() ? 'inline-flex' : 'none';
+      }
+
+      const inBuilderDrawerBtn = document.getElementById('openInBuilderDrillDrawerBtn');
+      if (inBuilderDrawerBtn) {
+        inBuilderDrawerBtn.style.display = userLibraryAccess.drills ? 'inline-flex' : 'none';
+      }
+
       const drillNavBtn = document.querySelector('.nav-tab[data-tab="drills"]');
       const videoNavBtn = document.querySelector('.nav-tab[data-tab="videos"]');
       if (drillNavBtn) {
@@ -2318,6 +2702,7 @@
       } else {
         populateTeamDropdowns();
       }
+      updateStickyActionBar();
     }
 
     function setCloudSyncBadge(state, label) {
@@ -2494,7 +2879,6 @@
 
       let localRaw = null;
       try { localRaw = JSON.parse(localStorage.getItem('afc_team_state_' + teamName) || 'null'); } catch (e) {}
-      const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster.map(normalizePlayerAttendanceModel) : [];
       const localUpdated = Number((localRaw && localRaw.updatedAt) || 0);
 
       if (cloudUpdated > localUpdated || (!localRaw && cloudRoster.length > 0)) {
@@ -2600,6 +2984,7 @@
         applyAccessControlUI();
         renderDrillLibrary();
         renderVideoLibrary();
+        renderRoster();
         renderSettingsPanel();
       }
     }
@@ -2672,6 +3057,31 @@
       syncAllClubTeamsFromCloud();
     }
 
+    function seedPreviewDemoDataIfEmpty(teamName) {
+      if (!isHostedPreviewEnvironment()) return;
+      if (rosterPlayers.length === 0 && savedSessions.length === 0 && savedGames.length === 0) {
+        const todayStr = getLocalTodayIso();
+        rosterPlayers = [
+          { id: 'demo_1', name: 'Eli Elliot', positions: ['GK'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] },
+          { id: 'demo_2', name: 'Clay Blaser', positions: ['CB'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] },
+          { id: 'demo_3', name: 'Graham Ertel', positions: ['WB', 'CB'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] },
+          { id: 'demo_4', name: 'Drew Delvin', positions: ['CM'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] },
+          { id: 'demo_5', name: 'Kyle Ritzman', positions: ['AM'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] },
+          { id: 'demo_6', name: 'JD Crowley', positions: ['ST'], present: true, attendanceStatus: 'present', absenceReason: '', attendanceHistory: [] }
+        ];
+        gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+        savedSessions = [{
+          id: 'demo_sess_1',
+          team: teamName,
+          title: 'First-Touch Control & Combination Play',
+          date: todayStr,
+          coach: 'Ambassadors FC Staff',
+          parts: JSON.parse(JSON.stringify(currentSessionParts)),
+          attendanceSnapshot: []
+        }];
+      }
+    }
+
     function loadTeamStateFromStorage(teamName) {
       if (!teamName || (currentUser && !userTeams.includes(teamName))) {
         return;
@@ -2682,6 +3092,8 @@
       }
 
       activeTeamName = teamName;
+      hasUnsavedSessionChanges = false;
+      hasUnsavedGameChanges = false;
       const subEl = document.getElementById('topBarActiveTeamSub');
       const masterTitleEl = document.getElementById('masterRosterTitle');
       const calTeamLbl = document.getElementById('calendarActiveTeamLabel');
@@ -2689,7 +3101,7 @@
       if (subEl) subEl.textContent = activeTeamName;
       if (masterTitleEl) masterTitleEl.textContent = activeTeamName + ' Roster';
       if (calTeamLbl) calTeamLbl.textContent = activeTeamName;
-      if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
+      if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Attendance & Availability';
 
       const rosterBackupKey = 'afc_roster_backup_' + getTeamDocSlug(teamName);
       let foundSavedState = false;
@@ -2719,6 +3131,8 @@
         } catch (e) {}
       }
 
+      seedPreviewDemoDataIfEmpty(teamName);
+
       populateTeamDropdowns();
       renderCalendar();
       renderRoster();
@@ -2726,11 +3140,12 @@
       renderGameRoster();
       renderGamePitch();
       updateWorkspaceBadges();
+      updateStickyActionBar();
       attachFirestoreTeamSync(teamName);
     }
 
     function populateTeamDropdowns() {
-      const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
+      const selects = ['topBarTeamSelect', 'sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'];
       selects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
@@ -2892,7 +3307,7 @@
         if (stats.history.length === 0) {
           listEl.innerHTML = '<div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:18px;text-align:center;font-size:0.8rem;color:#64748b;">' +
             'No saved training sessions or games logged for <strong>' + escapeHtml(player.name) + '</strong> yet.<br>' +
-            'Mark attendance in the <strong>Session Builder</strong> and click <strong>Save to Calendar</strong> to build their history.' +
+            'Mark attendance in the <strong>Session Builder</strong> or <strong>Game Day</strong> tab and click Save to build their history.' +
           '</div>';
         } else {
           listEl.innerHTML = stats.history.map((item, hIdx) => {
@@ -2942,8 +3357,7 @@
     }
 
     /* =========================================================
-       DRILL LIBRARY: 3-TIER HIERARCHY (CATEGORY -> SUB-CATEGORY -> TAGS)
-       & ADMIN-ONLY MULTI-TAG & INFO EDITOR
+       DRILL LIBRARY & IN-BUILDER DRILL PICKER DRAWER
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
@@ -2987,6 +3401,28 @@
       'First Touch'
     ];
 
+    let recentDrillTagsMemory = [];
+    try {
+      const storedRecentTags = JSON.parse(localStorage.getItem('afc_recent_drill_tags') || '[]');
+      if (Array.isArray(storedRecentTags)) recentDrillTagsMemory = storedRecentTags;
+    } catch (e) {}
+
+    function rememberRecentDrillTags(tagsList) {
+      if (!Array.isArray(tagsList) || tagsList.length === 0) return;
+      const merged = [...recentDrillTagsMemory];
+      tagsList.forEach(tag => {
+        const clean = String(tag || '').trim().replace(/^#/, '');
+        if (!clean) return;
+        const existingIdx = merged.findIndex(t => t.toLowerCase() === clean.toLowerCase());
+        if (existingIdx >= 0) merged.splice(existingIdx, 1);
+        merged.unshift(clean);
+      });
+      recentDrillTagsMemory = merged.slice(0, 10);
+      try {
+        localStorage.setItem('afc_recent_drill_tags', JSON.stringify(recentDrillTagsMemory));
+      } catch (e) {}
+    }
+
     let activeEditingDrillItem = null;
 
     function openAdminDrillMetadataModal(drillItem) {
@@ -2998,6 +3434,8 @@
       const durInput = document.getElementById('modalDrillDurationInput');
       const tagsInput = document.getElementById('modalDrillTagsInput');
       const pointsInput = document.getElementById('modalDrillPointsInput');
+      const recentSection = document.getElementById('modalDrillRecentTagsSection');
+      const recentWrap = document.getElementById('modalDrillRecentTagsWrap');
       const quickWrap = document.getElementById('modalDrillQuickTagsWrap');
       if (!modal || !titleInput || !tagsInput) return;
 
@@ -3009,11 +3447,41 @@
       tagsInput.value = Array.isArray(drillItem.tags) ? drillItem.tags.join(', ') : '';
       if (pointsInput) pointsInput.value = drillItem.coachingPoints || '';
 
+      const toggleTagInInput = (tagName) => {
+        const parts = tagsInput.value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+        const idx = parts.findIndex(t => t.toLowerCase() === tagName.toLowerCase());
+        if (idx >= 0) {
+          parts.splice(idx, 1);
+        } else {
+          parts.push(tagName);
+        }
+        tagsInput.value = parts.join(', ');
+        renderQuickTagChips();
+      };
+
       const renderQuickTagChips = () => {
-        if (!quickWrap) return;
         const currentTagsLower = new Set(
           tagsInput.value.split(',').map(t => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)
         );
+
+        if (recentSection && recentWrap) {
+          if (recentDrillTagsMemory.length > 0) {
+            recentSection.style.display = 'block';
+            recentWrap.innerHTML = recentDrillTagsMemory.map(tagLabel => {
+              const isActive = currentTagsLower.has(tagLabel.toLowerCase());
+              return '<button type="button" class="quick-tag-btn recent-tag-chip' + (isActive ? ' active' : '') + '" data-tag="' + escapeHtml(tagLabel) + '">' +
+                (isActive ? '&#10003; #' : '+ #') + escapeHtml(tagLabel) +
+              '</button>';
+            }).join('');
+            recentWrap.querySelectorAll('.quick-tag-btn').forEach(chipBtn => {
+              chipBtn.onclick = () => toggleTagInInput(chipBtn.getAttribute('data-tag') || '');
+            });
+          } else {
+            recentSection.style.display = 'none';
+          }
+        }
+
+        if (!quickWrap) return;
         const existingItemTags = Array.isArray(drillItem.tags) ? drillItem.tags : [];
         const allChipLabels = Array.from(new Set([...COMMON_DRILL_QUICK_TAGS, ...existingItemTags]));
 
@@ -3025,18 +3493,7 @@
         }).join('');
 
         quickWrap.querySelectorAll('.quick-tag-btn').forEach(chipBtn => {
-          chipBtn.onclick = () => {
-            const tagName = chipBtn.getAttribute('data-tag') || '';
-            const parts = tagsInput.value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
-            const idx = parts.findIndex(t => t.toLowerCase() === tagName.toLowerCase());
-            if (idx >= 0) {
-              parts.splice(idx, 1);
-            } else {
-              parts.push(tagName);
-            }
-            tagsInput.value = parts.join(', ');
-            renderQuickTagChips();
-          };
+          chipBtn.onclick = () => toggleTagInInput(chipBtn.getAttribute('data-tag') || '');
         });
       };
 
@@ -3085,6 +3542,149 @@
         }
       });
     })();
+
+    function appendDrillToCurrentSession(d) {
+      if (!d) return false;
+      currentSessionParts.push({
+        id: 'part_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+        type: (d.category || 'technical').toLowerCase(),
+        title: d.title,
+        duration: d.duration || 15,
+        gifUrl: d.gifUrl || '',
+        referenceLinks: '',
+        coachingPoints: d.coachingPoints || '',
+        notes: d.notes || '',
+        scrimmageGuests: [],
+        scrimmageNavy: [],
+        scrimmageWhite: [],
+        scrimmageNavyFormation: '4-2-2',
+        scrimmageWhiteFormation: '4-2-2',
+        scrimmageNavySlots: [],
+        scrimmageWhiteSlots: []
+      });
+      markSessionDirty(true);
+      renderSessionParts();
+      return true;
+    }
+
+    let drawerSessionAddedCount = 0;
+
+    function openInBuilderDrillDrawer() {
+      if (!userLibraryAccess.drills) {
+        return showToast('Drill Library is locked for your account.');
+      }
+      const backdrop = document.getElementById('inBuilderDrillDrawerBackdrop');
+      const countBadge = document.getElementById('drawerAddedCountBadge');
+      if (!backdrop) return;
+      drawerSessionAddedCount = 0;
+      if (countBadge) countBadge.textContent = 'Tap "+ Add" to insert drills into plan';
+      renderInBuilderDrillDrawerList();
+      backdrop.classList.add('open');
+      const searchInp = document.getElementById('drawerDrillSearchInput');
+      if (searchInp) setTimeout(() => searchInp.focus(), 40);
+    }
+
+    function closeInBuilderDrillDrawer() {
+      const backdrop = document.getElementById('inBuilderDrillDrawerBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    function renderInBuilderDrillDrawerList() {
+      const listBody = document.getElementById('drawerDrillListBody');
+      const searchEl = document.getElementById('drawerDrillSearchInput');
+      const catEl = document.getElementById('drawerDrillCategoryFilter');
+      const tagEl = document.getElementById('drawerDrillTagFilter');
+      const countBadge = document.getElementById('drawerAddedCountBadge');
+      if (!listBody) return;
+
+      const validDrills = drillLibrary.filter(d => d && d.gifUrl && String(d.gifUrl).trim() !== '');
+      const selectedCat = catEl ? catEl.value : 'ALL';
+      const selectedTag = tagEl ? tagEl.value : 'ALL';
+
+      if (catEl) {
+        const categories = Array.from(new Set(validDrills.map(d => d.category).filter(Boolean))).sort();
+        catEl.innerHTML = '<option value="ALL">All Categories (' + validDrills.length + ')</option>' +
+          categories.map(c => '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
+      }
+
+      const scopedByCat = selectedCat === 'ALL'
+        ? validDrills
+        : validDrills.filter(d => (d.category || '').toLowerCase() === selectedCat.toLowerCase());
+
+      if (tagEl) {
+        const allTags = Array.from(new Set(
+          scopedByCat.flatMap(d => Array.isArray(d.tags) ? d.tags : []).filter(Boolean)
+        )).sort();
+        tagEl.innerHTML = '<option value="ALL">All #Tags</option>' +
+          allTags.map(t => '<option value="' + escapeHtml(t) + '"' + (t === selectedTag ? ' selected' : '') + '>#' + escapeHtml(t) + '</option>').join('');
+      }
+
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+      const cat = catEl ? catEl.value : 'ALL';
+      const tagVal = tagEl ? tagEl.value : 'ALL';
+
+      const filtered = validDrills.filter(d => {
+        if (cat !== 'ALL' && (d.category || '').toLowerCase() !== cat.toLowerCase()) return false;
+        if (tagVal !== 'ALL') {
+          const dTags = Array.isArray(d.tags) ? d.tags.map(t => t.toLowerCase()) : [];
+          if (!dTags.includes(tagVal.toLowerCase())) return false;
+        }
+        if (!query) return true;
+        return [d.title, d.category, d.subCategory, d.coachingPoints, d.notes, ...(Array.isArray(d.tags) ? d.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      const titlesInSession = new Set(currentSessionParts.map(p => String(p.title || '').trim().toLowerCase()));
+
+      listBody.innerHTML = filtered.length === 0
+        ? '<div style="text-align:center;padding:28px 12px;color:#64748b;font-size:0.84rem;">No drills match your search or filter.</div>'
+        : filtered.map((d, idx) => {
+            const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
+            const alreadyInPlan = titlesInSession.has(String(d.title || '').trim().toLowerCase());
+            const tagsHtml = (Array.isArray(d.tags) ? d.tags : [])
+              .map(t => '<span class="tag-chip" style="font-size:0.65rem;">#' + escapeHtml(t) + '</span>').join('');
+            return '<div class="drawer-drill-card">' +
+              '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
+                '<div>' +
+                  '<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">' +
+                    '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                    '<span style="font-size:0.71rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
+                    (alreadyInPlan ? '<span class="badge badge-emerald">&#10003; In Plan</span>' : '') +
+                  '</div>' +
+                  '<div style="font-size:0.88rem;font-weight:900;color:#0A2647;line-height:1.25;">' + escapeHtml(d.title) + '</div>' +
+                '</div>' +
+                '<button type="button" class="btn btn-emerald btn-sm drawer-add-drill-btn" data-didx="' + idx + '" style="flex-shrink:0;">+ Add</button>' +
+              '</div>' +
+              (resolvedGif
+                ? '<div class="gif-preview-wrap drawer-enlarge-gif-btn" data-didx="' + idx + '" style="margin-bottom:0;" title="Click to preview full GIF">' +
+                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img" style="max-height:145px;">' +
+                    '<span class="gif-enlarge-hint">&#128269; Preview</span>' +
+                  '</div>'
+                : '') +
+              (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
+            '</div>';
+          }).join('');
+
+      listBody.querySelectorAll('.drawer-add-drill-btn').forEach(btn => {
+        btn.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-didx'), 10)];
+          if (appendDrillToCurrentSession(d)) {
+            drawerSessionAddedCount++;
+            if (countBadge) {
+              countBadge.textContent = '✓ ' + drawerSessionAddedCount + ' drill' + (drawerSessionAddedCount === 1 ? '' : 's') + ' added to session';
+            }
+            showToast('Added "' + d.title + '" to Session Plan!');
+            renderInBuilderDrillDrawerList();
+          }
+        };
+      });
+
+      listBody.querySelectorAll('.drawer-enlarge-gif-btn').forEach(wrap => {
+        wrap.onclick = function() {
+          const d = filtered[parseInt(this.getAttribute('data-didx'), 10)];
+          if (d) openEnlargedDiagramModal(d.title, d.gifUrl, d.coachingPoints);
+        };
+      });
+    }
 
     function extractGoogleDriveFileId(rawUrl) {
       const u = String(rawUrl || '').trim();
@@ -3578,6 +4178,7 @@
             drillLibrary = merged;
             persistCurrentTeamState();
             renderDrillLibrary();
+            renderInBuilderDrillDrawerList();
             updateWorkspaceBadges();
           }
           return true;
@@ -3738,24 +4339,7 @@
       grid.querySelectorAll('.add-drill-to-session-btn').forEach(btn => {
         btn.onclick = function() {
           const d = filtered[parseInt(this.getAttribute('data-drill-idx'), 10)];
-          if (d) {
-            currentSessionParts.push({
-              id: 'part_' + Date.now(),
-              type: (d.category || 'technical').toLowerCase(),
-              title: d.title,
-              duration: d.duration || 15,
-              gifUrl: d.gifUrl || '',
-              referenceLinks: '',
-              coachingPoints: d.coachingPoints || '',
-              notes: d.notes || '',
-              scrimmageNavy: [],
-              scrimmageWhite: [],
-              scrimmageNavyFormation: '4-2-2',
-              scrimmageWhiteFormation: '4-2-2',
-              scrimmageNavySlots: [],
-              scrimmageWhiteSlots: []
-            });
-            renderSessionParts();
+          if (appendDrillToCurrentSession(d)) {
             switchTab('builder');
             showToast('Added "' + d.title + '" to Session Builder!');
           }
@@ -3873,6 +4457,7 @@
         if (added > 0) {
           persistCurrentTeamState();
           renderDrillLibrary();
+          renderInBuilderDrillDrawerList();
           updateWorkspaceBadges();
         }
       }
@@ -4422,7 +5007,7 @@
     }
 
     /* =========================================================
-       ROSTER POSITION BOARD (GK, CB, WB, CM, AM, ST) & ATTENDANCE
+       ROSTER POSITION BOARD (GK, CB, WB, CM, AM, ST) & QUICK FILTER
        ========================================================= */
     const POSITION_COLUMNS = [
       { key: 'GK', label: 'GK' },
@@ -4432,6 +5017,8 @@
       { key: 'AM', label: 'AM' },
       { key: 'ST', label: 'ST' }
     ];
+
+    let masterRosterStatusFilter = 'ALL';
 
     function mapPositionToColumnKey(positions) {
       const list = Array.isArray(positions) ? positions : [];
@@ -4511,6 +5098,18 @@
       const masterGrid = document.getElementById('masterRosterGrid');
       const presentCount = rosterPlayers.filter(p => p.attendanceStatus === 'present').length;
       const absentCount = rosterPlayers.filter(p => p.attendanceStatus !== 'present').length;
+      const canDeleteMasterPlayers = canManageMasterRosterDeletes();
+
+      const countAllEl = document.getElementById('rosterFilterCountAll');
+      const countPresEl = document.getElementById('rosterFilterCountPresent');
+      const countAbsEl = document.getElementById('rosterFilterCountAbsent');
+      if (countAllEl) countAllEl.textContent = String(rosterPlayers.length);
+      if (countPresEl) countPresEl.textContent = String(presentCount);
+      if (countAbsEl) countAbsEl.textContent = String(absentCount);
+
+      document.querySelectorAll('.roster-filter-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.getAttribute('data-roster-filter') === masterRosterStatusFilter);
+      });
 
       const summaryEl = document.getElementById('rosterSummaryText');
       const masterSummaryEl = document.getElementById('masterRosterSummaryText');
@@ -4518,7 +5117,8 @@
         summaryEl.textContent = presentCount + ' Present • ' + absentCount + ' Not Present (Not Present players auto-filtered out of Scrimmage Lineups)';
       }
       if (masterSummaryEl) {
-        masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster • Click any player card to view attendance history';
+        masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster • Click any player card to view attendance history' +
+          (!canDeleteMasterPlayers ? ' • Roster removal protected (Head Coach / Admin only)' : '');
       }
 
       if (grid) {
@@ -4549,8 +5149,18 @@
         masterGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(185px, 1fr))';
         masterGrid.style.gap = '12px';
 
+        const searchInp = document.getElementById('masterRosterSearchInput');
+        const query = (searchInp ? searchInp.value : '').trim().toLowerCase();
+
         const buckets = { GK: [], CB: [], WB: [], CM: [], AM: [], ST: [], UNASSIGNED: [] };
         rosterPlayers.forEach((p, idx) => {
+          const isPres = (p.attendanceStatus || 'present') === 'present';
+          if (masterRosterStatusFilter === 'PRESENT' && !isPres) return;
+          if (masterRosterStatusFilter === 'ABSENT' && isPres) return;
+          if (query) {
+            const hay = [p.name, ...(Array.isArray(p.positions) ? p.positions : [])].join(' ').toLowerCase();
+            if (!hay.includes(query)) return;
+          }
           const colKey = mapPositionToColumnKey(p.positions);
           buckets[colKey].push({ player: p, idx });
         });
@@ -4581,7 +5191,9 @@
                       '<button type="button" class="open-player-att-profile-btn" data-idx="' + idx + '" title="Click to view attendance log" style="background:none;border:none;padding:0;text-align:left;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.81rem;color:#0A2647;text-decoration:underline dotted #94a3b8;">' +
                         escapeHtml(player.name) +
                       '</button>' +
-                      '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" style="padding:1px 6px;">&times;</button>' +
+                      (canDeleteMasterPlayers
+                        ? '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn" data-idx="' + idx + '" title="Remove player from Master Roster" style="padding:1px 6px;">&times;</button>'
+                        : '') +
                     '</div>' +
                     '<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;">' +
                       '<button type="button" class="open-player-att-profile-btn" data-idx="' + idx + '" style="border:none;border-radius:999px;padding:2px 7px;font-size:0.66rem;font-weight:800;cursor:pointer;' + attBadgeStyle + '">' +
@@ -4612,6 +5224,7 @@
           p.attendanceStatus = 'present';
           p.present = true;
           p.absenceReason = '';
+          markSessionDirty(true);
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
@@ -4625,6 +5238,7 @@
           if (!p) return;
           p.attendanceStatus = 'unexcused';
           p.present = false;
+          markSessionDirty(true);
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
@@ -4638,6 +5252,7 @@
           const i = parseInt(this.dataset.idx, 10);
           if (rosterPlayers[i]) {
             rosterPlayers[i].absenceReason = this.value.trim();
+            markSessionDirty(true);
             persistCurrentTeamState();
           }
         };
@@ -4651,10 +5266,17 @@
 
       document.querySelectorAll('.remove-roster-player-btn').forEach(btn => {
         btn.onclick = function() {
-          rosterPlayers.splice(parseInt(this.dataset.idx, 10), 1);
+          if (!canManageMasterRosterDeletes()) {
+            return showToast('Only Head Coaches and Club Admins can remove players from the Master Roster.');
+          }
+          const idx = parseInt(this.dataset.idx, 10);
+          const removed = rosterPlayers[idx];
+          if (!removed) return;
+          rosterPlayers.splice(idx, 1);
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
+          showToast('Removed ' + removed.name + ' from Master Roster');
         };
       });
 
@@ -4903,6 +5525,7 @@
             if (droppedPlayer) {
               tokens.forEach(t => { if (t.playerName === droppedPlayer) t.playerName = ''; });
               tokens[idx].playerName = droppedPlayer;
+              markGameDirty(true);
               renderGamePitch();
               showToast('Assigned ' + droppedPlayer + ' to ' + tokens[idx].pos);
             }
@@ -4934,13 +5557,16 @@
             if (!dragging) return;
             dragging = false;
             el.style.zIndex = '10';
-            if (!moved) {
+            if (moved) {
+              markGameDirty(true);
+            } else {
               openCustomPromptModal(
                 'Assign Player to ' + tokens[idx].pos,
                 'Enter player name (leave blank to clear back to position placeholder):',
                 tokens[idx].playerName || '',
                 (newName) => {
                   tokens[idx].playerName = (newName || '').trim();
+                  markGameDirty(true);
                   renderGamePitch();
                 }
               );
@@ -4958,7 +5584,7 @@
       }
 
       const onPitchNames = new Set(tokens.map(t => t.playerName).filter(Boolean));
-      const benchPlayers = gameRosterPlayers.filter(p => p.present && !onPitchNames.has(p.name));
+      const benchPlayers = gameRosterPlayers.filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present' && !onPitchNames.has(p.name));
 
       if (benchEl) {
         benchEl.innerHTML = '<div class="bench-dock">' +
@@ -4970,7 +5596,7 @@
                   ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
                 '</span>'
               ).join('')
-            : '<span style="font-size:0.75rem;color:#64748b;padding:8px 2px;">All available players assigned (or add players to Roster)</span>') +
+            : '<span style="font-size:0.75rem;color:#64748b;padding:8px 2px;">All available players assigned (or mark players Available below)</span>') +
         '</div>';
 
         benchEl.querySelectorAll('.bench-chip').forEach(chip => {
@@ -4985,6 +5611,7 @@
             const openSlot = openMatchingSlot || tokens.find(t => !t.playerName);
             if (openSlot && pName) {
               openSlot.playerName = pName;
+              markGameDirty(true);
               renderGamePitch();
               showToast('Assigned ' + pName + ' to ' + openSlot.pos);
             }
@@ -5002,37 +5629,82 @@
     }
 
     function renderGameRoster() {
+      gameRosterPlayers.forEach(normalizePlayerAttendanceModel);
       const grid = document.getElementById('gameRosterGrid');
       const summaryEl = document.getElementById('gameRosterSummaryText');
       if (!grid) return;
-      const availCount = gameRosterPlayers.filter(p => p.present).length;
-      if (summaryEl) summaryEl.textContent = availCount + ' Available for Match';
 
-      grid.innerHTML = gameRosterPlayers.map((p, idx) =>
-        '<div style="display:flex;align-items:center;justify-content:space-between;background:' + (p.present ? '#f0fdf4' : '#f8fafc') + ';border:1px solid ' + (p.present ? '#86efac' : '#cbd5e1') + ';border-radius:10px;padding:8px 12px;">' +
-          '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:0.84rem;color:#0A2647;">' +
-            '<input type="checkbox" class="game-roster-cb" data-idx="' + idx + '"' + (p.present ? ' checked' : '') + '>' +
-            '<span>' + escapeHtml(p.name) + '</span>' +
-            ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
-          '</label>' +
-          '<button type="button" class="btn btn-danger btn-sm remove-game-player-btn" data-idx="' + idx + '" style="padding:2px 7px;">&times;</button>' +
-        '</div>'
-      ).join('');
+      const availCount = gameRosterPlayers.filter(p => (p.attendanceStatus || 'present') === 'present').length;
+      const unavailCount = gameRosterPlayers.filter(p => (p.attendanceStatus || 'present') !== 'present').length;
+      if (summaryEl) {
+        summaryEl.textContent = availCount + ' Available • ' + unavailCount + ' Not Available (Missed games & reasons sync to Roster Attendance Profiles)';
+      }
 
-      grid.querySelectorAll('.game-roster-cb').forEach(cb => {
-        cb.onchange = function() {
-          const p = gameRosterPlayers[parseInt(this.dataset.idx, 10)];
-          p.present = this.checked;
-          p.attendanceStatus = this.checked ? 'present' : 'unexcused';
+      grid.innerHTML = gameRosterPlayers.map((p, idx) => {
+        const isPresent = (p.attendanceStatus || 'present') === 'present';
+        const bg = isPresent ? '#f0fdf4' : '#fef2f2';
+        const border = isPresent ? '#86efac' : '#fca5a5';
+        return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:11px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">' +
+            '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+              '<span style="font-weight:800;font-size:0.84rem;color:#0A2647;">' + escapeHtml(p.name) + '</span>' +
+              ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:5px;">' +
+              '<button type="button" class="att-toggle-btn game-att-present-btn' + (isPresent ? ' present-active' : '') + '" data-idx="' + idx + '" title="Available">&#10003;</button>' +
+              '<button type="button" class="att-toggle-btn game-att-absent-btn' + (!isPresent ? ' absent-active' : '') + '" data-idx="' + idx + '" title="Not Available">&#10005;</button>' +
+            '</div>' +
+          '</div>' +
+          (!isPresent
+            ? '<input type="text" class="input game-absence-reason-input" data-idx="' + idx + '" value="' + escapeHtml(p.absenceReason || '') + '" placeholder="Absence reason (e.g. Injured, Sick, Family Trip)..." style="padding:5px 8px;font-size:0.75rem;background:#ffffff;" />'
+            : '') +
+        '</div>';
+      }).join('');
+
+      grid.querySelectorAll('.game-att-present-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          const p = gameRosterPlayers[i];
+          if (!p) return;
+          p.attendanceStatus = 'present';
+          p.present = true;
+          p.absenceReason = '';
+          markGameDirty(true);
+          persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
         };
       });
-      grid.querySelectorAll('.remove-game-player-btn').forEach(btn => {
+
+      grid.querySelectorAll('.game-att-absent-btn').forEach(btn => {
         btn.onclick = function() {
-          gameRosterPlayers.splice(parseInt(this.dataset.idx, 10), 1);
+          const i = parseInt(this.dataset.idx, 10);
+          const p = gameRosterPlayers[i];
+          if (!p) return;
+          p.attendanceStatus = 'unexcused';
+          p.present = false;
+          [1, 2].forEach(h => {
+            (gameLineups[h] || []).forEach(slot => {
+              if (slot.playerName === p.name) slot.playerName = '';
+            });
+          });
+          markGameDirty(true);
+          persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
+          const reasonInput = document.querySelector('.game-absence-reason-input[data-idx="' + i + '"]');
+          if (reasonInput) reasonInput.focus();
+        };
+      });
+
+      grid.querySelectorAll('.game-absence-reason-input').forEach(inp => {
+        inp.onchange = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          if (gameRosterPlayers[i]) {
+            gameRosterPlayers[i].absenceReason = this.value.trim();
+            markGameDirty(true);
+            persistCurrentTeamState();
+          }
         };
       });
     }
@@ -5051,6 +5723,7 @@
       list.querySelectorAll('.remove-sub-btn').forEach(btn => {
         btn.onclick = function() {
           gameSubLogs.splice(parseInt(this.dataset.idx, 10), 1);
+          markGameDirty(true);
           renderSubLogList();
         };
       });
@@ -5121,18 +5794,123 @@
         2: slots.map((s, i) => ({ id: 'h2_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }))
       };
       gameSubLogs = [];
+      markGameDirty(false);
       renderSubLogList();
       renderGamePitch();
     }
 
     /* =========================================================
-       CALENDAR (MONTH / WEEK / DAY VIEWS + ADD GAME & NEW SESSION)
+       CALENDAR ("TODAY / NEXT UP" BANNER + DUPLICATE SESSION)
        ========================================================= */
     let calendarCursorDate = new Date();
     let calendarViewMode = 'month';
 
     function toIsoDate(d) {
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function duplicateSessionObject(sourceSession) {
+      if (!sourceSession) return;
+      currentEditingSessionId = null;
+      const baseTitle = String(sourceSession.title || 'Training Session').replace(/\s*\(Copy\)$/i, '');
+      document.getElementById('sessionTitleInput').value = baseTitle + ' (Copy)';
+      document.getElementById('sessionDateInput').value = getLocalTodayIso();
+      document.getElementById('sessionCoachInput').value = sourceSession.coach || 'Ambassadors FC Staff';
+      currentSessionParts = Array.isArray(sourceSession.parts)
+        ? JSON.parse(JSON.stringify(sourceSession.parts))
+        : [];
+      rosterPlayers.forEach(p => {
+        p.present = true;
+        p.attendanceStatus = 'present';
+        p.absenceReason = '';
+      });
+      markSessionDirty(true);
+      renderRoster();
+      renderSessionParts();
+      switchTab('builder');
+      showToast('Cloned "' + baseTitle + '" with fresh attendance — pick date & Save!');
+    }
+
+    function renderCalendarNextUpBanner(allEvents, todayIso) {
+      const bannerEl = document.getElementById('calendarNextUpBanner');
+      if (!bannerEl) return;
+
+      if (!activeTeamName || !Array.isArray(allEvents) || allEvents.length === 0) {
+        bannerEl.style.display = 'none';
+        bannerEl.innerHTML = '';
+        return;
+      }
+
+      const sorted = [...allEvents]
+        .filter(ev => ev && ev.date)
+        .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+      if (sorted.length === 0) {
+        bannerEl.style.display = 'none';
+        return;
+      }
+
+      const todayEvent = sorted.find(ev => ev.date === todayIso);
+      const upcomingEvent = sorted.find(ev => ev.date > todayIso);
+      const targetEv = todayEvent || upcomingEvent || sorted[sorted.length - 1];
+      const isToday = targetEv.date === todayIso;
+      const isPast = targetEv.date < todayIso;
+      const isGame = targetEv.kind === 'game';
+
+      const pillLabel = isToday
+        ? ('TODAY • ' + (isGame ? 'MATCH DAY' : 'TRAINING SESSION'))
+        : (isPast ? ('LAST EVENT • ' + targetEv.date) : ('NEXT UP • ' + targetEv.date));
+
+      const metaSub = isGame
+        ? ('Kickoff: ' + (targetEv.time || 'TBD') + ' • ' + (targetEv.location || 'Field TBD'))
+        : ('Coach: ' + (targetEv.coach || 'Ambassadors FC Staff') + ' • ' + (targetEv.partsCount || 0) + ' Activities');
+
+      bannerEl.style.display = 'block';
+      bannerEl.innerHTML = '<div class="next-up-banner' + (isGame ? ' game-next-up' : '') + '">' +
+        '<div style="display:flex;flex-direction:column;gap:4px;">' +
+          '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">' +
+            '<span class="badge ' + (isToday ? 'badge-amber' : 'badge-navy') + '" style="background:#ffffff;color:#0A2647;">' + escapeHtml(pillLabel) + '</span>' +
+            '<span style="font-size:0.74rem;font-weight:700;color:#bae6fd;">' + escapeHtml(activeTeamName) + '</span>' +
+          '</div>' +
+          '<div style="font-size:1.05rem;font-weight:900;line-height:1.25;">' + escapeHtml(targetEv.title) + '</div>' +
+          '<div style="font-size:0.76rem;color:#e0f2fe;font-weight:600;">' + escapeHtml(metaSub) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">' +
+          '<button type="button" class="btn btn-emerald btn-sm" id="nextUpOpenEventBtn">' + (isGame ? 'Open Lineup & Subbing' : 'Open Session Plan') + '</button>' +
+          '<button type="button" class="btn btn-outline btn-sm" id="nextUpTakeAttendanceBtn" style="background:rgba(255,255,255,0.95);">&#10003; Take Attendance</button>' +
+        '</div>' +
+      '</div>';
+
+      const openTargetEvent = (scrollToAttendance) => {
+        if (isGame) {
+          const g = savedGames.find(item => item.id === targetEv.id);
+          if (g) {
+            loadGameIntoPlanner(g);
+            if (scrollToAttendance) {
+              setTimeout(() => {
+                const rosterCard = document.getElementById('gameRosterTitle');
+                if (rosterCard) rosterCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 80);
+            }
+          }
+        } else {
+          const s = savedSessions.find(item => item.id === targetEv.id);
+          if (s) {
+            loadSessionIntoBuilder(s);
+            if (scrollToAttendance) {
+              setTimeout(() => {
+                const rosterCard = document.getElementById('rosterSummaryText');
+                if (rosterCard) rosterCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 80);
+            }
+          }
+        }
+      };
+
+      const openBtn = document.getElementById('nextUpOpenEventBtn');
+      const attBtn = document.getElementById('nextUpTakeAttendanceBtn');
+      if (openBtn) openBtn.onclick = () => openTargetEvent(false);
+      if (attBtn) attBtn.onclick = () => openTargetEvent(true);
     }
 
     function renderCalendar() {
@@ -5156,8 +5934,26 @@
       const todayIso = getLocalTodayIso();
 
       const allEvents = [];
-      savedSessions.forEach(s => allEvents.push({ id: s.id, kind: 'session', date: s.date, title: s.title, team: s.team || activeTeamName }));
-      savedGames.forEach(g => allEvents.push({ id: g.id, kind: 'game', date: g.date, title: 'vs ' + g.opponent + ' (' + (g.goalsFor || 0) + '-' + (g.goalsAgainst || 0) + ')', team: g.team || activeTeamName }));
+      savedSessions.forEach(s => allEvents.push({
+        id: s.id,
+        kind: 'session',
+        date: s.date,
+        title: s.title,
+        team: s.team || activeTeamName,
+        coach: s.coach || 'Ambassadors FC Staff',
+        partsCount: Array.isArray(s.parts) ? s.parts.length : 0
+      }));
+      savedGames.forEach(g => allEvents.push({
+        id: g.id,
+        kind: 'game',
+        date: g.date,
+        title: 'vs ' + g.opponent + ' (' + (g.goalsFor || 0) + '-' + (g.goalsAgainst || 0) + ')',
+        team: g.team || activeTeamName,
+        time: g.time || '10:00 AM',
+        location: g.location || 'Field 1'
+      }));
+
+      renderCalendarNextUpBanner(allEvents, todayIso);
 
       let html = '';
       if (calendarViewMode === 'month') {
@@ -5229,14 +6025,27 @@
           ? '<div style="font-size:0.8rem;color:#64748b;">No saved sessions or games yet for ' + escapeHtml(activeTeamName) + '.</div>'
           : allEvents.map(ev =>
               '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
-                '<div>' +
+                '<div style="min-width:0;">' +
                   '<span class="badge ' + (ev.kind === 'game' ? 'badge-emerald' : 'badge-navy') + '">' + (ev.kind === 'game' ? 'GAME' : 'SESSION') + '</span>' +
                   '<div style="font-weight:800;font-size:0.86rem;color:#0A2647;margin-top:4px;">' + escapeHtml(ev.title) + '</div>' +
                   '<div style="font-size:0.74rem;color:#64748b;">' + escapeHtml(ev.date || 'Unscheduled') + '</div>' +
                 '</div>' +
-                '<button type="button" class="btn btn-outline btn-sm open-cal-item-btn" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">Open</button>' +
+                '<div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">' +
+                  (ev.kind === 'session'
+                    ? '<button type="button" class="btn btn-outline btn-sm dup-cal-sess-btn" data-ev-id="' + escapeHtml(ev.id) + '" title="Clone this session onto a new date">Duplicate</button>'
+                    : '') +
+                  '<button type="button" class="btn btn-outline btn-sm open-cal-item-btn" data-ev-kind="' + ev.kind + '" data-ev-id="' + escapeHtml(ev.id) + '">Open</button>' +
+                '</div>' +
               '</div>'
             ).join('');
+
+        listEl.querySelectorAll('.dup-cal-sess-btn').forEach(btn => {
+          btn.onclick = function() {
+            const id = this.getAttribute('data-ev-id');
+            const s = savedSessions.find(item => item.id === id);
+            if (s) duplicateSessionObject(s);
+          };
+        });
 
         listEl.querySelectorAll('.open-cal-item-btn').forEach(btn => {
           btn.onclick = function() {
@@ -5266,7 +6075,20 @@
       if (g.formation) document.getElementById('gameFormationSelect').value = g.formation;
       if (g.lineups) gameLineups = JSON.parse(JSON.stringify(g.lineups));
       gameSubLogs = Array.isArray(g.subLogs) ? JSON.parse(JSON.stringify(g.subLogs)) : [];
+      if (Array.isArray(g.attendanceSnapshot)) {
+        const snapMap = new Map(g.attendanceSnapshot.map(item => [String(item.name || '').toLowerCase(), item]));
+        gameRosterPlayers.forEach(p => {
+          const found = snapMap.get(String(p.name || '').toLowerCase());
+          if (found) {
+            p.attendanceStatus = found.status || 'present';
+            p.present = p.attendanceStatus === 'present';
+            p.absenceReason = found.reason || '';
+          }
+        });
+      }
+      markGameDirty(false);
       renderSubLogList();
+      renderGameRoster();
       renderGamePitch();
       switchTab('gameday');
     }
@@ -5288,6 +6110,7 @@
           }
         });
       }
+      markSessionDirty(false);
       renderRoster();
       renderSessionParts();
       switchTab('builder');
@@ -5297,6 +6120,8 @@
        SESSION BUILDER + WARM-UP LINKS + DUAL SIDE-BY-SIDE SCRIMMAGE FIELD VIEWS
        ========================================================= */
     const SCRIMMAGE_FORMATIONS = ['4-2-2', '3-4-1', '3-2-1', '2-3-1', '2-2-1', '4-4-2 Flat', '4-4-2 Diamond'];
+    let selectedScrimmageBenchPlayer = null;
+    let selectedScrimmageBenchPartIdx = -1;
 
     function parseReferenceLinks(rawStr) {
       return String(rawStr || '')
@@ -5321,7 +6146,19 @@
         .filter(Boolean);
     }
 
-    function buildDefaultScrimmageSlots(formationName, sideKey, assignedNames) {
+    function getScrimmagePoolPlayers(part) {
+      const presentPlayers = rosterPlayers.filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present');
+      const guests = Array.isArray(part && part.scrimmageGuests) ? part.scrimmageGuests : [];
+      const combined = presentPlayers.map(p => ({ name: p.name, positions: p.positions || [], isGuest: false }));
+      guests.forEach(g => {
+        if (g && g.name && !combined.some(c => c.name.toLowerCase() === g.name.toLowerCase())) {
+          combined.push({ name: g.name, positions: g.positions || [], isGuest: true });
+        }
+      });
+      return combined;
+    }
+
+    function buildDefaultScrimmageSlots(formationName, sideKey, assignedNames, part) {
       const form = FORMATIONS[formationName] ? formationName : '4-2-2';
       const template = FORMATIONS[form];
       const slots = template.map((slot, idx) => ({
@@ -5333,8 +6170,9 @@
       }));
       const names = Array.isArray(assignedNames) ? assignedNames.filter(Boolean) : [];
       if (names.length > 0) {
+        const pool = getScrimmagePoolPlayers(part);
         const candidatePlayerObjs = names.map(name => {
-          const found = rosterPlayers.find(p => p.name === name);
+          const found = pool.find(p => p.name === name);
           return found || { name, positions: [] };
         });
         assignPlayersToSlotsByPosition(slots, candidatePlayerObjs);
@@ -5342,9 +6180,10 @@
       return slots;
     }
 
-    function assignPlayerToMatchingScrimmageSlot(slots, playerName) {
+    function assignPlayerToMatchingScrimmageSlot(slots, playerName, part) {
       if (!Array.isArray(slots) || !playerName) return;
-      const pObj = rosterPlayers.find(p => p.name === playerName);
+      const pool = getScrimmagePoolPlayers(part);
+      const pObj = pool.find(p => p.name === playerName);
       const pGroups = (pObj && Array.isArray(pObj.positions) ? pObj.positions : [])
         .map(normalizePlayerPosToken)
         .filter(Boolean);
@@ -5370,9 +6209,10 @@
       if (anyOpen) anyOpen.playerName = playerName;
     }
 
-    function ensureScrimmagePartState(part, presentNamesSet) {
-      part.scrimmageNavy = (Array.isArray(part.scrimmageNavy) ? part.scrimmageNavy : []).filter(n => presentNamesSet.has(n));
-      part.scrimmageWhite = (Array.isArray(part.scrimmageWhite) ? part.scrimmageWhite : []).filter(n => presentNamesSet.has(n));
+    function ensureScrimmagePartState(part, availableNamesSet) {
+      if (!Array.isArray(part.scrimmageGuests)) part.scrimmageGuests = [];
+      part.scrimmageNavy = (Array.isArray(part.scrimmageNavy) ? part.scrimmageNavy : []).filter(n => availableNamesSet.has(n));
+      part.scrimmageWhite = (Array.isArray(part.scrimmageWhite) ? part.scrimmageWhite : []).filter(n => availableNamesSet.has(n));
 
       if (!part.scrimmageNavyFormation || !FORMATIONS[part.scrimmageNavyFormation]) {
         part.scrimmageNavyFormation = '4-2-2';
@@ -5382,33 +6222,33 @@
       }
 
       if (!Array.isArray(part.scrimmageNavySlots) || part.scrimmageNavySlots.length === 0) {
-        part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation, 'navy', part.scrimmageNavy);
+        part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation, 'navy', part.scrimmageNavy, part);
       } else {
         part.scrimmageNavySlots.forEach(s => {
-          if (s.playerName && (!presentNamesSet.has(s.playerName) || !part.scrimmageNavy.includes(s.playerName))) {
+          if (s.playerName && (!availableNamesSet.has(s.playerName) || !part.scrimmageNavy.includes(s.playerName))) {
             s.playerName = '';
           }
         });
         const onNavyPitch = new Set(part.scrimmageNavySlots.map(s => s.playerName).filter(Boolean));
         part.scrimmageNavy.forEach(n => {
           if (!onNavyPitch.has(n)) {
-            assignPlayerToMatchingScrimmageSlot(part.scrimmageNavySlots, n);
+            assignPlayerToMatchingScrimmageSlot(part.scrimmageNavySlots, n, part);
           }
         });
       }
 
       if (!Array.isArray(part.scrimmageWhiteSlots) || part.scrimmageWhiteSlots.length === 0) {
-        part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation, 'white', part.scrimmageWhite);
+        part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation, 'white', part.scrimmageWhite, part);
       } else {
         part.scrimmageWhiteSlots.forEach(s => {
-          if (s.playerName && (!presentNamesSet.has(s.playerName) || !part.scrimmageWhite.includes(s.playerName))) {
+          if (s.playerName && (!availableNamesSet.has(s.playerName) || !part.scrimmageWhite.includes(s.playerName))) {
             s.playerName = '';
           }
         });
         const onWhitePitch = new Set(part.scrimmageWhiteSlots.map(s => s.playerName).filter(Boolean));
         part.scrimmageWhite.forEach(n => {
           if (!onWhitePitch.has(n)) {
-            assignPlayerToMatchingScrimmageSlot(part.scrimmageWhiteSlots, n);
+            assignPlayerToMatchingScrimmageSlot(part.scrimmageWhiteSlots, n, part);
           }
         });
       }
@@ -5432,7 +6272,7 @@
           const hasPlayer = Boolean(tok.playerName && tok.playerName.trim());
           const tokenClass = hasPlayer
             ? (isNavy ? 'team-navy' : 'team-white')
-            : 'team-white';
+            : 'team-white open-slot-token';
           const emptyStyle = !hasPlayer ? 'opacity:0.86;border-style:dashed;' : '';
           return '<div class="pitch-token scrimmage-pitch-token ' + tokenClass + '"' +
             ' draggable="true"' +
@@ -5455,6 +6295,7 @@
         referenceLinks: '',
         coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
         notes: '4 central poles spaced 6 yards apart with left and right passing lanes.',
+        scrimmageGuests: [],
         scrimmageNavy: [],
         scrimmageWhite: [],
         scrimmageNavyFormation: '4-2-2',
@@ -5470,9 +6311,6 @@
       if (!container) return;
       let totalMins = 0;
 
-      const presentPlayers = rosterPlayers.filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present');
-      const presentNamesSet = new Set(presentPlayers.map(p => p.name));
-
       container.innerHTML = currentSessionParts.map((part, idx) => {
         totalMins += Number(part.duration || 0);
         const resolvedGif = resolveDrillMediaUrl(part.gifUrl);
@@ -5485,7 +6323,7 @@
         if (isWarmup) {
           const parsedLinks = parseReferenceLinks(part.referenceLinks || '');
           warmupLinksHtml = '<div class="warmup-links-box">' +
-            '<label class="label" style="margin-bottom:5px;">Warm-Up Reference Links (YouTube, Vimeo, or Routine URLs)</label>' +
+            '<label class="label no-clean-preview" style="margin-bottom:5px;">Warm-Up Reference Links (YouTube, Vimeo, or Routine URLs)</label>' +
             '<input type="text" class="input part-warmup-links-input no-clean-preview" data-part-idx="' + idx + '" value="' + escapeHtml(part.referenceLinks || '') + '" placeholder="Paste link(s), e.g. Dynamic Rondo - https://youtube.com/... (comma or line separated)">' +
             (parsedLinks.length > 0
               ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' +
@@ -5499,22 +6337,34 @@
 
         let scrimmagePanelHtml = '';
         if (isScrimmage) {
-          ensureScrimmagePartState(part, presentNamesSet);
+          const poolPlayers = getScrimmagePoolPlayers(part);
+          const availableNamesSet = new Set(poolPlayers.map(p => p.name));
+          ensureScrimmagePartState(part, availableNamesSet);
 
           const assignedSet = new Set([...part.scrimmageNavy, ...part.scrimmageWhite]);
-          const unassignedPresent = presentPlayers.filter(p => !assignedSet.has(p.name));
+          const unassignedPool = poolPlayers.filter(p => !assignedSet.has(p.name));
+          const activeBenchPick = (selectedScrimmageBenchPartIdx === idx && unassignedPool.some(p => p.name === selectedScrimmageBenchPlayer))
+            ? selectedScrimmageBenchPlayer
+            : '';
 
           scrimmagePanelHtml = '<div class="scrimmage-builder-panel">' +
             '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
               '<div>' +
                 '<span style="font-size:0.84rem;font-weight:900;color:#0A2647;">&#9917; Scrimmage Lineups &amp; Side-by-Side Tactical Fields</span>' +
-                '<div style="font-size:0.72rem;color:#64748b;">Drag any slot or player anywhere on a field to customize shape, drag between fields to switch teams, or drop onto the center bench to unassign.</div>' +
+                '<div class="no-clean-preview" style="font-size:0.72rem;color:#64748b;">Drag (or tap on iPad/tablet) any bench player onto Navy or White field, drag tokens to customize shape, or drop back onto the center bench.</div>' +
               '</div>' +
               '<div style="display:flex;flex-wrap:wrap;gap:6px;" class="no-clean-preview">' +
                 '<button type="button" class="btn btn-primary btn-sm auto-split-scrimmage-btn" data-part-idx="' + idx + '">Auto-Split &amp; Fill Fields</button>' +
                 '<button type="button" class="btn btn-outline btn-sm clear-scrimmage-btn" data-part-idx="' + idx + '">Clear Fields to Bench</button>' +
               '</div>' +
             '</div>' +
+
+            (activeBenchPick
+              ? '<div class="no-clean-preview" style="margin-top:8px;background:#eff6ff;border:1px solid #93c5fd;border-radius:9px;padding:7px 11px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:0.76rem;font-weight:800;color:#0A2647;">' +
+                  '<span>&#128070; Selected: <strong style="color:#1e4e8c;">' + escapeHtml(activeBenchPick) + '</strong> — Tap any slot or spot on <strong>Navy</strong> or <strong>White</strong> field to place</span>' +
+                  '<button type="button" class="btn btn-outline btn-sm cancel-bench-select-btn" style="padding:2px 8px;font-size:0.7rem;">Cancel</button>' +
+                '</div>'
+              : '') +
 
             '<div class="scrimmage-teams-grid">' +
               '<div class="scrimmage-side-box" style="border-top:4px solid #0A2647;">' +
@@ -5533,22 +6383,31 @@
               '<div class="scrimmage-center-bench" data-part-idx="' + idx + '">' +
                 '<div style="border-bottom:2px solid #cbd5e1;padding-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
                   '<span style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#0A2647;">Bench / Roster</span>' +
-                  '<span class="badge badge-emerald">' + unassignedPresent.length + ' / ' + presentPlayers.length + '</span>' +
+                  '<span class="badge badge-emerald">' + unassignedPool.length + ' / ' + poolPlayers.length + '</span>' +
                 '</div>' +
-                '<div style="font-size:0.68rem;color:#64748b;line-height:1.35;">' +
-                  'Drag players onto Navy or White field. Drop field players back here to unassign.' +
+                '<div class="no-clean-preview" style="display:flex;gap:4px;">' +
+                  '<input type="text" class="input scrimmage-guest-input" data-part-idx="' + idx + '" placeholder="Guest / Coach (e.g. Coach Mason)" style="padding:5px 7px;font-size:0.73rem;">' +
+                  '<button type="button" class="btn btn-outline btn-sm add-scrimmage-guest-btn" data-part-idx="' + idx + '" style="padding:4px 8px;font-size:0.71rem;white-space:nowrap;" title="Add temporary player to this scrimmage only (not saved to Master Roster)">+ Guest</button>' +
                 '</div>' +
-                '<div style="display:flex;flex-direction:column;gap:5px;flex:1;overflow-y:auto;max-height:360px;padding-right:2px;">' +
-                  (presentPlayers.length === 0
-                    ? '<div style="font-size:0.74rem;color:#94a3b8;text-align:center;padding:18px 6px;">Mark players Present in Session Attendance below to populate the bench.</div>'
-                    : (unassignedPresent.length === 0
-                        ? '<div style="font-size:0.74rem;color:#64748b;text-align:center;padding:18px 6px;border:1px dashed #cbd5e1;border-radius:8px;">All present players are on a field.<br>Drag any player back here to bench them.</div>'
-                        : unassignedPresent.map(p =>
-                            '<div class="scrimmage-bench-chip" draggable="true" data-part-idx="' + idx + '" data-player="' + escapeHtml(p.name) + '">' +
+                '<div class="no-clean-preview" style="font-size:0.67rem;color:#64748b;line-height:1.3;">' +
+                  'Tap or drag players onto Navy or White field. Guest players only stay in this scrimmage.' +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;gap:5px;flex:1;overflow-y:auto;max-height:330px;padding-right:2px;">' +
+                  (poolPlayers.length === 0
+                    ? '<div style="font-size:0.74rem;color:#94a3b8;text-align:center;padding:18px 6px;">Mark players Present below or add a temporary + Guest above.</div>'
+                    : (unassignedPool.length === 0
+                        ? '<div style="font-size:0.74rem;color:#64748b;text-align:center;padding:18px 6px;border:1px dashed #cbd5e1;border-radius:8px;">All available players are on a field.<br>Drag any player back here to bench them.</div>'
+                        : unassignedPool.map(p => {
+                            const isPicked = activeBenchPick === p.name;
+                            return '<div class="scrimmage-bench-chip' + (p.isGuest ? ' guest-chip' : '') + (isPicked ? ' selected-bench-chip' : '') + '" draggable="true" data-part-idx="' + idx + '" data-player="' + escapeHtml(p.name) + '">' +
                               '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(p.name) + '</span>' +
-                              ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions[0]) + '</span>' : '') +
-                            '</div>'
-                          ).join('')
+                              '<div style="display:inline-flex;align-items:center;gap:4px;flex-shrink:0;">' +
+                                (p.isGuest ? '<span class="badge badge-amber" style="font-size:0.58rem;padding:1px 5px;">GUEST</span>' : '') +
+                                ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions[0]) + '</span>' : '') +
+                                (p.isGuest ? '<button type="button" class="remove-scrimmage-guest-btn no-clean-preview" data-part-idx="' + idx + '" data-guest-name="' + escapeHtml(p.name) + '" title="Remove guest" style="background:none;border:none;color:#b45309;font-weight:900;font-size:0.85rem;cursor:pointer;padding:0 2px;line-height:1;">&times;</button>' : '') +
+                              '</div>' +
+                            '</div>';
+                          }).join('')
                       )
                   ) +
                 '</div>' +
@@ -5576,7 +6435,7 @@
                 (resolvedGif
                   ? '<div class="gif-preview-wrap session-part-gif-wrap" data-part-idx="' + idx + '">' +
                       '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
-                      '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
+                      '<span class="gif-enlarge-hint no-clean-preview">&#128269; Click to Enlarge</span>' +
                     '</div>'
                   : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
               '</div>' +
@@ -5594,11 +6453,11 @@
           '<div class="part-header">' +
             '<div class="part-header-left">' +
               '<span class="badge badge-navy">' + escapeHtml(part.type || 'Activity') + '</span>' +
-              '<input type="text" class="part-title-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.title) + '">' +
+              '<input type="text" class="part-title-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.title || '') + '">' +
             '</div>' +
             '<div class="part-header-right">' +
-              '<label class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</label>' +
-              '<button type="button" class="btn btn-danger btn-sm remove-part-btn no-clean-preview" data-part-idx="' + idx + '">Remove</button>' +
+              '<span class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</span>' +
+              '<button type="button" class="btn btn-danger btn-sm remove-part-btn no-clean-preview" data-part-idx="' + idx + '">&times;</button>' +
             '</div>' +
           '</div>' +
           bodyHtml +
@@ -5606,28 +6465,48 @@
           scrimmagePanelHtml +
         '</div>';
       }).join('');
+
       if (totalEl) totalEl.textContent = String(totalMins);
 
       container.querySelectorAll('.part-title-input').forEach(inp => {
-        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].title = this.value; };
+        inp.onchange = function() {
+          currentSessionParts[parseInt(this.dataset.partIdx, 10)].title = this.value;
+          markSessionDirty(true);
+          renderSessionParts();
+        };
       });
       container.querySelectorAll('.part-dur-input').forEach(inp => {
-        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].duration = parseInt(this.value, 10) || 15; renderSessionParts(); };
+        inp.onchange = function() {
+          currentSessionParts[parseInt(this.dataset.partIdx, 10)].duration = parseInt(this.value, 10) || 10;
+          markSessionDirty(true);
+          renderSessionParts();
+        };
       });
       container.querySelectorAll('.part-cp-input').forEach(inp => {
-        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].coachingPoints = this.value; };
+        inp.oninput = function() {
+          currentSessionParts[parseInt(this.dataset.partIdx, 10)].coachingPoints = this.value;
+          markSessionDirty(true);
+        };
       });
       container.querySelectorAll('.part-notes-input').forEach(inp => {
-        inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].notes = this.value; };
+        inp.oninput = function() {
+          currentSessionParts[parseInt(this.dataset.partIdx, 10)].notes = this.value;
+          markSessionDirty(true);
+        };
       });
       container.querySelectorAll('.part-warmup-links-input').forEach(inp => {
         inp.onchange = function() {
           currentSessionParts[parseInt(this.dataset.partIdx, 10)].referenceLinks = this.value;
+          markSessionDirty(true);
           renderSessionParts();
         };
       });
       container.querySelectorAll('.remove-part-btn').forEach(btn => {
-        btn.onclick = function() { currentSessionParts.splice(parseInt(this.dataset.partIdx, 10), 1); renderSessionParts(); };
+        btn.onclick = function() {
+          currentSessionParts.splice(parseInt(this.dataset.partIdx, 10), 1);
+          markSessionDirty(true);
+          renderSessionParts();
+        };
       });
       container.querySelectorAll('.session-part-gif-wrap').forEach(wrap => {
         wrap.onclick = function() {
@@ -5636,64 +6515,232 @@
         };
       });
 
+      const handleAddScrimmageGuest = (pIdx, rawInputVal) => {
+        const part = currentSessionParts[pIdx];
+        if (!part) return;
+        const parsed = parseSingleRosterEntry(rawInputVal);
+        if (!parsed) return;
+        if (!Array.isArray(part.scrimmageGuests)) part.scrimmageGuests = [];
+        const pool = getScrimmagePoolPlayers(part);
+        if (pool.some(p => p.name.toLowerCase() === parsed.name.toLowerCase())) {
+          showToast(parsed.name + ' is already on the scrimmage bench or field.');
+          return;
+        }
+        part.scrimmageGuests.push({
+          id: 'guest_' + Date.now(),
+          name: parsed.name,
+          positions: parsed.positions || []
+        });
+        markSessionDirty(true);
+        renderSessionParts();
+        showToast('Added temporary guest "' + parsed.name + '" to scrimmage bench (not added to Master Roster).');
+      };
+
+      container.querySelectorAll('.add-scrimmage-guest-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const inp = container.querySelector('.scrimmage-guest-input[data-part-idx="' + pIdx + '"]');
+          if (!inp) return;
+          handleAddScrimmageGuest(pIdx, inp.value);
+        };
+      });
+
+      container.querySelectorAll('.scrimmage-guest-input').forEach(inp => {
+        inp.onkeydown = function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+            handleAddScrimmageGuest(pIdx, this.value);
+          }
+        };
+      });
+
+      container.querySelectorAll('.remove-scrimmage-guest-btn').forEach(btn => {
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const guestName = this.getAttribute('data-guest-name') || '';
+          const part = currentSessionParts[pIdx];
+          if (!part || !guestName) return;
+          part.scrimmageGuests = (part.scrimmageGuests || []).filter(g => g.name !== guestName);
+          moveScrimmagePlayerToBench(part, guestName);
+          if (selectedScrimmageBenchPartIdx === pIdx && selectedScrimmageBenchPlayer === guestName) {
+            selectedScrimmageBenchPlayer = null;
+            selectedScrimmageBenchPartIdx = -1;
+          }
+          markSessionDirty(true);
+          renderSessionParts();
+          showToast('Removed temporary guest ' + guestName);
+        };
+      });
+
       container.querySelectorAll('.scrimmage-formation-select').forEach(sel => {
         sel.onchange = function() {
-          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
-          const side = this.getAttribute('data-side');
+          const pIdx = parseInt(this.dataset.partIdx, 10);
+          const side = this.dataset.side;
           const part = currentSessionParts[pIdx];
           if (!part) return;
-          const newForm = this.value || '4-2-2';
+          const nextForm = this.value;
           if (side === 'navy') {
-            part.scrimmageNavyFormation = newForm;
-            part.scrimmageNavySlots = buildDefaultScrimmageSlots(newForm, 'navy', part.scrimmageNavy);
+            part.scrimmageNavyFormation = nextForm;
+            part.scrimmageNavySlots = buildDefaultScrimmageSlots(nextForm, 'navy', part.scrimmageNavy, part);
           } else {
-            part.scrimmageWhiteFormation = newForm;
-            part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(newForm, 'white', part.scrimmageWhite);
+            part.scrimmageWhiteFormation = nextForm;
+            part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(nextForm, 'white', part.scrimmageWhite, part);
           }
+          markSessionDirty(true);
           renderSessionParts();
         };
       });
 
-      const moveScrimmagePlayerToBench = (part, playerName) => {
+      function moveScrimmagePlayerToBench(part, playerName) {
         if (!part || !playerName) return;
         part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
         part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
         (part.scrimmageNavySlots || []).forEach(s => { if (s.playerName === playerName) s.playerName = ''; });
         (part.scrimmageWhiteSlots || []).forEach(s => { if (s.playerName === playerName) s.playerName = ''; });
-      };
+      }
 
-      const assignScrimmagePlayerToTarget = (part, side, playerName, targetSlotIdx) => {
+      function assignScrimmagePlayerToTarget(part, targetSide, playerName, targetSlotIdx) {
         if (!part || !playerName) return;
-        const targetSlots = side === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+        const isNavy = targetSide === 'navy';
+        const targetSlots = isNavy ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
         const displacedPlayer = (typeof targetSlotIdx === 'number' && targetSlots[targetSlotIdx] && targetSlots[targetSlotIdx].playerName && targetSlots[targetSlotIdx].playerName !== playerName)
           ? targetSlots[targetSlotIdx].playerName
           : '';
 
         moveScrimmagePlayerToBench(part, playerName);
+        if (displacedPlayer) {
+          moveScrimmagePlayerToBench(part, displacedPlayer);
+        }
 
-        if (side === 'navy') part.scrimmageNavy.push(playerName);
-        else part.scrimmageWhite.push(playerName);
+        if (isNavy) {
+          part.scrimmageNavy.push(playerName);
+        } else {
+          part.scrimmageWhite.push(playerName);
+        }
 
         if (typeof targetSlotIdx === 'number' && targetSlots[targetSlotIdx]) {
           targetSlots[targetSlotIdx].playerName = playerName;
-          if (displacedPlayer) {
-            assignPlayerToMatchingScrimmageSlot(targetSlots, displacedPlayer);
-          }
         } else {
-          assignPlayerToMatchingScrimmageSlot(targetSlots, playerName);
+          assignPlayerToMatchingScrimmageSlot(targetSlots, playerName, part);
         }
-      };
+        markSessionDirty(true);
+      }
+
+      container.querySelectorAll('.cancel-bench-select-btn').forEach(btn => {
+        btn.onclick = () => {
+          selectedScrimmageBenchPlayer = null;
+          selectedScrimmageBenchPartIdx = -1;
+          renderSessionParts();
+        };
+      });
 
       container.querySelectorAll('.scrimmage-bench-chip').forEach(chip => {
+        const chipPartIdx = parseInt(chip.getAttribute('data-part-idx'), 10);
+        const chipPlayerName = chip.getAttribute('data-player') || '';
+
         chip.addEventListener('dragstart', (e) => {
           if (e.dataTransfer) {
             e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', chip.getAttribute('data-player') || '');
+            e.dataTransfer.setData('text/plain', chipPlayerName);
             e.dataTransfer.setData('application/x-afc-scrim', JSON.stringify({
-              partIdx: parseInt(chip.getAttribute('data-part-idx'), 10),
-              playerName: chip.getAttribute('data-player') || '',
+              partIdx: chipPartIdx,
+              playerName: chipPlayerName,
               fromSide: 'bench'
             }));
+          }
+        });
+
+        chip.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('.remove-scrimmage-guest-btn')) return;
+          if (selectedScrimmageBenchPartIdx === chipPartIdx && selectedScrimmageBenchPlayer === chipPlayerName) {
+            selectedScrimmageBenchPlayer = null;
+            selectedScrimmageBenchPartIdx = -1;
+          } else {
+            selectedScrimmageBenchPlayer = chipPlayerName;
+            selectedScrimmageBenchPartIdx = chipPartIdx;
+          }
+          renderSessionParts();
+        });
+
+        let benchTouchActive = false;
+        let benchTouchMoved = false;
+        let benchStartX = 0;
+        let benchStartY = 0;
+        let floatingGhost = null;
+
+        chip.addEventListener('touchstart', (e) => {
+          if (e.target && e.target.closest('.remove-scrimmage-guest-btn')) return;
+          const pt = e.touches[0];
+          benchTouchActive = true;
+          benchTouchMoved = false;
+          benchStartX = pt.clientX;
+          benchStartY = pt.clientY;
+        }, { passive: true });
+
+        chip.addEventListener('touchmove', (e) => {
+          if (!benchTouchActive) return;
+          const pt = e.touches[0];
+          if (!benchTouchMoved && Math.hypot(pt.clientX - benchStartX, pt.clientY - benchStartY) > 8) {
+            benchTouchMoved = true;
+            floatingGhost = document.createElement('div');
+            floatingGhost.textContent = chipPlayerName;
+            floatingGhost.style.cssText = 'position:fixed;z-index:500;pointer-events:none;background:#0A2647;color:#ffffff;border:2px solid #38bdf8;border-radius:999px;padding:6px 12px;font-size:0.78rem;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,0.35);transform:translate(-50%,-50%);';
+            document.body.appendChild(floatingGhost);
+          }
+          if (benchTouchMoved) {
+            e.preventDefault();
+            if (floatingGhost) {
+              floatingGhost.style.left = pt.clientX + 'px';
+              floatingGhost.style.top = pt.clientY + 'px';
+            }
+          }
+        }, { passive: false });
+
+        chip.addEventListener('touchend', (e) => {
+          if (!benchTouchActive) return;
+          benchTouchActive = false;
+          if (floatingGhost && floatingGhost.parentNode) {
+            floatingGhost.parentNode.removeChild(floatingGhost);
+          }
+          floatingGhost = null;
+
+          if (!benchTouchMoved) return;
+          const pt = e.changedTouches && e.changedTouches[0];
+          const part = currentSessionParts[chipPartIdx];
+          if (!pt || !part) return;
+
+          const elUnder = document.elementFromPoint(pt.clientX, pt.clientY);
+          const tokUnder = elUnder && elUnder.closest('.scrimmage-pitch-token');
+          const pitchUnder = elUnder && elUnder.closest('.scrimmage-pitch');
+
+          if (tokUnder && parseInt(tokUnder.getAttribute('data-part-idx'), 10) === chipPartIdx) {
+            const targetSide = tokUnder.getAttribute('data-side');
+            const targetSlotIdx = parseInt(tokUnder.getAttribute('data-slot-idx'), 10);
+            const targetSlots = targetSide === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+            assignScrimmagePlayerToTarget(part, targetSide, chipPlayerName, targetSlotIdx);
+            selectedScrimmageBenchPlayer = null;
+            selectedScrimmageBenchPartIdx = -1;
+            renderSessionParts();
+            showToast('Placed ' + chipPlayerName + ' at ' + (targetSlots[targetSlotIdx] ? targetSlots[targetSlotIdx].pos : '') + ' (' + (targetSide === 'navy' ? 'Navy' : 'White') + ')');
+          } else if (pitchUnder && parseInt(pitchUnder.getAttribute('data-part-idx'), 10) === chipPartIdx) {
+            const targetSide = pitchUnder.getAttribute('data-side');
+            const targetSlots = targetSide === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+            const rect = pitchUnder.getBoundingClientRect();
+            const dropPctX = Math.round(Math.max(8, Math.min(92, ((pt.clientX - rect.left) / rect.width) * 100)) * 10) / 10;
+            const dropPctY = Math.round(Math.max(6, Math.min(94, ((pt.clientY - rect.top) / rect.height) * 100)) * 10) / 10;
+            const openBefore = new Set(targetSlots.filter(s => !s.playerName).map(s => s.id));
+            assignScrimmagePlayerToTarget(part, targetSide, chipPlayerName, null);
+            const placedSlot = targetSlots.find(s => s.playerName === chipPlayerName && openBefore.has(s.id)) || targetSlots.find(s => s.playerName === chipPlayerName);
+            if (placedSlot) {
+              placedSlot.x = dropPctX;
+              placedSlot.y = dropPctY;
+            }
+            selectedScrimmageBenchPlayer = null;
+            selectedScrimmageBenchPartIdx = -1;
+            renderSessionParts();
+            showToast('Placed ' + chipPlayerName + ' on ' + (targetSide === 'navy' ? 'Navy Bibs' : 'White / Pinnies'));
           }
         });
       });
@@ -5725,6 +6772,7 @@
           }
           if (!droppedName) return;
           moveScrimmagePlayerToBench(part, droppedName);
+          markSessionDirty(true);
           renderSessionParts();
           showToast('Moved ' + droppedName + ' to Bench');
         });
@@ -5736,6 +6784,30 @@
         const part = currentSessionParts[pIdx];
         if (!part) return;
         const slots = side === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+
+        if (selectedScrimmageBenchPartIdx === pIdx && selectedScrimmageBenchPlayer) {
+          pitchEl.classList.add('awaiting-bench-tap');
+        }
+
+        pitchEl.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('.scrimmage-pitch-token')) return;
+          if (selectedScrimmageBenchPartIdx !== pIdx || !selectedScrimmageBenchPlayer) return;
+          const playerName = selectedScrimmageBenchPlayer;
+          const rect = pitchEl.getBoundingClientRect();
+          const dropPctX = Math.round(Math.max(8, Math.min(92, ((e.clientX - rect.left) / rect.width) * 100)) * 10) / 10;
+          const dropPctY = Math.round(Math.max(6, Math.min(94, ((e.clientY - rect.top) / rect.height) * 100)) * 10) / 10;
+          const openBefore = new Set(slots.filter(s => !s.playerName).map(s => s.id));
+          assignScrimmagePlayerToTarget(part, side, playerName, null);
+          const placedSlot = slots.find(s => s.playerName === playerName && openBefore.has(s.id)) || slots.find(s => s.playerName === playerName);
+          if (placedSlot) {
+            placedSlot.x = dropPctX;
+            placedSlot.y = dropPctY;
+          }
+          selectedScrimmageBenchPlayer = null;
+          selectedScrimmageBenchPartIdx = -1;
+          renderSessionParts();
+          showToast('Placed ' + playerName + ' on ' + (side === 'navy' ? 'Navy Bibs' : 'White / Pinnies'));
+        });
 
         pitchEl.addEventListener('dragover', (e) => {
           e.preventDefault();
@@ -5768,6 +6840,7 @@
           if (meta && meta.partIdx === pIdx && meta.fromSide === side && typeof meta.fromSlotIdx === 'number' && slots[meta.fromSlotIdx]) {
             slots[meta.fromSlotIdx].x = dropPctX;
             slots[meta.fromSlotIdx].y = dropPctY;
+            markSessionDirty(true);
             renderSessionParts();
             return;
           }
@@ -5788,6 +6861,17 @@
         pitchEl.querySelectorAll('.scrimmage-pitch-token').forEach(tokEl => {
           const sIdx = parseInt(tokEl.getAttribute('data-slot-idx'), 10);
           const tokenPlayerName = slots[sIdx] ? slots[sIdx].playerName : '';
+
+          tokEl.addEventListener('click', (e) => {
+            if (selectedScrimmageBenchPartIdx !== pIdx || !selectedScrimmageBenchPlayer) return;
+            e.stopPropagation();
+            const playerName = selectedScrimmageBenchPlayer;
+            assignScrimmagePlayerToTarget(part, side, playerName, sIdx);
+            selectedScrimmageBenchPlayer = null;
+            selectedScrimmageBenchPartIdx = -1;
+            renderSessionParts();
+            showToast('Placed ' + playerName + ' at ' + slots[sIdx].pos + ' (' + (side === 'navy' ? 'Navy' : 'White') + ')');
+          });
 
           tokEl.addEventListener('dragstart', (e) => {
             if (e.dataTransfer) {
@@ -5834,6 +6918,7 @@
               const prevOccupant = slots[sIdx].playerName || '';
               slots[sIdx].playerName = droppedName;
               if (slots[meta.fromSlotIdx]) slots[meta.fromSlotIdx].playerName = prevOccupant;
+              markSessionDirty(true);
               renderSessionParts();
               if (droppedName || prevOccupant) {
                 showToast('Swapped ' + slots[meta.fromSlotIdx].pos + ' and ' + slots[sIdx].pos);
@@ -5881,6 +6966,7 @@
             touchDragging = false;
             tokEl.style.zIndex = '10';
             if (!touchMoved) return;
+            markSessionDirty(true);
             const pt = e.changedTouches && e.changedTouches[0];
             if (!pt) return;
             const elUnder = document.elementFromPoint(pt.clientX, pt.clientY);
@@ -5907,10 +6993,11 @@
           const pIdx = parseInt(this.dataset.partIdx, 10);
           const part = currentSessionParts[pIdx];
           if (!part) return;
-          if (presentPlayers.length === 0) {
-            return showToast('Mark at least 2 players Present in Session Attendance below first.');
+          const poolPlayers = getScrimmagePoolPlayers(part);
+          if (poolPlayers.length === 0) {
+            return showToast('Mark at least 2 players Present below or add temporary + Guest players first.');
           }
-          const sortedByPrimaryPos = [...presentPlayers].sort((a, b) => {
+          const sortedByPrimaryPos = [...poolPlayers].sort((a, b) => {
             const posA = normalizePlayerPosToken((a.positions && a.positions[0]) || '') || 'ZZ';
             const posB = normalizePlayerPosToken((b.positions && b.positions[0]) || '') || 'ZZ';
             return posA.localeCompare(posB);
@@ -5923,8 +7010,9 @@
           });
           part.scrimmageNavy = navy;
           part.scrimmageWhite = white;
-          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', navy);
-          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', white);
+          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', navy, part);
+          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', white, part);
+          markSessionDirty(true);
           renderSessionParts();
           showToast('Auto-split & matched players to their positions on Navy (' + navy.length + ') & White (' + white.length + ')!');
         };
@@ -5937,8 +7025,9 @@
           if (!part) return;
           part.scrimmageNavy = [];
           part.scrimmageWhite = [];
-          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', []);
-          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', []);
+          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', [], part);
+          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', [], part);
+          markSessionDirty(true);
           renderSessionParts();
           showToast('Cleared both fields back to the center bench.');
         };
@@ -6087,6 +7176,7 @@
           });
           persistCurrentTeamState();
           applyAccessControlUI();
+          renderRoster();
           renderSettingsPanel();
           showToast('Updated role for ' + targetEmail + ' to ' + newRole);
         };
@@ -6297,6 +7387,7 @@
       if (!hasAnyTeam && teamTabs.includes(tabKey)) {
         const sec = document.getElementById('tab-' + tabKey);
         if (sec) sec.classList.remove('active');
+        updateStickyActionBar();
         return;
       }
 
@@ -6310,6 +7401,7 @@
       if (tabKey === 'videos') renderVideoLibrary();
       if (tabKey === 'roster') renderRoster();
       if (tabKey === 'settings') renderSettingsPanel();
+      updateStickyActionBar();
     }
 
     function redeemTeamCodeForCurrentUser(rawCodeInput) {
@@ -6412,6 +7504,7 @@
       if (overlay) overlay.style.display = 'flex';
       const indicator = document.getElementById('navSignedInIndicator');
       if (indicator) indicator.style.display = 'none';
+      updateStickyActionBar();
       showToast('Signed out.');
     }
 
@@ -6478,6 +7571,52 @@
         }
       });
 
+      // Track Unsaved Changes on Session & Game Metadata Inputs
+      ['sessionTitleInput', 'sessionDateInput', 'sessionCoachInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => markSessionDirty(true));
+      });
+      ['gameOpponentInput', 'gameDateInput', 'gameTimeInput', 'gameLocationInput', 'gameGoalsForInput', 'gameGoalsAgainstInput', 'halftimeTalkInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => markGameDirty(true));
+      });
+
+      // Master Roster Quick Search & Status Filter Pills
+      const masterRosterSearch = document.getElementById('masterRosterSearchInput');
+      if (masterRosterSearch) {
+        masterRosterSearch.oninput = renderRoster;
+      }
+      document.querySelectorAll('.roster-filter-pill').forEach(pill => {
+        pill.onclick = function() {
+          masterRosterStatusFilter = this.getAttribute('data-roster-filter') || 'ALL';
+          renderRoster();
+        };
+      });
+
+      // In-Builder Drill Picker Drawer Wiring
+      const openDrawerBtn = document.getElementById('openInBuilderDrillDrawerBtn');
+      const closeDrawerBtn = document.getElementById('closeInBuilderDrillDrawerBtn');
+      const doneDrawerBtn = document.getElementById('doneInBuilderDrillDrawerBtn');
+      const drawerBackdrop = document.getElementById('inBuilderDrillDrawerBackdrop');
+      const drawerSearchInp = document.getElementById('drawerDrillSearchInput');
+      const drawerCatSel = document.getElementById('drawerDrillCategoryFilter');
+      const drawerTagSel = document.getElementById('drawerDrillTagFilter');
+
+      if (openDrawerBtn) openDrawerBtn.onclick = openInBuilderDrillDrawer;
+      if (closeDrawerBtn) closeDrawerBtn.onclick = closeInBuilderDrillDrawer;
+      if (doneDrawerBtn) doneDrawerBtn.onclick = closeInBuilderDrillDrawer;
+      if (drawerBackdrop) {
+        drawerBackdrop.addEventListener('click', (e) => {
+          if (e.target === drawerBackdrop) closeInBuilderDrillDrawer();
+        });
+      }
+      if (drawerSearchInp) drawerSearchInp.oninput = renderInBuilderDrillDrawerList;
+      if (drawerCatSel) drawerCatSel.onchange = () => {
+        if (drawerTagSel) drawerTagSel.value = 'ALL';
+        renderInBuilderDrillDrawerList();
+      };
+      if (drawerTagSel) drawerTagSel.onchange = renderInBuilderDrillDrawerList;
+
       const drillEditModal = document.getElementById('drillEditModal');
       const closeDrillEditBtn = document.getElementById('closeDrillEditModalBtn');
       const cancelDrillEditBtn = document.getElementById('cancelDrillEditModalBtn');
@@ -6507,9 +7646,11 @@
           if (newCat) activeEditingDrillItem.category = newCat;
           activeEditingDrillItem.subCategory = newSubCat;
           if (!isNaN(newDur) && newDur > 0) activeEditingDrillItem.duration = newDur;
-          activeEditingDrillItem.tags = Array.from(new Set(
+          const parsedTags = Array.from(new Set(
             rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean)
           ));
+          activeEditingDrillItem.tags = parsedTags;
+          rememberRecentDrillTags(parsedTags);
           activeEditingDrillItem.coachingPoints = newPoints;
           activeEditingDrillItem.customEdited = true;
           activeEditingDrillItem.updatedAt = Date.now();
@@ -6517,6 +7658,7 @@
           closeDrillEditor();
           persistCurrentTeamState();
           renderDrillLibrary();
+          renderInBuilderDrillDrawerList();
           showToast('Saved drill tags & info!');
         };
       }
@@ -7000,12 +8142,15 @@
         if (newTeam && newTeam !== activeTeamName && userTeams.includes(newTeam)) {
           persistCurrentTeamState();
           loadTeamStateFromStorage(newTeam);
+          if (activeTabKey === 'settings') renderSettingsPanel();
           showToast('Switched active team to ' + newTeam);
         }
       };
+      const topTeamSel = document.getElementById('topBarTeamSelect');
       const sessTeamSel = document.getElementById('sessionTeamSelect');
       const gameTeamSel = document.getElementById('gameTeamSelect');
       const rosterTeamSel = document.getElementById('rosterTeamSelect');
+      if (topTeamSel) topTeamSel.onchange = function() { handleTeamChange(this.value); };
       if (sessTeamSel) sessTeamSel.onchange = function() { handleTeamChange(this.value); };
       if (gameTeamSel) gameTeamSel.onchange = function() { handleTeamChange(this.value); };
       if (rosterTeamSel) rosterTeamSel.onchange = function() { handleTeamChange(this.value); };
@@ -7047,6 +8192,7 @@
         newSessCalBtn.onclick = () => {
           currentEditingSessionId = null;
           document.getElementById('sessionDateInput').value = toIsoDate(calendarCursorDate);
+          markSessionDirty(false);
           switchTab('builder');
         };
       }
@@ -7064,6 +8210,15 @@
       if (saveGameBtn) {
         saveGameBtn.onclick = () => {
           if (!activeTeamName) return showToast('Join a team first to save games.');
+          const attendanceSnapshot = gameRosterPlayers.map(p => {
+            normalizePlayerAttendanceModel(p);
+            return {
+              name: p.name,
+              status: p.attendanceStatus,
+              reason: p.attendanceStatus === 'present' ? '' : (p.absenceReason || '')
+            };
+          });
+
           const gameRecord = {
             id: currentEditingGameId || ('game_' + Date.now()),
             team: activeTeamName,
@@ -7076,7 +8231,8 @@
             formation: document.getElementById('gameFormationSelect').value,
             lineups: JSON.parse(JSON.stringify(gameLineups)),
             subLogs: JSON.parse(JSON.stringify(gameSubLogs)),
-            halftimeTalk: document.getElementById('halftimeTalkInput').value || ''
+            halftimeTalk: document.getElementById('halftimeTalkInput').value || '',
+            attendanceSnapshot
           };
           const existingIdx = savedGames.findIndex(g => g.id === gameRecord.id);
           if (existingIdx >= 0) savedGames[existingIdx] = gameRecord;
@@ -7090,6 +8246,7 @@
             date: gameRecord.date
           });
 
+          markGameDirty(false);
           persistCurrentTeamState();
           renderCalendar();
           renderRoster();
@@ -7101,6 +8258,41 @@
         newBlankGameBtn.onclick = () => {
           resetGamePlannerToBlank();
           showToast('New blank Game Day sheet ready!');
+        };
+      }
+
+      const copyLastGameLineupBtn = document.getElementById('copyLastGameLineupBtn');
+      if (copyLastGameLineupBtn) {
+        copyLastGameLineupBtn.onclick = () => {
+          const candidates = savedGames.filter(g => g && g.lineups && g.id !== currentEditingGameId);
+          const sourceGame = candidates.length > 0
+            ? candidates[candidates.length - 1]
+            : (savedGames.length > 0 ? savedGames[savedGames.length - 1] : null);
+          if (!sourceGame || !sourceGame.lineups) {
+            return showToast('No previous saved game lineup found for ' + activeTeamName + '.');
+          }
+          if (sourceGame.formation) {
+            const formSelEl = document.getElementById('gameFormationSelect');
+            if (formSelEl) formSelEl.value = sourceGame.formation;
+          }
+          gameLineups = JSON.parse(JSON.stringify(sourceGame.lineups));
+          const availNames = new Set(
+            gameRosterPlayers
+              .filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present')
+              .map(p => p.name)
+          );
+          if (availNames.size > 0) {
+            [1, 2].forEach(h => {
+              (gameLineups[h] || []).forEach(slot => {
+                if (slot.playerName && !availNames.has(slot.playerName)) {
+                  slot.playerName = '';
+                }
+              });
+            });
+          }
+          markGameDirty(true);
+          renderGamePitch();
+          showToast('Copied 1st & 2nd Half lineups from vs ' + (sourceGame.opponent || 'Previous Match') + '!');
         };
       }
 
@@ -7189,6 +8381,7 @@
             assignPlayersToSlotsByPosition(nextSlots, prevPlayerObjs);
           }
           gameLineups[activeHalf] = nextSlots;
+          markGameDirty(true);
           renderGamePitch();
         };
       }
@@ -7196,9 +8389,10 @@
       const autoFillBtn = document.getElementById('autoFillGameHalfBtn');
       if (autoFillBtn) {
         autoFillBtn.onclick = () => {
-          const avail = gameRosterPlayers.filter(p => p.present);
+          const avail = gameRosterPlayers.filter(p => (p.attendanceStatus || (p.present ? 'present' : 'unexcused')) === 'present');
           const slots = gameLineups[activeHalf] || [];
           assignPlayersToSlotsByPosition(slots, avail);
+          markGameDirty(true);
           renderGamePitch();
           showToast('Auto-filled ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half matching player positions!');
         };
@@ -7209,6 +8403,7 @@
         copyH1H2Btn.onclick = () => {
           gameLineups[2] = JSON.parse(JSON.stringify(gameLineups[1]));
           activeHalf = 2;
+          markGameDirty(true);
           if (h2Btn) h2Btn.click();
           showToast('Copied 1st Half lineup to 2nd Half!');
         };
@@ -7220,6 +8415,7 @@
           const formVal = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
           const slots = FORMATIONS[formVal] || FORMATIONS['4-2-2'];
           gameLineups[activeHalf] = slots.map((s, i) => ({ id: 'h' + activeHalf + '_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }));
+          markGameDirty(true);
           renderGamePitch();
           showToast('Reset ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half to clean position placeholders!');
         };
@@ -7236,9 +8432,25 @@
           const targetSlot = tokens.find(t => t.playerName === offName);
           if (targetSlot) targetSlot.playerName = onName;
           gameSubLogs.unshift({ minute: min, off: offName, on: onName, half: activeHalf });
+          markGameDirty(true);
           renderSubLogList();
           renderGamePitch();
           showToast('Subbed ' + onName + ' ON for ' + offName + ' (' + min + ')');
+        };
+      }
+
+      const markAllGameBtn = document.getElementById('markAllGamePresentBtn');
+      if (markAllGameBtn) {
+        markAllGameBtn.onclick = () => {
+          gameRosterPlayers.forEach(p => {
+            p.present = true;
+            p.attendanceStatus = 'present';
+            p.absenceReason = '';
+          });
+          markGameDirty(true);
+          persistCurrentTeamState();
+          renderGameRoster();
+          renderGamePitch();
         };
       }
 
@@ -7246,6 +8458,7 @@
       if (copyRosterBtn) {
         copyRosterBtn.onclick = () => {
           gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          markGameDirty(true);
           persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
@@ -7261,6 +8474,7 @@
           if (!parsed) return;
           gameRosterPlayers.push(parsed);
           newGamePlayerInput.value = '';
+          markGameDirty(true);
           persistCurrentTeamState();
           renderGameRoster();
           renderGamePitch();
@@ -7268,35 +8482,55 @@
       }
 
       // Session Builder Controls
-      const addPartBtn = document.getElementById('addSessionPartBtn');
-      if (addPartBtn) {
-        addPartBtn.onclick = () => {
-          const typeVal = document.getElementById('newPartTypeSelect').value || 'technical';
-          const labelMap = {
-            warmup: 'Warm-Up Activity',
-            technical: 'Technical Practice',
-            tactical: 'Tactical Game Shape',
-            scrimmage: 'Small-Sided Scrimmage',
-            devotional: 'Team Devotional',
-            fitness: 'Fitness & Conditioning'
-          };
-          currentSessionParts.push({
-            id: 'part_' + Date.now(),
-            type: typeVal,
-            title: labelMap[typeVal] || 'Session Activity',
-            duration: 15,
-            gifUrl: '',
-            referenceLinks: '',
-            coachingPoints: '',
-            notes: '',
-            scrimmageNavy: [],
-            scrimmageWhite: [],
-            scrimmageNavyFormation: '4-2-2',
-            scrimmageWhiteFormation: '4-2-2',
-            scrimmageNavySlots: buildDefaultScrimmageSlots('4-2-2', 'navy', []),
-            scrimmageWhiteSlots: buildDefaultScrimmageSlots('4-2-2', 'white', [])
+      const addSessionPartByType = (rawType) => {
+        const typeVal = String(rawType || 'technical').trim().toLowerCase();
+        const labelMap = {
+          warmup: 'Warm-Up Activity',
+          technical: 'Technical Practice',
+          tactical: 'Tactical Game Shape',
+          scrimmage: 'Small-Sided Scrimmage',
+          devotional: 'Team Devotional',
+          fitness: 'Fitness & Conditioning'
+        };
+        const newPartObj = {
+          id: 'part_' + Date.now(),
+          type: typeVal,
+          title: labelMap[typeVal] || 'Session Activity',
+          duration: 15,
+          gifUrl: '',
+          referenceLinks: '',
+          coachingPoints: '',
+          notes: '',
+          scrimmageGuests: [],
+          scrimmageNavy: [],
+          scrimmageWhite: [],
+          scrimmageNavyFormation: '4-2-2',
+          scrimmageWhiteFormation: '4-2-2',
+          scrimmageNavySlots: [],
+          scrimmageWhiteSlots: []
+        };
+        newPartObj.scrimmageNavySlots = buildDefaultScrimmageSlots('4-2-2', 'navy', [], newPartObj);
+        newPartObj.scrimmageWhiteSlots = buildDefaultScrimmageSlots('4-2-2', 'white', [], newPartObj);
+        currentSessionParts.push(newPartObj);
+        markSessionDirty(true);
+        renderSessionParts();
+        showToast('Added ' + (labelMap[typeVal] || 'Session Activity'));
+      };
+
+      document.querySelectorAll('.quick-add-part-btn').forEach(btn => {
+        btn.onclick = function() {
+          addSessionPartByType(this.getAttribute('data-part-type'));
+        };
+      });
+
+      const duplicateCurrentSessionBtn = document.getElementById('duplicateCurrentSessionBtn');
+      if (duplicateCurrentSessionBtn) {
+        duplicateCurrentSessionBtn.onclick = () => {
+          duplicateSessionObject({
+            title: document.getElementById('sessionTitleInput').value || 'Training Session',
+            coach: document.getElementById('sessionCoachInput').value || 'Ambassadors FC Staff',
+            parts: currentSessionParts
           });
-          renderSessionParts();
         };
       }
 
@@ -7334,6 +8568,7 @@
             date: sessRecord.date
           });
 
+          markSessionDirty(false);
           persistCurrentTeamState();
           renderCalendar();
           renderRoster();
@@ -7347,6 +8582,7 @@
           currentEditingSessionId = null;
           document.getElementById('sessionTitleInput').value = 'New Training Session';
           currentSessionParts = [];
+          markSessionDirty(false);
           renderSessionParts();
           showToast('Started blank session plan!');
         };
@@ -7366,6 +8602,7 @@
           if (!parsed) return;
           rosterPlayers.push(parsed);
           newPlayerInput.value = '';
+          markSessionDirty(true);
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
@@ -7379,6 +8616,7 @@
             p.attendanceStatus = 'present';
             p.absenceReason = '';
           });
+          markSessionDirty(true);
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
@@ -7466,6 +8704,9 @@
       }
       if (bulkReplaceBtn && bulkTextarea) {
         bulkReplaceBtn.onclick = () => {
+          if (!canManageMasterRosterDeletes()) {
+            return showToast('Only Head Coaches and Club Admins can replace the entire Master Roster.');
+          }
           const parsedList = parseBulkRosterLines(bulkTextarea.value);
           if (!parsedList.length) return showToast('Paste at least one player name & position first.');
           rosterPlayers = parsedList;
@@ -7571,6 +8812,7 @@
       }
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          if (drawerBackdrop && drawerBackdrop.classList.contains('open')) closeInBuilderDrillDrawer();
           if (drillEditModal && drillEditModal.classList.contains('open')) closeDrillEditor();
           if (playerAttModal && playerAttModal.classList.contains('open')) closePlayerAttProfile();
           if (diagModal && diagModal.classList.contains('open')) closeDiagramLightbox();
