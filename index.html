@@ -229,6 +229,66 @@
       cursor: pointer;
     }
 
+    /* Admin Permissions Table */
+    .perm-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+    .perm-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      text-align: left;
+    }
+    .perm-table th {
+      background: #0A2647;
+      color: #ffffff;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+      padding: 10px 12px;
+      white-space: nowrap;
+    }
+    .perm-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+    .perm-table tr:last-child td {
+      border-bottom: none;
+    }
+    .perm-table tr:hover td {
+      background: #f8fafc;
+    }
+    .perm-mini-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0A2647;
+      cursor: pointer;
+      margin: 2px 4px 2px 0;
+      user-select: none;
+    }
+    .perm-mini-check.checked {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+      color: #065f46;
+    }
+    .perm-mini-check input {
+      accent-color: #059669;
+      cursor: pointer;
+    }
+
     /* Session Builder Header & Toolbar */
     .builder-toolbar {
       display: flex;
@@ -1278,7 +1338,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.2</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.3</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1302,6 +1362,7 @@
 
           <!-- Strictly visible ONLY to Club Admins -->
           <div id="adminAccessPanel" style="display:none;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
+            <!-- Invite Coach Form -->
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
@@ -1356,9 +1417,22 @@
               <div id="invitedCoachesList" style="display:flex;flex-direction:column;gap:6px;"></div>
             </div>
 
+            <!-- Step 4: Live User & Coach Permissions Manager Table -->
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+                <div>
+                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Live User &amp; Coach Permissions Manager</h3>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Modify any coach's role, assigned teams, or Drill &amp; Video library visibility in real time.</p>
+                </div>
+                <span class="badge badge-navy" id="managedUsersCountBadge">0 Users</span>
+              </div>
+
+              <div id="livePermissionsTableContainer"></div>
+            </div>
+
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.2</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.3</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1568,7 +1642,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.2';
+    const APP_VERSION = '2.6.3';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1580,16 +1654,17 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.3', date: '2026-11-22', note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.' },
         { version: '2.6.2', date: '2026-11-22', note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).' },
         { version: '2.6.1', date: '2026-11-22', note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.2')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.3')) {
       versionHistoryLog.unshift({
-        version: '2.6.2',
+        version: '2.6.3',
         date: '2026-11-22',
-        note: 'Step 3 Smart Invites: Multi-team selection on coach invites, automatic Send Invite email dispatch, and Direct-to-Registration URLs (?mode=register&email=...&codes=...).'
+        note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1698,13 +1773,15 @@
         });
       }
 
-      matchingInvites.forEach(inv => {
-        const invTeams = getInviteTeamsArray(inv);
-        invTeams.forEach(tName => {
-          if (tName === 'ALL_TEAMS') hasAllTeams = true;
-          else if (tName && clubTeamsRegistry.some(ct => ct.name === tName)) teamSet.add(tName);
+      if (!profile) {
+        matchingInvites.forEach(inv => {
+          const invTeams = getInviteTeamsArray(inv);
+          invTeams.forEach(tName => {
+            if (tName === 'ALL_TEAMS') hasAllTeams = true;
+            else if (tName && clubTeamsRegistry.some(ct => ct.name === tName)) teamSet.add(tName);
+          });
         });
-      });
+      }
 
       const resolvedTeams = hasAllTeams ? clubTeamsRegistry.map(t => t.name) : Array.from(teamSet);
       const hasValidAccess = resolvedTeams.length > 0;
@@ -1734,6 +1811,58 @@
       } catch (e) {}
     }
 
+    function buildMergedUsersDirectory() {
+      const map = new Map();
+
+      // Primary Club Admin
+      const adminLower = CLUB_ADMIN_EMAIL.toLowerCase();
+      map.set(adminLower, {
+        email: adminLower,
+        name: 'Mason Maddox',
+        role: 'Club Admin',
+        teams: clubTeamsRegistry.map(t => t.name),
+        libraryAccess: { drills: true, videos: true },
+        status: 'Primary Admin',
+        isPrimaryAdmin: true
+      });
+
+      // Invited Coaches
+      coachInvitesRegistry.forEach(inv => {
+        const em = String(inv.email || '').trim().toLowerCase();
+        if (!em || map.has(em)) return;
+        const perms = computeUserPermissions(em);
+        map.set(em, {
+          email: em,
+          name: inv.name || em.split('@')[0],
+          role: perms.role,
+          teams: perms.teams,
+          libraryAccess: perms.libraryAccess,
+          status: userAccessRegistry[em] ? 'Active' : 'Invited',
+          isPrimaryAdmin: false
+        });
+      });
+
+      // Registered / Active Profiles
+      Object.keys(userAccessRegistry).forEach(emKey => {
+        const em = String(emKey || '').trim().toLowerCase();
+        if (!em) return;
+        const prof = userAccessRegistry[em] || {};
+        const perms = computeUserPermissions(em);
+        const existing = map.get(em);
+        map.set(em, {
+          email: em,
+          name: prof.name || (existing && existing.name) || em.split('@')[0],
+          role: perms.role,
+          teams: perms.teams,
+          libraryAccess: perms.libraryAccess,
+          status: em === adminLower ? 'Primary Admin' : 'Active',
+          isPrimaryAdmin: em === adminLower
+        });
+      });
+
+      return Array.from(map.values());
+    }
+
     function applyAccessControlUI() {
       if (!currentUser) return;
       const perms = computeUserPermissions(currentUser.email);
@@ -1760,8 +1889,11 @@
       }
       if (libBadge) {
         const bothUnlocked = userLibraryAccess.drills && userLibraryAccess.videos;
-        libBadge.textContent = bothUnlocked ? 'Libraries Unlocked' : 'Libraries Locked (Code Required)';
-        libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : 'badge-red');
+        const noneUnlocked = !userLibraryAccess.drills && !userLibraryAccess.videos;
+        libBadge.textContent = bothUnlocked
+          ? 'Libraries Unlocked'
+          : (noneUnlocked ? 'Libraries Locked' : 'Partial Library Access');
+        libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : (noneUnlocked ? 'badge-red' : 'badge-amber'));
       }
 
       const drillNavBtn = document.querySelector('.nav-tab[data-tab="drills"]');
@@ -2019,6 +2151,8 @@
       }
       if (currentUser) {
         applyAccessControlUI();
+        renderDrillLibrary();
+        renderVideoLibrary();
         renderSettingsPanel();
       }
     }
@@ -4034,7 +4168,7 @@
     }
 
     /* =========================================================
-       SETTINGS & TEAM JOIN / CREATE
+       SETTINGS, PERMISSIONS MANAGER & TEAM JOIN / CREATE
        ========================================================= */
     function copyTextToClipboard(textStr) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -4046,6 +4180,176 @@
       tmp.select();
       try { document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(tmp);
+    }
+
+    function renderLivePermissionsTable() {
+      const container = document.getElementById('livePermissionsTableContainer');
+      const countBadge = document.getElementById('managedUsersCountBadge');
+      if (!container || !isClubAdmin) return;
+
+      const users = buildMergedUsersDirectory();
+      if (countBadge) {
+        countBadge.textContent = users.length + ' User' + (users.length === 1 ? '' : 's');
+      }
+
+      const ROLES_LIST = ['Assistant Coach', 'Head Coach', 'Club Admin', 'Suspended / No Access'];
+
+      container.innerHTML = '<div class="perm-table-wrap">' +
+        '<table class="perm-table">' +
+          '<thead>' +
+            '<tr>' +
+              '<th>Coach / User</th>' +
+              '<th>Role</th>' +
+              '<th>Team Access</th>' +
+              '<th>Library Access</th>' +
+              '<th>Actions</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+            users.map(u => {
+              const isPrimary = u.isPrimaryAdmin;
+              const isAdminRow = u.role === 'Club Admin';
+              const isSuspendedRow = u.role === 'Suspended / No Access';
+
+              const roleCell = isPrimary
+                ? '<span class="badge badge-navy">Club Admin (Owner)</span>'
+                : '<select class="select perm-role-select" data-email="' + escapeHtml(u.email) + '" style="padding:4px 8px;font-size:0.75rem;min-width:155px;">' +
+                    ROLES_LIST.map(r => '<option value="' + escapeHtml(r) + '"' + (u.role === r ? ' selected' : '') + '>' + escapeHtml(r) + '</option>').join('') +
+                  '</select>';
+
+              const teamsCell = isPrimary || isAdminRow
+                ? '<span class="badge badge-emerald">All Club Teams</span>'
+                : (isSuspendedRow
+                    ? '<span style="font-size:0.72rem;color:#dc2626;font-weight:700;">Access Suspended</span>'
+                    : '<div style="display:flex;flex-wrap:wrap;">' +
+                        clubTeamsRegistry.map(t => {
+                          const hasTeam = u.teams.includes(t.name);
+                          return '<label class="perm-mini-check' + (hasTeam ? ' checked' : '') + '">' +
+                            '<input type="checkbox" class="perm-team-cb" data-email="' + escapeHtml(u.email) + '" data-team="' + escapeHtml(t.name) + '"' + (hasTeam ? ' checked' : '') + '>' +
+                            '<span>' + escapeHtml(t.name) + '</span>' +
+                          '</label>';
+                        }).join('') +
+                      '</div>');
+
+              const libCell = isPrimary || isAdminRow
+                ? '<span class="badge badge-emerald">Drills + Videos</span>'
+                : (isSuspendedRow
+                    ? '<span style="font-size:0.72rem;color:#dc2626;font-weight:700;">Locked</span>'
+                    : '<div style="display:flex;flex-wrap:wrap;">' +
+                        '<label class="perm-mini-check' + (u.libraryAccess.drills ? ' checked' : '') + '">' +
+                          '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="drills"' + (u.libraryAccess.drills ? ' checked' : '') + '>' +
+                          '<span>Drill Library</span>' +
+                        '</label>' +
+                        '<label class="perm-mini-check' + (u.libraryAccess.videos ? ' checked' : '') + '">' +
+                          '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="videos"' + (u.libraryAccess.videos ? ' checked' : '') + '>' +
+                          '<span>Video Library</span>' +
+                        '</label>' +
+                      '</div>');
+
+              const actionsCell = isPrimary
+                ? '<span style="font-size:0.7rem;color:#64748b;">Protected</span>'
+                : '<button type="button" class="btn btn-danger btn-sm perm-remove-user-btn" data-email="' + escapeHtml(u.email) + '" style="padding:3px 8px;font-size:0.7rem;">Remove</button>';
+
+              return '<tr>' +
+                '<td>' +
+                  '<div style="font-weight:800;color:#0A2647;">' + escapeHtml(u.name) + '</div>' +
+                  '<div style="font-size:0.71rem;color:#64748b;">' + escapeHtml(u.email) + ' • <span style="font-weight:700;color:#1e4e8c;">' + escapeHtml(u.status) + '</span></div>' +
+                '</td>' +
+                '<td>' + roleCell + '</td>' +
+                '<td>' + teamsCell + '</td>' +
+                '<td>' + libCell + '</td>' +
+                '<td>' + actionsCell + '</td>' +
+              '</tr>';
+            }).join('') +
+          '</tbody>' +
+        '</table>' +
+      '</div>';
+
+      // Bind Role Dropdowns
+      container.querySelectorAll('.perm-role-select').forEach(sel => {
+        sel.onchange = function() {
+          const targetEmail = this.getAttribute('data-email');
+          const newRole = this.value;
+          const currentPerms = computeUserPermissions(targetEmail);
+          const uObj = users.find(x => x.email === targetEmail);
+          saveUserAccessProfile(targetEmail, {
+            name: (uObj && uObj.name) || targetEmail.split('@')[0],
+            role: newRole,
+            teams: newRole === 'Club Admin'
+              ? clubTeamsRegistry.map(t => t.name)
+              : (newRole === 'Suspended / No Access' ? [] : currentPerms.teams),
+            libraryAccess: newRole === 'Suspended / No Access'
+              ? { drills: false, videos: false }
+              : (newRole === 'Club Admin' ? { drills: true, videos: true } : currentPerms.libraryAccess)
+          });
+          persistCurrentTeamState();
+          applyAccessControlUI();
+          renderSettingsPanel();
+          showToast('Updated role for ' + targetEmail + ' to ' + newRole);
+        };
+      });
+
+      // Bind Team Access Checkboxes
+      container.querySelectorAll('.perm-team-cb').forEach(cb => {
+        cb.onchange = function() {
+          const targetEmail = this.getAttribute('data-email');
+          const teamName = this.getAttribute('data-team');
+          const currentPerms = computeUserPermissions(targetEmail);
+          const uObj = users.find(x => x.email === targetEmail);
+          const nextTeams = new Set(currentPerms.teams);
+          if (this.checked) nextTeams.add(teamName);
+          else nextTeams.delete(teamName);
+          const teamsArr = Array.from(nextTeams);
+
+          saveUserAccessProfile(targetEmail, {
+            name: (uObj && uObj.name) || targetEmail.split('@')[0],
+            role: currentPerms.role,
+            teams: teamsArr,
+            libraryAccess: currentPerms.libraryAccess
+          });
+          persistCurrentTeamState();
+          applyAccessControlUI();
+          renderSettingsPanel();
+          showToast((this.checked ? 'Granted ' : 'Removed ') + teamName + ' for ' + targetEmail);
+        };
+      });
+
+      // Bind Library Access Toggles
+      container.querySelectorAll('.perm-lib-cb').forEach(cb => {
+        cb.onchange = function() {
+          const targetEmail = this.getAttribute('data-email');
+          const libKey = this.getAttribute('data-lib');
+          const currentPerms = computeUserPermissions(targetEmail);
+          const uObj = users.find(x => x.email === targetEmail);
+          const nextLib = Object.assign({}, currentPerms.libraryAccess, { [libKey]: this.checked });
+
+          saveUserAccessProfile(targetEmail, {
+            name: (uObj && uObj.name) || targetEmail.split('@')[0],
+            role: currentPerms.role,
+            teams: currentPerms.teams,
+            libraryAccess: nextLib
+          });
+          persistCurrentTeamState();
+          applyAccessControlUI();
+          renderDrillLibrary();
+          renderVideoLibrary();
+          renderSettingsPanel();
+          showToast((this.checked ? 'Unlocked ' : 'Locked ') + (libKey === 'drills' ? 'Drill Library' : 'Video Library') + ' for ' + targetEmail);
+        };
+      });
+
+      // Bind Remove User
+      container.querySelectorAll('.perm-remove-user-btn').forEach(btn => {
+        btn.onclick = function() {
+          const targetEmail = this.getAttribute('data-email');
+          delete userAccessRegistry[targetEmail];
+          coachInvitesRegistry = coachInvitesRegistry.filter(inv => String(inv.email || '').trim().toLowerCase() !== targetEmail);
+          persistCurrentTeamState();
+          applyAccessControlUI();
+          renderSettingsPanel();
+          showToast('Removed access record for ' + targetEmail);
+        };
+      });
     }
 
     function renderSettingsPanel() {
@@ -4111,6 +4415,10 @@
             if (removed) showToast('Revoked invite for ' + removed.email);
           };
         });
+      }
+
+      if (isClubAdmin) {
+        renderLivePermissionsTable();
       }
 
       if (teamsList) {
@@ -4217,6 +4525,17 @@
     function enterWorkspaceAsCoach(userObj, isBypass) {
       currentUser = userObj || { email: '', displayName: 'Coach' };
       isDemoUser = Boolean(isBypass);
+
+      const cleanEmail = String(currentUser.email || '').trim().toLowerCase();
+      if (cleanEmail && !userAccessRegistry[cleanEmail]) {
+        const seedPerms = computeUserPermissions(cleanEmail);
+        saveUserAccessProfile(cleanEmail, {
+          name: currentUser.displayName || cleanEmail.split('@')[0],
+          role: seedPerms.role,
+          teams: seedPerms.teams,
+          libraryAccess: seedPerms.libraryAccess
+        });
+      }
 
       const overlay = document.getElementById('authGateOverlay');
       if (overlay) overlay.style.display = 'none';
@@ -4369,7 +4688,7 @@
         };
       }
 
-      // Settings: Send Invite (Dispatches email via Firebase mail queue + opens mail client if cloud mail isn't configured + copies link)
+      // Settings: Send Invite
       const sendCoachInviteBtn = document.getElementById('sendCoachInviteBtn');
       if (sendCoachInviteBtn) {
         sendCoachInviteBtn.onclick = async () => {
@@ -4412,6 +4731,13 @@
           };
           if (existingIdx >= 0) coachInvitesRegistry[existingIdx] = record;
           else coachInvitesRegistry.unshift(record);
+
+          saveUserAccessProfile(email, {
+            name,
+            role,
+            teams: selectedTeams,
+            libraryAccess: { drills: true, videos: true }
+          });
 
           const regInviteUrl = buildSmartRegistrationInviteUrl(record);
           latestGeneratedInviteUrl = regInviteUrl;
@@ -4500,7 +4826,7 @@
         });
       }
 
-      // Google Sign-In Button (Strict OAuth on Production; Fallback Picker ONLY in Hosted Preview)
+      // Google Sign-In Button
       const googleBtn = document.getElementById('googleSignInBtn');
       const authStatusEl = document.getElementById('authStatusText');
       if (googleBtn) {
