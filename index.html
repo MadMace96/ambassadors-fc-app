@@ -1232,7 +1232,7 @@
       </div>
     </section>
 
-    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite) -->
+    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite + Automatic Backend Sync) -->
     <section id="tab-drills" class="workspace-section">
       <div id="drillLibraryLockedPanel" style="display:none;">
         <div class="locked-gate-card">
@@ -1253,7 +1253,7 @@
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Automatically synced from your backend drill library &amp; GitHub <code>drills/</code> folder. Click any drill GIF to enlarge.</p>
           </div>
         </div>
 
@@ -1378,7 +1378,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.5</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.7</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1472,7 +1472,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.5</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.7</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1725,10 +1725,17 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.6.5';
+    const APP_VERSION = '2.6.7';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
+    const DRILLS_GOOGLE_SHEET_ID = '';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
+
+    let drillsGoogleSheetId = DRILLS_GOOGLE_SHEET_ID;
+    try {
+      const storedSheetId = localStorage.getItem('afc_drills_google_sheet_id');
+      if (storedSheetId) drillsGoogleSheetId = storedSheetId;
+    } catch (e) {}
 
     let versionHistoryLog = [];
     try {
@@ -1737,6 +1744,8 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.7', date: '2026-11-22', note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.' },
+        { version: '2.6.6', date: '2026-11-22', note: 'Google Sheet Drill Library Sync: Added backend Google Sheet drill loader supporting Title, Category, Duration, GIF_URL, Tags, Coaching_Points, and Notes.' },
         { version: '2.6.5', date: '2026-11-22', note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.' },
         { version: '2.6.4', date: '2026-11-22', note: 'Step 5 Attendance & Scrimmage Builder: Present/Excused/Unexcused session attendance with absence reasons, auto-filtered Scrimmage Team Generator (Navy vs White), and clickable Player Attendance Profile on Roster.' },
         { version: '2.6.3', date: '2026-11-22', note: 'Step 4 Permissions Manager: Live User & Coach Permissions table in Admin Settings with instant Role dropdown, per-team access checkboxes, and Drill/Video library toggles.' },
@@ -1745,11 +1754,11 @@
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.5')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.7')) {
       versionHistoryLog.unshift({
-        version: '2.6.5',
+        version: '2.6.7',
         date: '2026-11-22',
-        note: 'Invite Acceptance Tracking: Real-time Accepted vs. Pending Invite status badges & timestamps in the Live Permissions Manager and Invited Coaches list when a coach signs in or registers.'
+        note: 'Automatic Backend Drill Sync: Removed manual CSV export, sheet link, and sync buttons from the Drill Library so drills sync seamlessly in the background.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -2162,6 +2171,7 @@
         localStorage.setItem('afc_user_access_registry', JSON.stringify(userAccessRegistry));
         localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
         localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
+        if (drillsGoogleSheetId) localStorage.setItem('afc_drills_google_sheet_id', drillsGoogleSheetId);
       } catch (e) {}
 
       let teamState = null;
@@ -2190,6 +2200,7 @@
       const clubPayload = JSON.parse(JSON.stringify({
         videos: videoLibrary,
         drills: drillLibrary,
+        drillsGoogleSheetId: drillsGoogleSheetId || '',
         clubTeams: clubTeamsRegistry,
         coachInvites: coachInvitesRegistry,
         userAccessRegistry: userAccessRegistry,
@@ -2277,6 +2288,11 @@
 
     function applyCloudClubData(data) {
       if (!data) return;
+      if (data.drillsGoogleSheetId && !drillsGoogleSheetId) {
+        drillsGoogleSheetId = String(data.drillsGoogleSheetId).trim();
+        try { localStorage.setItem('afc_drills_google_sheet_id', drillsGoogleSheetId); } catch (e) {}
+        syncDrillsFromGoogleSheet();
+      }
       if (Array.isArray(data.clubTeams) && data.clubTeams.length > 0) {
         const mergedTeams = [...clubTeamsRegistry];
         data.clubTeams.forEach(ct => {
@@ -2655,7 +2671,7 @@
     }
 
     /* =========================================================
-       DRILL LIBRARY & GITHUB BACKEND AUTO-SYNC
+       DRILL LIBRARY & AUTOMATIC BACKEND SYNC (GITHUB + GOOGLE SHEET)
        ========================================================= */
     const DEFAULT_DRILLS = [
       {
@@ -2700,6 +2716,139 @@
         }
       });
     })();
+
+    async function syncDrillsFromGoogleSheet() {
+      if (!drillsGoogleSheetId) return false;
+      const parseCsvRows = (csvText) => {
+        const rows = [];
+        let row = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < csvText.length; i++) {
+          const ch = csvText[i];
+          const next = csvText[i + 1];
+          if (inQuotes) {
+            if (ch === '"' && next === '"') { cur += '"'; i++; }
+            else if (ch === '"') { inQuotes = false; }
+            else { cur += ch; }
+          } else {
+            if (ch === '"') { inQuotes = true; }
+            else if (ch === ',') { row.push(cur.trim()); cur = ''; }
+            else if (ch === '\r' && next === '\n') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; i++; }
+            else if (ch === '\n' || ch === '\r') { row.push(cur.trim()); rows.push(row); row = []; cur = ''; }
+            else { cur += ch; }
+          }
+        }
+        if (cur.length > 0 || row.length > 0) { row.push(cur.trim()); rows.push(row); }
+        return rows;
+      };
+
+      const normalizeCategoryLabel = (raw) => {
+        const s = String(raw || '').trim().toLowerCase();
+        if (!s) return 'Technical';
+        if (s.includes('warm')) return 'Warm-Up';
+        if (s.includes('tactic')) return 'Tactical';
+        if (s.includes('scrim')) return 'Scrimmage';
+        if (s.includes('fit') || s.includes('cond')) return 'Fitness';
+        return 'Technical';
+      };
+
+      const discoveredTabNames = new Set();
+      try {
+        const pubResp = await fetch('https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) + '/pubhtml', { cache: 'no-store' });
+        if (pubResp.ok) {
+          const html = await pubResp.text();
+          for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"/g)) {
+            if (m[1]) discoveredTabNames.add(m[1].trim());
+          }
+          for (const m of html.matchAll(/id="sheet-button-\d+"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
+            if (m[1]) discoveredTabNames.add(m[1].trim());
+          }
+        }
+      } catch (e) {}
+
+      const targets = discoveredTabNames.size > 0
+        ? Array.from(discoveredTabNames).map(t => ({ sheetName: t }))
+        : [{ sheetName: '' }];
+
+      const sheetDrills = [];
+      const seenTitles = new Set();
+
+      for (const target of targets) {
+        try {
+          const csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(drillsGoogleSheetId) +
+            '/gviz/tq?tqx=out:csv' + (target.sheetName ? '&sheet=' + encodeURIComponent(target.sheetName) : '') + '&cb=' + Date.now();
+          const resp = await fetch(csvUrl, { cache: 'no-store' });
+          if (!resp.ok) continue;
+          const text = await resp.text();
+          if (!text || text.trim().startsWith('<!DOCTYPE')) continue;
+          const matrix = parseCsvRows(text);
+          if (!matrix.length) continue;
+
+          let headerMap = null;
+          matrix.forEach((vals, rIdx) => {
+            if (!vals || !vals.some(Boolean)) return;
+            const lower = vals.map(v => String(v || '').toLowerCase().trim());
+            if (!headerMap && lower.some(h => h === 'title' || h === 'drill' || h === 'name' || h.includes('gif') || h.includes('coaching'))) {
+              headerMap = {
+                titleIdx: lower.findIndex(h => h.includes('title') || h === 'drill' || h === 'name'),
+                catIdx: lower.findIndex(h => h.includes('cat')),
+                durIdx: lower.findIndex(h => h.includes('dur') || h.includes('min') || h.includes('time')),
+                gifIdx: lower.findIndex(h => h.includes('gif') || h.includes('url') || h.includes('diagram') || h.includes('image') || h.includes('link')),
+                tagsIdx: lower.findIndex(h => h.includes('tag')),
+                cpIdx: lower.findIndex(h => h.includes('coach') || h.includes('point')),
+                notesIdx: lower.findIndex(h => h.includes('note') || h.includes('setup') || h.includes('desc'))
+              };
+              return;
+            }
+
+            const titleVal = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : vals[0] || '').trim();
+            if (!titleVal || /^title$/i.test(titleVal)) return;
+
+            const rawCat = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : (target.sheetName || vals[1] || '')).trim();
+            const rawDur = (headerMap && headerMap.durIdx >= 0 ? vals[headerMap.durIdx] : vals[2] || '15').trim();
+            const rawGif = (headerMap && headerMap.gifIdx >= 0 ? vals[headerMap.gifIdx] : vals[3] || '').trim();
+            const rawTags = (headerMap && headerMap.tagsIdx >= 0 ? vals[headerMap.tagsIdx] : vals[4] || '').trim();
+            const rawCp = (headerMap && headerMap.cpIdx >= 0 ? vals[headerMap.cpIdx] : vals[5] || '').trim();
+            const rawNotes = (headerMap && headerMap.notesIdx >= 0 ? vals[headerMap.notesIdx] : vals[6] || '').trim();
+
+            const dedupeKey = titleVal.toLowerCase();
+            if (seenTitles.has(dedupeKey)) return;
+            seenTitles.add(dedupeKey);
+
+            const formattedCp = rawCp.replace(/\s*\|\s*/g, '\n');
+            const tagsArr = rawTags ? rawTags.split(/[,#]+/).map(t => t.trim()).filter(Boolean) : [];
+
+            sheetDrills.push({
+              id: 'gs_drill_' + rIdx + '_' + dedupeKey.replace(/[^a-z0-9]/g, '_'),
+              title: titleVal,
+              category: normalizeCategoryLabel(rawCat || target.sheetName),
+              duration: parseInt(rawDur, 10) || 15,
+              gifUrl: rawGif,
+              tags: tagsArr,
+              coachingPoints: formattedCp,
+              notes: rawNotes
+            });
+          });
+        } catch (e) {}
+      }
+
+      if (sheetDrills.length > 0) {
+        const merged = [...sheetDrills];
+        const sheetTitles = new Set(sheetDrills.map(d => d.title.toLowerCase()));
+        drillLibrary.forEach(existing => {
+          if (!sheetTitles.has(String(existing.title || '').toLowerCase())) {
+            merged.push(existing);
+          }
+        });
+        drillLibrary = merged;
+        persistCurrentTeamState();
+        renderDrillLibrary();
+        updateWorkspaceBadges();
+        return true;
+      }
+      return false;
+    }
 
     function resolveDrillMediaUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
@@ -3184,9 +3333,6 @@
           persistCurrentTeamState();
           renderDrillLibrary();
           updateWorkspaceBadges();
-          if (userLibraryAccess.drills) {
-            showToast('Synced ' + added + ' drill' + (added === 1 ? '' : 's') + ' from GitHub!');
-          }
         }
       }
     }
@@ -3485,10 +3631,10 @@
               return;
             }
 
-            let titleCandidate = (headerMap && headerMap.titleIdx >= 0) ? (vals[headerMap.titleIdx] || '') : '';
-            let catCandidate = (headerMap && headerMap.catIdx >= 0) ? (vals[headerMap.catIdx] || '') : '';
-            let subCatCandidate = (headerMap && headerMap.subIdx >= 0) ? (vals[headerMap.subIdx] || '') : '';
-            let tagsRaw = (headerMap && headerMap.tagsIdx >= 0) ? (vals[headerMap.tagsIdx] || '') : '';
+            let titleCandidate = (headerMap && headerMap.titleIdx >= 0 ? vals[headerMap.titleIdx] : '');
+            let catCandidate = (headerMap && headerMap.catIdx >= 0 ? vals[headerMap.catIdx] : '');
+            let subCatCandidate = (headerMap && headerMap.subIdx >= 0 ? vals[headerMap.subIdx] : '');
+            let tagsRaw = (headerMap && headerMap.tagsIdx >= 0 ? vals[headerMap.tagsIdx] : '');
 
             if (!headerMap || (headerMap.titleIdx < 0 && headerMap.catIdx < 0)) {
               const nonUrls = vals.filter(v => v && v !== urlCandidate && !/^\d+$/.test(v));
@@ -5185,6 +5331,7 @@
       renderSessionParts();
       renderGamePitch();
       renderSubLogList();
+      syncDrillsFromGoogleSheet();
       syncDrillsFromGitHubRepo();
       syncVideosFromGoogleSheet();
 
