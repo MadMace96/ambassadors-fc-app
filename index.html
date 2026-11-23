@@ -157,6 +157,40 @@
     .btn-danger:hover { background: #fee2e2; }
     .btn-sm { font-size: 0.74rem; padding: 5px 10px; border-radius: 7px; }
 
+    /* Session Attendance Check / X Toggle Buttons */
+    .att-toggle-btn {
+      width: 30px;
+      height: 28px;
+      border-radius: 7px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #64748b;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s ease;
+    }
+    .att-toggle-btn:hover {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+    .att-toggle-btn.present-active {
+      background: #059669;
+      border-color: #059669;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.28);
+    }
+    .att-toggle-btn.absent-active {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+    }
+
     /* Cards & Panels */
     .card {
       background: #ffffff;
@@ -394,46 +428,123 @@
       outline: none;
     }
     .part-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 768px) { .part-body { grid-template-columns: 1fr; } }
+    .part-body.no-media { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 768px) { .part-body, .part-body.no-media { grid-template-columns: 1fr; } }
 
-    /* Interactive Scrimmage Team Builder inside Session Part */
+    /* Warm-Up Links Bar inside Session Part */
+    .warmup-links-box {
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 12px 16px;
+    }
+    .warmup-link-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      color: #0A2647;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.12s ease;
+    }
+    .warmup-link-pill:hover {
+      background: #dbeafe;
+      border-color: #1e4e8c;
+    }
+
+    /* Interactive Scrimmage Team & Dual-Pitch Builder inside Session Part */
     .scrimmage-builder-panel {
       border-top: 1px solid #cbd5e1;
       background: #f8fafc;
-      padding: 14px 16px;
+      padding: 16px;
     }
     .scrimmage-teams-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) 215px minmax(0, 1fr);
       gap: 12px;
-      margin-top: 10px;
+      margin-top: 12px;
+      align-items: start;
     }
-    @media (max-width: 680px) {
+    @media (max-width: 980px) {
       .scrimmage-teams-grid { grid-template-columns: 1fr; }
     }
     .scrimmage-side-box {
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
-    .scrimmage-player-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 0.74rem;
-      font-weight: 800;
-      margin: 3px 4px 3px 0;
-      cursor: pointer;
+    .scrimmage-center-bench {
+      background: #ffffff;
+      border: 2px dashed #94a3b8;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 410px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .scrimmage-center-bench.drag-over-bench {
+      background: #eff6ff;
+      border-color: #1e4e8c;
+      box-shadow: 0 0 0 4px rgba(30, 78, 140, 0.16);
+    }
+    .scrimmage-pitch {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 100 / 124;
+      min-height: 410px;
+      background: repeating-linear-gradient(180deg, #2e7d32 0%, #2e7d32 10%, #286e2b 10%, #286e2b 20%);
+      border: 2.5px solid #ffffff;
+      border-radius: 11px;
+      box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
       user-select: none;
-      transition: transform 0.1s ease;
+      touch-action: none;
+      transition: box-shadow 0.15s ease;
     }
-    .scrimmage-player-pill:hover { transform: scale(1.03); }
-    .scrimmage-player-pill.navy { background: #0A2647; color: #ffffff; }
-    .scrimmage-player-pill.white { background: #f1f5f9; color: #0A2647; border: 1.5px solid #0A2647; }
-    .scrimmage-player-pill.pool { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+    .scrimmage-pitch.drag-over-pitch {
+      box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.24), 0 0 0 4px #38bdf8;
+    }
+    .scrimmage-pitch .pitch-token {
+      padding: 4px 9px;
+      font-size: 0.71rem;
+    }
+    .scrimmage-bench-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 9px;
+      font-size: 0.77rem;
+      font-weight: 800;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: transform 0.1s ease, border-color 0.12s ease, background-color 0.12s ease;
+    }
+    .scrimmage-bench-chip:hover {
+      background: #d1fae5;
+      border-color: #059669;
+    }
+    .scrimmage-bench-chip:active {
+      cursor: grabbing;
+    }
 
     /* GIF Preview Box */
     .gif-drop-box {
@@ -851,11 +962,11 @@
 
       <!-- Smart Invite Banner -->
       <div id="invitePrefillBanner" style="display:none;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:0.77rem;font-weight:700;color:#065f46;text-align:left;line-height:1.4;">
-        &#10003; Coach Invitation Detected — Your email and team join code(s) have been pre-filled below. Set a password to unlock your teams!
+        &#10003; Staff Invitation Detected — Your email and team join code(s) have been pre-filled below. Set a password to unlock your teams!
       </div>
 
       <p id="authSubtitleText" style="margin:0 0 16px;font-size:0.81rem;color:#64748b;line-height:1.45;">
-        Sign in with Google or your Coach Email &amp; Password to access your authorized team workspaces and libraries.
+        Sign in with Google or your Staff Email &amp; Password to access your authorized team workspaces.
       </p>
 
       <button type="button" id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:11px;font-size:0.9rem;border-radius:11px;box-shadow:0 4px 14px rgba(10,38,71,0.22);">
@@ -865,18 +976,18 @@
 
       <div style="display:flex;align-items:center;gap:8px;margin:13px 0 11px;">
         <div style="flex:1;height:1px;background:#e2e8f0;"></div>
-        <span style="font-size:0.7rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">or coach email &amp; password</span>
+        <span style="font-size:0.7rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">or staff email &amp; password</span>
         <div style="flex:1;height:1px;background:#e2e8f0;"></div>
       </div>
 
       <form id="emailPasswordForm" style="text-align:left;display:flex;flex-direction:column;gap:10px;">
         <div id="authNameFieldWrap" style="display:none;">
-          <label class="label" for="authNameInput">Coach Full Name *</label>
-          <input type="text" id="authNameInput" class="input" placeholder="e.g. Coach Jordan Smith" />
+          <label class="label" for="authNameInput">Full Name *</label>
+          <input type="text" id="authNameInput" class="input" placeholder="e.g. Jordan Smith" />
         </div>
         <div>
-          <label class="label" for="authEmailInput">Coach Email *</label>
-          <input type="email" id="authEmailInput" class="input" placeholder="coach@ambassadorsfootball.org" required />
+          <label class="label" for="authEmailInput">Email *</label>
+          <input type="email" id="authEmailInput" class="input" placeholder="staff@ambassadorsfootball.org" required />
         </div>
         <div id="authPasswordFieldWrap">
           <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -888,7 +999,7 @@
         <div id="authTeamCodeFieldWrap" style="display:none;">
           <label class="label" for="authTeamCodeInput">Team Join Code (or Invite Code) *</label>
           <input type="text" id="authTeamCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;font-weight:700;" placeholder="e.g. AFC-1112 (or AFC-1112, AFC-0910)" />
-          <div style="font-size:0.69rem;color:#64748b;margin-top:3px;">Required to unlock team workspaces and Drill/Video libraries.</div>
+          <div style="font-size:0.69rem;color:#64748b;margin-top:3px;">Required to unlock team workspaces.</div>
         </div>
         <button type="submit" id="authSubmitBtn" class="btn btn-emerald" style="width:100%;padding:11px;font-size:0.88rem;border-radius:10px;margin-top:4px;">
           Sign In &amp; Sync Cloud Workspace &rarr;
@@ -919,9 +1030,9 @@
         <h2 style="margin:4px 0 0;font-size:1.1rem;font-weight:900;color:#0A2647;">Continue with Preview Account</h2>
       </div>
       <div style="border-top:1px solid #e2e8f0;padding-top:12px;">
-        <label class="label" for="pickerCustomEmail">Coach Email</label>
-        <input type="email" id="pickerCustomEmail" class="input" style="margin-bottom:8px;" placeholder="coach@ambassadorsfootball.org">
-        <input type="text" id="pickerCustomName" class="input" style="margin-bottom:10px;" placeholder="Coach Name">
+        <label class="label" for="pickerCustomEmail">Staff Email</label>
+        <input type="email" id="pickerCustomEmail" class="input" style="margin-bottom:8px;" placeholder="staff@ambassadorsfootball.org">
+        <input type="text" id="pickerCustomName" class="input" style="margin-bottom:10px;" placeholder="Staff Name">
         <button type="button" id="pickerSubmitCustomBtn" class="btn btn-emerald" style="width:100%;padding:9px;font-size:0.84rem;">
           Continue with Account &rarr;
         </button>
@@ -965,7 +1076,7 @@
         <button type="button" class="nav-tab" data-tab="roster">
           Roster <span class="tab-pill" id="rosterCountBadge">0</span>
         </button>
-        <button type="button" class="nav-tab" data-tab="settings" title="Account, Sync & Coach Permissions">
+        <button type="button" class="nav-tab" data-tab="settings" title="Account, Sync & Permissions">
           &#9881; Settings
           <span id="navSignedInIndicator" style="display:none;align-items:center;gap:4px;background:rgba(16,185,129,0.22);border:1px solid rgba(16,185,129,0.5);padding:2px 6px;border-radius:999px;font-size:0.66rem;font-weight:800;">
             <span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;"></span>
@@ -985,7 +1096,7 @@
         <span class="badge badge-amber" style="margin-bottom:8px;">Pending Team Access</span>
         <h2 style="margin:4px 0 8px;font-size:1.2rem;font-weight:900;color:#0A2647;">Enter a Team Join Code to Unlock Your Workspace</h2>
         <p style="margin:0 0 16px;font-size:0.83rem;color:#64748b;line-height:1.5;">
-          Your coach account is signed in, but you have not joined an Ambassadors FC team yet. Enter the Team Join Code provided by your Head Coach or Club Director to unlock your team schedule, roster, and Drill/Video libraries.
+          Your account is signed in, but you have not joined an Ambassadors FC team yet. Enter the Team Join Code provided by your Head Coach or Club Director to unlock your team schedule, attendance, and roster.
         </p>
         <div style="display:flex;gap:8px;max-width:360px;margin:0 auto 12px;">
           <input type="text" id="pendingGateCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
@@ -1251,7 +1362,7 @@
         <div class="card-header">
           <div>
             <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:#0A2647;">Session Attendance &amp; Absence Notes</h3>
-            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="rosterSummaryText">0 Present • 0 Excused • 0 Unexcused</p>
+            <p style="margin:2px 0 0;font-size:0.75rem;color:#64748b;" id="rosterSummaryText">0 Present • 0 Not Present</p>
           </div>
           <div class="no-clean-preview" style="display:flex;flex-wrap:wrap;gap:6px;">
             <button type="button" class="btn btn-outline btn-sm" id="markAllPresentBtn">All Present</button>
@@ -1271,9 +1382,9 @@
         <div class="locked-gate-card">
           <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
           <span class="badge badge-red" style="margin-bottom:8px;">Drill Library Locked</span>
-          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Team Code Required</h2>
+          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Coaching Access Required</h2>
           <p style="margin:0 0 16px;font-size:0.82rem;color:#64748b;line-height:1.5;">
-            The Ambassadors FC Drill Library is reserved for verified club coaches. Enter a valid Team Join Code below or in Settings to unlock.
+            The Ambassadors FC Drill Library is reserved for authorized club coaches. Enter a valid Team Join Code below or contact your Club Admin.
           </p>
           <div style="display:flex;gap:8px;max-width:340px;margin:0 auto;">
             <input type="text" id="drillLockCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
@@ -1313,9 +1424,9 @@
         <div class="locked-gate-card">
           <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
           <span class="badge badge-red" style="margin-bottom:8px;">Video Library Locked</span>
-          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Team Code Required</h2>
+          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Coaching Access Required</h2>
           <p style="margin:0 0 16px;font-size:0.82rem;color:#64748b;line-height:1.5;">
-            The Ambassadors FC Video Library is private to verified club coaches. Enter a valid Team Join Code below or in Settings to unlock.
+            The Ambassadors FC Video Library is private to authorized club coaches. Enter a valid Team Join Code below or contact your Club Admin.
           </p>
           <div style="display:flex;gap:8px;max-width:340px;margin:0 auto;">
             <input type="text" id="videoLockCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
@@ -1390,13 +1501,13 @@
       </div>
     </section>
 
-    <!-- 6. SETTINGS & COACH PERMISSIONS TAB -->
+    <!-- 6. SETTINGS & PERMISSIONS TAB -->
     <section id="tab-settings" class="workspace-section">
       <div class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Settings &amp; Account</h2>
-            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Manage real-time cloud sync, coach permissions, and multi-team workspaces.</p>
+            <p style="margin:2px 0 0;font-size:0.78rem;color:#64748b;">Manage real-time cloud sync, staff permissions, and multi-team workspaces.</p>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span id="syncIndicatorBadge" style="display:inline-flex;align-items:center;gap:6px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:4px 10px;border-radius:999px;font-size:0.76rem;font-weight:800;">
@@ -1410,10 +1521,10 @@
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
-                <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.5</span>
+                <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Account</h3>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.7.12</span>
               </div>
-              <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
+              <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Staff</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
                 <span id="settingsRoleBadge" class="badge badge-navy">Assistant Coach</span>
@@ -1435,30 +1546,31 @@
 
           <!-- Strictly visible ONLY to Club Admins -->
           <div id="adminAccessPanel" style="display:none;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
-            <!-- Invite Coach Form -->
+            <!-- Invite Coach / Team Manager Form -->
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
-                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Invite Coach by Email &amp; Multi-Team Access</h3>
-                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Select one or more teams and click <strong>Send Invite</strong> to email the coach automatically with a Direct-to-Registration link.</p>
+                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Invite Coach or Team Manager &amp; Multi-Team Access</h3>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Select teams and a role (<strong>Team Manager</strong> gets Session Plan &amp; Game Day attendance access with Drills &amp; Videos hidden).</p>
                 </div>
-                <span class="badge badge-emerald" id="invitedCoachesCountBadge">0 Coaches</span>
+                <span class="badge badge-emerald" id="invitedCoachesCountBadge">0 Staff</span>
               </div>
 
               <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end;margin-bottom:10px;">
                 <div>
-                  <label class="label" for="inviteCoachEmailInput">Coach Email Address *</label>
-                  <input type="email" id="inviteCoachEmailInput" class="input" placeholder="assistant@ambassadorsfootball.org" />
+                  <label class="label" for="inviteCoachEmailInput">Email Address *</label>
+                  <input type="email" id="inviteCoachEmailInput" class="input" placeholder="manager@ambassadorsfootball.org" />
                 </div>
                 <div>
-                  <label class="label" for="inviteCoachNameInput">Coach Name</label>
-                  <input type="text" id="inviteCoachNameInput" class="input" placeholder="e.g. Coach Jordan" />
+                  <label class="label" for="inviteCoachNameInput">Full Name</label>
+                  <input type="text" id="inviteCoachNameInput" class="input" placeholder="e.g. Jordan Smith" />
                 </div>
                 <div>
                   <label class="label" for="inviteCoachRoleSelect">Role</label>
                   <select id="inviteCoachRoleSelect" class="select">
                     <option value="Assistant Coach">Assistant Coach</option>
                     <option value="Head Coach">Head Coach</option>
+                    <option value="Team Manager">Team Manager (Attendance, Session &amp; Game Day Only)</option>
                     <option value="Club Admin">Club Admin</option>
                   </select>
                 </div>
@@ -1494,8 +1606,8 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
-                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Live User &amp; Coach Permissions Manager</h3>
-                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Track invite acceptance in real time and modify any coach's role, assigned teams, or Drill &amp; Video library access.</p>
+                  <h3 style="margin:0;font-size:0.95rem;font-weight:900;color:#0A2647;">Live User &amp; Staff Permissions Manager</h3>
+                  <p style="margin:2px 0 0;font-size:0.76rem;color:#64748b;">Track invite acceptance in real time and switch any user between Assistant Coach, Head Coach, Team Manager, or Club Admin.</p>
                 </div>
                 <span class="badge badge-navy" id="managedUsersCountBadge">0 Users</span>
               </div>
@@ -1505,7 +1617,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.5</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.7.12</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1546,7 +1658,7 @@
         </div>
         <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:8px;text-align:center;">
           <div style="font-size:1.1rem;font-weight:900;color:#991b1b;" id="playerAttStatUnexcused">0</div>
-          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#dc2626;">Unexcused</div>
+          <div style="font-size:0.65rem;font-weight:800;text-transform:uppercase;color:#dc2626;">Not Present</div>
         </div>
       </div>
 
@@ -1799,7 +1911,7 @@
     let activeTabKey = 'calendar';
     let latestGeneratedInviteUrl = '';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.7.5';
+    const APP_VERSION = '2.7.12';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const DRILLS_GOOGLE_SHEET_ID = '1MKB8hdLU_Vi_DBW4frUbDRec084x519yXw4IruDQhH4';
     const DRILLS_DEFAULT_GIDS = ['1745720320', '0'];
@@ -1820,18 +1932,22 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.7.12', date: '2026-11-23', note: 'Added Warm-Up reference links box & clickable link pills in Session Builder, and streamlined Session Attendance to two clean buttons (✓ Present / ✕ Not Present) with automatic absence reason input and no accidental delete button.' },
+        { version: '2.7.11', date: '2026-11-23', note: 'Added the Team Manager role with full access to Calendar, Session Plan attendance, Game Day attendance, and Roster while hiding Drills and Videos tabs automatically.' },
+        { version: '2.7.10', date: '2026-11-23', note: 'Enabled free drag-and-drop repositioning of any position slot (filled or open) anywhere on the side-by-side Scrimmage fields so coaches can shape custom formations directly on the pitch while keeping player swapping and bench drops intact.' },
+        { version: '2.7.9', date: '2026-11-23', note: 'Redesigned Scrimmage assignment layout with Navy Field on the left, Present Roster Bench in the center, and White Field on the right with full drag-and-drop between fields and back to the bench.' },
+        { version: '2.7.8', date: '2026-11-23', note: 'Removed empty dashed placeholder box from Scrimmage session parts so Coaching Points and Setup & Rules appear cleanly at the top above the dual tactical fields.' },
+        { version: '2.7.7', date: '2026-11-23', note: 'Upgraded position-aware auto-placement across both Scrimmage dual tactical fields and Game Day lineups so players are matched directly to their primary/secondary positions (GK, CB, WB/LB/RB, CM, AM/LM/RM, ST).' },
+        { version: '2.7.6', date: '2026-11-23', note: 'Added dual side-by-side interactive Tactical Field Views (Navy Bibs vs White / Pinnies) inside Session Builder Scrimmage parts with independent formation selectors and draggable player tokens.' },
         { version: '2.7.5', date: '2026-11-23', note: 'Added Admin-Only "Edit Tags & Info" button on Drill Library cards with multi-tag quick-toggle chips (Finishing, Give and Go, Passing, Triangle Passing, etc.) and Firestore cloud persistence.' },
-        { version: '2.7.4', date: '2026-11-23', note: 'Removed the Drill Library filter subtitle text and added exact GIF path diagnostics inside the enlarged modal when a GitHub link fails to load.' },
-        { version: '2.7.3', date: '2026-11-23', note: 'Removed the Download Banner-Free .GIF box from the enlarged GIF modal and added smart GitHub path & filename fallback resolution.' },
-        { version: '2.7.2', date: '2026-11-23', note: '3-Tier Drill Hierarchy (Category -> Sub-Category -> Tags) & Same-Origin GitHub Pages GIF Loader.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.5')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.7.12')) {
       versionHistoryLog.unshift({
-        version: '2.7.5',
+        version: '2.7.12',
         date: '2026-11-23',
-        note: 'Added Admin-Only "Edit Tags & Info" button on Drill Library cards with multi-tag quick-toggle chips (Finishing, Give and Go, Passing, Triangle Passing, etc.) and Firestore cloud persistence.'
+        note: 'Added Warm-Up reference links box & clickable link pills in Session Builder, and streamlined Session Attendance to two clean buttons (✓ Present / ✕ Not Present) with automatic absence reason input and no accidental delete button.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1916,6 +2032,7 @@
       let role = (profile && profile.role) || (matchingInvites[0] && matchingInvites[0].role) || 'Assistant Coach';
       const isExplicitAdmin = role === 'Club Admin';
       const isSuspended = role === 'Suspended / No Access';
+      const isTeamManager = role === 'Team Manager';
 
       if (isSuspended) {
         return { isAdmin: false, role: 'Suspended / No Access', teams: [], libraryAccess: { drills: false, videos: false } };
@@ -1953,12 +2070,19 @@
       const resolvedTeams = hasAllTeams ? clubTeamsRegistry.map(t => t.name) : Array.from(teamSet);
       const hasValidAccess = resolvedTeams.length > 0;
 
-      const drillsUnlocked = profile && profile.libraryAccess && typeof profile.libraryAccess.drills === 'boolean'
-        ? profile.libraryAccess.drills
-        : hasValidAccess;
-      const videosUnlocked = profile && profile.libraryAccess && typeof profile.libraryAccess.videos === 'boolean'
-        ? profile.libraryAccess.videos
-        : hasValidAccess;
+      const defaultLibAccess = isTeamManager ? false : hasValidAccess;
+
+      const drillsUnlocked = isTeamManager
+        ? Boolean(profile && profile.libraryAccess && profile.libraryAccess.drills === true)
+        : (profile && profile.libraryAccess && typeof profile.libraryAccess.drills === 'boolean'
+            ? profile.libraryAccess.drills
+            : defaultLibAccess);
+
+      const videosUnlocked = isTeamManager
+        ? Boolean(profile && profile.libraryAccess && profile.libraryAccess.videos === true)
+        : (profile && profile.libraryAccess && typeof profile.libraryAccess.videos === 'boolean'
+            ? profile.libraryAccess.videos
+            : defaultLibAccess);
 
       return {
         isAdmin: false,
@@ -2098,10 +2222,11 @@
       currentUserRole = perms.role;
       userTeams = perms.teams;
       userLibraryAccess = perms.libraryAccess;
+      const isTeamManager = currentUserRole === 'Team Manager';
 
       const badgeText = document.getElementById('navUserBadgeText');
       if (badgeText) {
-        badgeText.textContent = (currentUser.displayName || 'Coach') + (isClubAdmin ? ' (Club Admin)' : ' (' + currentUserRole + ')');
+        badgeText.textContent = (currentUser.displayName || 'Staff') + (isClubAdmin ? ' (Club Admin)' : ' (' + currentUserRole + ')');
       }
 
       const adminPanel = document.getElementById('adminAccessPanel');
@@ -2116,18 +2241,34 @@
         roleBadge.className = 'badge ' + (isClubAdmin ? 'badge-navy' : (userTeams.length > 0 ? 'badge-emerald' : 'badge-amber'));
       }
       if (libBadge) {
-        const bothUnlocked = userLibraryAccess.drills && userLibraryAccess.videos;
-        const noneUnlocked = !userLibraryAccess.drills && !userLibraryAccess.videos;
-        libBadge.textContent = bothUnlocked
-          ? 'Libraries Unlocked'
-          : (noneUnlocked ? 'Libraries Locked' : 'Partial Library Access');
-        libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : (noneUnlocked ? 'badge-red' : 'badge-amber'));
+        if (isTeamManager && !userLibraryAccess.drills && !userLibraryAccess.videos) {
+          libBadge.textContent = 'Team Manager (Attendance & Schedules)';
+          libBadge.className = 'badge badge-navy';
+        } else {
+          const bothUnlocked = userLibraryAccess.drills && userLibraryAccess.videos;
+          const noneUnlocked = !userLibraryAccess.drills && !userLibraryAccess.videos;
+          libBadge.textContent = bothUnlocked
+            ? 'Libraries Unlocked'
+            : (noneUnlocked ? 'Libraries Locked' : 'Partial Library Access');
+          libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : (noneUnlocked ? 'badge-red' : 'badge-amber'));
+        }
       }
 
       const drillNavBtn = document.querySelector('.nav-tab[data-tab="drills"]');
       const videoNavBtn = document.querySelector('.nav-tab[data-tab="videos"]');
-      if (drillNavBtn) drillNavBtn.classList.toggle('locked-tab', !userLibraryAccess.drills);
-      if (videoNavBtn) videoNavBtn.classList.toggle('locked-tab', !userLibraryAccess.videos);
+      if (drillNavBtn) {
+        drillNavBtn.classList.toggle('locked-tab', !userLibraryAccess.drills);
+        drillNavBtn.style.display = (isTeamManager && !userLibraryAccess.drills) ? 'none' : 'inline-flex';
+      }
+      if (videoNavBtn) {
+        videoNavBtn.classList.toggle('locked-tab', !userLibraryAccess.videos);
+        videoNavBtn.style.display = (isTeamManager && !userLibraryAccess.videos) ? 'none' : 'inline-flex';
+      }
+
+      if ((activeTabKey === 'drills' && !userLibraryAccess.drills && isTeamManager) ||
+          (activeTabKey === 'videos' && !userLibraryAccess.videos && isTeamManager)) {
+        activeTabKey = 'calendar';
+      }
 
       const drillLocked = document.getElementById('drillLibraryLockedPanel');
       const drillCard = document.getElementById('drillLibraryContentCard');
@@ -2629,7 +2770,7 @@
     }
 
     /* =========================================================
-       STEP 5: ATTENDANCE STATS, LOGGING & PLAYER PROFILE MODAL
+       ATTENDANCE STATS, LOGGING & PLAYER PROFILE MODAL
        ========================================================= */
     function getPlayerAttendanceStats(player) {
       normalizePlayerAttendanceModel(player);
@@ -2723,7 +2864,7 @@
             const isPres = item.status === 'present';
             const isExc = item.status === 'excused';
             const badgeClass = isPres ? 'badge-emerald' : (isExc ? 'badge-amber' : 'badge-red');
-            const statusLabel = isPres ? 'Present' : (isExc ? 'Excused Absent' : 'Unexcused Absent');
+            const statusLabel = isPres ? 'Present' : (isExc ? 'Excused Absent' : 'Not Present');
             return '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
               '<div style="flex:1;min-width:190px;">' +
                 '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">' +
@@ -2750,7 +2891,7 @@
                 entry.reason || '',
                 (newReason) => {
                   entry.reason = (newReason || '').trim();
-                  if (entry.status === 'present' && entry.reason) entry.status = 'excused';
+                  if (entry.status === 'present' && entry.reason) entry.status = 'unexcused';
                   persistCurrentTeamState();
                   openPlayerAttendanceModal(playerIdx);
                   renderRoster();
@@ -3569,10 +3710,15 @@
               title: d.title,
               duration: d.duration || 15,
               gifUrl: d.gifUrl || '',
+              referenceLinks: '',
               coachingPoints: d.coachingPoints || '',
               notes: d.notes || '',
               scrimmageNavy: [],
-              scrimmageWhite: []
+              scrimmageWhite: [],
+              scrimmageNavyFormation: '4-2-2',
+              scrimmageWhiteFormation: '4-2-2',
+              scrimmageNavySlots: [],
+              scrimmageWhiteSlots: []
             });
             renderSessionParts();
             switchTab('builder');
@@ -4329,13 +4475,12 @@
       const grid = document.getElementById('rosterGrid');
       const masterGrid = document.getElementById('masterRosterGrid');
       const presentCount = rosterPlayers.filter(p => p.attendanceStatus === 'present').length;
-      const excusedCount = rosterPlayers.filter(p => p.attendanceStatus === 'excused').length;
-      const unexcusedCount = rosterPlayers.filter(p => p.attendanceStatus === 'unexcused').length;
+      const absentCount = rosterPlayers.filter(p => p.attendanceStatus !== 'present').length;
 
       const summaryEl = document.getElementById('rosterSummaryText');
       const masterSummaryEl = document.getElementById('masterRosterSummaryText');
       if (summaryEl) {
-        summaryEl.textContent = presentCount + ' Present • ' + excusedCount + ' Excused • ' + unexcusedCount + ' Unexcused (Absent players auto-filtered out of Scrimmage Lineups)';
+        summaryEl.textContent = presentCount + ' Present • ' + absentCount + ' Not Present (Not Present players auto-filtered out of Scrimmage Lineups)';
       }
       if (masterSummaryEl) {
         masterSummaryEl.textContent = rosterPlayers.length + ' Players on ' + activeTeamName + ' Roster • Click any player card to view attendance history';
@@ -4343,25 +4488,21 @@
 
       if (grid) {
         grid.innerHTML = rosterPlayers.map((p, idx) => {
-          const st = p.attendanceStatus || 'present';
-          const bg = st === 'present' ? '#f0fdf4' : (st === 'excused' ? '#fffbeb' : '#fef2f2');
-          const border = st === 'present' ? '#86efac' : (st === 'excused' ? '#fcd34d' : '#fca5a5');
+          const isPresent = (p.attendanceStatus || 'present') === 'present';
+          const bg = isPresent ? '#f0fdf4' : '#fef2f2';
+          const border = isPresent ? '#86efac' : '#fca5a5';
           return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:11px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">' +
               '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
                 '<span style="font-weight:800;font-size:0.84rem;color:#0A2647;">' + escapeHtml(p.name) + '</span>' +
                 ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions.join('/')) + '</span>' : '') +
               '</div>' +
-              '<div style="display:flex;align-items:center;gap:4px;">' +
-                '<select class="session-att-status-select" data-idx="' + idx + '" style="font-size:0.72rem;font-weight:800;border-radius:6px;padding:3px 6px;border:1px solid #cbd5e1;background:#ffffff;color:#0A2647;cursor:pointer;">' +
-                  '<option value="present"' + (st === 'present' ? ' selected' : '') + '>Present</option>' +
-                  '<option value="excused"' + (st === 'excused' ? ' selected' : '') + '>Excused Absent</option>' +
-                  '<option value="unexcused"' + (st === 'unexcused' ? ' selected' : '') + '>Unexcused Absent</option>' +
-                '</select>' +
-                '<button type="button" class="btn btn-danger btn-sm remove-roster-player-btn no-clean-preview" data-idx="' + idx + '" style="padding:2px 6px;">&times;</button>' +
+              '<div style="display:flex;align-items:center;gap:5px;">' +
+                '<button type="button" class="att-toggle-btn session-att-present-btn' + (isPresent ? ' present-active' : '') + '" data-idx="' + idx + '" title="Present">&#10003;</button>' +
+                '<button type="button" class="att-toggle-btn session-att-absent-btn' + (!isPresent ? ' absent-active' : '') + '" data-idx="' + idx + '" title="Not Present">&#10005;</button>' +
               '</div>' +
             '</div>' +
-            (st !== 'present'
+            (!isPresent
               ? '<input type="text" class="input session-absence-reason-input" data-idx="' + idx + '" value="' + escapeHtml(p.absenceReason || '') + '" placeholder="Absence reason (e.g. Injured, Sick, Family Trip)..." style="padding:5px 8px;font-size:0.75rem;background:#ffffff;" />'
               : '') +
           '</div>';
@@ -4395,7 +4536,7 @@
                   const stats = getPlayerAttendanceStats(player);
                   const attBadgeText = stats.total > 0
                     ? (stats.present + '/' + stats.total + ' (' + stats.rate + '%)')
-                    : (player.present ? 'Present' : 'Absent');
+                    : (player.present ? 'Present' : 'Not Present');
                   const attBadgeStyle = stats.total > 0
                     ? (stats.rate >= 80 ? 'background:#d1fae5;color:#065f46;' : 'background:#fef3c7;color:#92400e;')
                     : (player.present ? 'background:#e0f2fe;color:#075985;' : 'background:#fee2e2;color:#991b1b;');
@@ -4428,17 +4569,32 @@
         }).join('');
       }
 
-      document.querySelectorAll('.session-att-status-select').forEach(sel => {
-        sel.onchange = function() {
+      document.querySelectorAll('.session-att-present-btn').forEach(btn => {
+        btn.onclick = function() {
           const i = parseInt(this.dataset.idx, 10);
           const p = rosterPlayers[i];
           if (!p) return;
-          p.attendanceStatus = this.value;
-          p.present = this.value === 'present';
-          if (p.present) p.absenceReason = '';
+          p.attendanceStatus = 'present';
+          p.present = true;
+          p.absenceReason = '';
           persistCurrentTeamState();
           renderRoster();
           renderSessionParts();
+        };
+      });
+
+      document.querySelectorAll('.session-att-absent-btn').forEach(btn => {
+        btn.onclick = function() {
+          const i = parseInt(this.dataset.idx, 10);
+          const p = rosterPlayers[i];
+          if (!p) return;
+          p.attendanceStatus = 'unexcused';
+          p.present = false;
+          persistCurrentTeamState();
+          renderRoster();
+          renderSessionParts();
+          const reasonInput = document.querySelector('.session-absence-reason-input[data-idx="' + i + '"]');
+          if (reasonInput) reasonInput.focus();
         };
       });
 
@@ -4500,7 +4656,7 @@
     }
 
     /* =========================================================
-       GAME DAY LINEUP PITCH (POSITION PLACEHOLDERS + DRAG MERGE) + TIMER
+       GAME DAY LINEUP PITCH & POSITION-AWARE SLOT MATCHING
        ========================================================= */
     const FORMATIONS = {
       '4-2-2': [
@@ -4515,6 +4671,24 @@
         { pos: 'LM', x: 15, y: 52 }, { pos: 'LCM', x: 38, y: 55 }, { pos: 'RCM', x: 62, y: 55 }, { pos: 'RM', x: 85, y: 52 },
         { pos: 'ST', x: 50, y: 25 }
       ],
+      '3-2-1': [
+        { pos: 'GK', x: 50, y: 91 },
+        { pos: 'LB', x: 22, y: 73 }, { pos: 'CB', x: 50, y: 76 }, { pos: 'RB', x: 78, y: 73 },
+        { pos: 'LCM', x: 35, y: 50 }, { pos: 'RCM', x: 65, y: 50 },
+        { pos: 'ST', x: 50, y: 24 }
+      ],
+      '2-3-1': [
+        { pos: 'GK', x: 50, y: 91 },
+        { pos: 'LCB', x: 32, y: 75 }, { pos: 'RCB', x: 68, y: 75 },
+        { pos: 'LM', x: 18, y: 50 }, { pos: 'CM', x: 50, y: 52 }, { pos: 'RM', x: 82, y: 50 },
+        { pos: 'ST', x: 50, y: 24 }
+      ],
+      '2-2-1': [
+        { pos: 'GK', x: 50, y: 91 },
+        { pos: 'LCB', x: 32, y: 74 }, { pos: 'RCB', x: 68, y: 74 },
+        { pos: 'LCM', x: 32, y: 49 }, { pos: 'RCM', x: 68, y: 49 },
+        { pos: 'ST', x: 50, y: 24 }
+      ],
       '4-4-2 Flat': [
         { pos: 'GK', x: 50, y: 93 },
         { pos: 'LB', x: 14, y: 76 }, { pos: 'LCB', x: 38, y: 78 }, { pos: 'RCB', x: 62, y: 78 }, { pos: 'RB', x: 86, y: 76 },
@@ -4528,6 +4702,104 @@
         { pos: 'LS', x: 36, y: 22 }, { pos: 'RS', x: 64, y: 22 }
       ]
     };
+
+    function getSlotCanonicalRoleGroup(slotPos) {
+      const p = String(slotPos || '').toUpperCase().trim();
+      if (p === 'GK') return 'GK';
+      if (p === 'CB' || p === 'LCB' || p === 'RCB') return 'CB';
+      if (p === 'LB' || p === 'RB' || p === 'LWB' || p === 'RWB' || p === 'WB') return 'WB';
+      if (p === 'CM' || p === 'LCM' || p === 'RCM' || p === 'CDM') return 'CM';
+      if (p === 'AM' || p === 'CAM' || p === 'LM' || p === 'RM' || p === 'LW' || p === 'RW') return 'AM';
+      if (p === 'ST' || p === 'LS' || p === 'RS' || p === 'CF') return 'ST';
+      return 'CM';
+    }
+
+    function normalizePlayerPosToken(rawPos) {
+      const p = String(rawPos || '').toUpperCase().trim();
+      if (p === 'GK' || p === 'KEEPER') return 'GK';
+      if (p === 'CB' || p === 'LCB' || p === 'RCB' || p === 'DEF') return 'CB';
+      if (p === 'WB' || p === 'LWB' || p === 'RWB' || p === 'LB' || p === 'RB') return 'WB';
+      if (p === 'CM' || p === 'LCM' || p === 'RCM' || p === 'CDM' || p === 'MID') return 'CM';
+      if (p === 'AM' || p === 'CAM' || p === 'LM' || p === 'RM' || p === 'LW' || p === 'RW' || p === 'W' || p === 'WINGER') return 'AM';
+      if (p === 'ST' || p === 'LS' || p === 'RS' || p === 'CF' || p === 'FWD' || p === 'STRIKER') return 'ST';
+      return '';
+    }
+
+    function assignPlayersToSlotsByPosition(slots, candidatePlayers) {
+      if (!Array.isArray(slots) || slots.length === 0) return;
+      slots.forEach(s => { s.playerName = ''; });
+      const pool = Array.isArray(candidatePlayers) ? candidatePlayers.filter(p => p && p.name) : [];
+      if (pool.length === 0) return;
+
+      const usedNames = new Set();
+
+      slots.forEach(slot => {
+        if (slot.playerName) return;
+        const slotGroup = getSlotCanonicalRoleGroup(slot.pos);
+        const match = pool.find(p => {
+          if (usedNames.has(p.name)) return false;
+          const primary = Array.isArray(p.positions) && p.positions.length > 0
+            ? normalizePlayerPosToken(p.positions[0])
+            : '';
+          return primary === slotGroup;
+        });
+        if (match) {
+          slot.playerName = match.name;
+          usedNames.add(match.name);
+        }
+      });
+
+      slots.forEach(slot => {
+        if (slot.playerName) return;
+        const slotGroup = getSlotCanonicalRoleGroup(slot.pos);
+        const match = pool.find(p => {
+          if (usedNames.has(p.name)) return false;
+          const allGroups = (Array.isArray(p.positions) ? p.positions : [])
+            .map(normalizePlayerPosToken)
+            .filter(Boolean);
+          return allGroups.includes(slotGroup);
+        });
+        if (match) {
+          slot.playerName = match.name;
+          usedNames.add(match.name);
+        }
+      });
+
+      const ADJACENT_ROLES = {
+        GK: [],
+        CB: ['WB', 'CM'],
+        WB: ['CB', 'AM', 'CM'],
+        CM: ['AM', 'CB', 'WB'],
+        AM: ['ST', 'CM', 'WB'],
+        ST: ['AM', 'CM']
+      };
+      slots.forEach(slot => {
+        if (slot.playerName) return;
+        const slotGroup = getSlotCanonicalRoleGroup(slot.pos);
+        const compat = ADJACENT_ROLES[slotGroup] || [];
+        if (compat.length === 0) return;
+        const match = pool.find(p => {
+          if (usedNames.has(p.name)) return false;
+          const allGroups = (Array.isArray(p.positions) ? p.positions : [])
+            .map(normalizePlayerPosToken)
+            .filter(Boolean);
+          return allGroups.some(g => compat.includes(g));
+        });
+        if (match) {
+          slot.playerName = match.name;
+          usedNames.add(match.name);
+        }
+      });
+
+      slots.forEach(slot => {
+        if (slot.playerName) return;
+        const match = pool.find(p => !usedNames.has(p.name));
+        if (match) {
+          slot.playerName = match.name;
+          usedNames.add(match.name);
+        }
+      });
+    }
 
     let activeHalf = 1;
     let gameLineups = {
@@ -4672,7 +4944,10 @@
           });
           chip.addEventListener('click', () => {
             const pName = chip.getAttribute('data-player-name');
-            const openSlot = tokens.find(t => !t.playerName);
+            const pObj = benchPlayers.find(x => x.name === pName);
+            const pGroups = (pObj && Array.isArray(pObj.positions) ? pObj.positions : []).map(normalizePlayerPosToken).filter(Boolean);
+            const openMatchingSlot = tokens.find(t => !t.playerName && pGroups.includes(getSlotCanonicalRoleGroup(t.pos)));
+            const openSlot = openMatchingSlot || tokens.find(t => !t.playerName);
             if (openSlot && pName) {
               openSlot.playerName = pName;
               renderGamePitch();
@@ -4984,8 +5259,157 @@
     }
 
     /* =========================================================
-       SESSION BUILDER + AUTO-FILTERED SCRIMMAGE LINEUP BUILDER
+       SESSION BUILDER + WARM-UP LINKS + DUAL SIDE-BY-SIDE SCRIMMAGE FIELD VIEWS
        ========================================================= */
+    const SCRIMMAGE_FORMATIONS = ['4-2-2', '3-4-1', '3-2-1', '2-3-1', '2-2-1', '4-4-2 Flat', '4-4-2 Diamond'];
+
+    function parseReferenceLinks(rawStr) {
+      return String(rawStr || '')
+        .split(/[\r\n,;]+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(item => {
+          const urlMatch = item.match(/(https?:\/\/[^\s]+)/i);
+          const url = urlMatch ? urlMatch[1] : (/^[a-z0-9.-]+\.[a-z]{2,}/i.test(item) ? ('https://' + item) : '');
+          if (!url) return null;
+          let label = item.replace(url, '').replace(/^[-–—:|]+|[-–—:|]+$/g, '').trim();
+          if (!label) {
+            if (/youtube\.com|youtu\.be/i.test(url)) label = 'YouTube Warm-Up Video';
+            else if (/vimeo\.com/i.test(url)) label = 'Vimeo Warm-Up Video';
+            else if (/drive\.google\.com/i.test(url)) label = 'Google Drive Link';
+            else {
+              try { label = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { label = 'Reference Link'; }
+            }
+          }
+          return { label, url };
+        })
+        .filter(Boolean);
+    }
+
+    function buildDefaultScrimmageSlots(formationName, sideKey, assignedNames) {
+      const form = FORMATIONS[formationName] ? formationName : '4-2-2';
+      const template = FORMATIONS[form];
+      const slots = template.map((slot, idx) => ({
+        id: 'scrim_' + sideKey + '_' + idx,
+        pos: slot.pos,
+        x: slot.x,
+        y: slot.y,
+        playerName: ''
+      }));
+      const names = Array.isArray(assignedNames) ? assignedNames.filter(Boolean) : [];
+      if (names.length > 0) {
+        const candidatePlayerObjs = names.map(name => {
+          const found = rosterPlayers.find(p => p.name === name);
+          return found || { name, positions: [] };
+        });
+        assignPlayersToSlotsByPosition(slots, candidatePlayerObjs);
+      }
+      return slots;
+    }
+
+    function assignPlayerToMatchingScrimmageSlot(slots, playerName) {
+      if (!Array.isArray(slots) || !playerName) return;
+      const pObj = rosterPlayers.find(p => p.name === playerName);
+      const pGroups = (pObj && Array.isArray(pObj.positions) ? pObj.positions : [])
+        .map(normalizePlayerPosToken)
+        .filter(Boolean);
+      const primaryGroup = pGroups[0] || '';
+
+      const primaryOpen = primaryGroup
+        ? slots.find(s => !s.playerName && getSlotCanonicalRoleGroup(s.pos) === primaryGroup)
+        : null;
+      if (primaryOpen) {
+        primaryOpen.playerName = playerName;
+        return;
+      }
+
+      const secondaryOpen = pGroups.length > 0
+        ? slots.find(s => !s.playerName && pGroups.includes(getSlotCanonicalRoleGroup(s.pos)))
+        : null;
+      if (secondaryOpen) {
+        secondaryOpen.playerName = playerName;
+        return;
+      }
+
+      const anyOpen = slots.find(s => !s.playerName);
+      if (anyOpen) anyOpen.playerName = playerName;
+    }
+
+    function ensureScrimmagePartState(part, presentNamesSet) {
+      part.scrimmageNavy = (Array.isArray(part.scrimmageNavy) ? part.scrimmageNavy : []).filter(n => presentNamesSet.has(n));
+      part.scrimmageWhite = (Array.isArray(part.scrimmageWhite) ? part.scrimmageWhite : []).filter(n => presentNamesSet.has(n));
+
+      if (!part.scrimmageNavyFormation || !FORMATIONS[part.scrimmageNavyFormation]) {
+        part.scrimmageNavyFormation = '4-2-2';
+      }
+      if (!part.scrimmageWhiteFormation || !FORMATIONS[part.scrimmageWhiteFormation]) {
+        part.scrimmageWhiteFormation = '4-2-2';
+      }
+
+      if (!Array.isArray(part.scrimmageNavySlots) || part.scrimmageNavySlots.length === 0) {
+        part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation, 'navy', part.scrimmageNavy);
+      } else {
+        part.scrimmageNavySlots.forEach(s => {
+          if (s.playerName && (!presentNamesSet.has(s.playerName) || !part.scrimmageNavy.includes(s.playerName))) {
+            s.playerName = '';
+          }
+        });
+        const onNavyPitch = new Set(part.scrimmageNavySlots.map(s => s.playerName).filter(Boolean));
+        part.scrimmageNavy.forEach(n => {
+          if (!onNavyPitch.has(n)) {
+            assignPlayerToMatchingScrimmageSlot(part.scrimmageNavySlots, n);
+          }
+        });
+      }
+
+      if (!Array.isArray(part.scrimmageWhiteSlots) || part.scrimmageWhiteSlots.length === 0) {
+        part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation, 'white', part.scrimmageWhite);
+      } else {
+        part.scrimmageWhiteSlots.forEach(s => {
+          if (s.playerName && (!presentNamesSet.has(s.playerName) || !part.scrimmageWhite.includes(s.playerName))) {
+            s.playerName = '';
+          }
+        });
+        const onWhitePitch = new Set(part.scrimmageWhiteSlots.map(s => s.playerName).filter(Boolean));
+        part.scrimmageWhite.forEach(n => {
+          if (!onWhitePitch.has(n)) {
+            assignPlayerToMatchingScrimmageSlot(part.scrimmageWhiteSlots, n);
+          }
+        });
+      }
+    }
+
+    function renderScrimmageSidePitchHtml(partIdx, sideKey, formationName, slots) {
+      const isNavy = sideKey === 'navy';
+      return '<div class="scrimmage-pitch" data-part-idx="' + partIdx + '" data-side="' + sideKey + '">' +
+        '<div class="pitch-border"></div>' +
+        '<div class="pitch-halfway"></div>' +
+        '<div class="pitch-center-circle"></div>' +
+        '<div class="pitch-center-spot"></div>' +
+        '<div class="pitch-box-top"></div>' +
+        '<div class="pitch-six-top"></div>' +
+        '<div class="pitch-goal-top"></div>' +
+        '<div class="pitch-box-bottom"></div>' +
+        '<div class="pitch-six-bottom"></div>' +
+        '<div class="pitch-goal-bottom"></div>' +
+        '<div class="pitch-shape-badge">' + (isNavy ? 'NAVY' : 'WHITE') + ' • ' + escapeHtml(formationName) + '</div>' +
+        slots.map((tok, sIdx) => {
+          const hasPlayer = Boolean(tok.playerName && tok.playerName.trim());
+          const tokenClass = hasPlayer
+            ? (isNavy ? 'team-navy' : 'team-white')
+            : 'team-white';
+          const emptyStyle = !hasPlayer ? 'opacity:0.86;border-style:dashed;' : '';
+          return '<div class="pitch-token scrimmage-pitch-token ' + tokenClass + '"' +
+            ' draggable="true"' +
+            ' data-part-idx="' + partIdx + '" data-side="' + sideKey + '" data-slot-idx="' + sIdx + '" data-player="' + escapeHtml(tok.playerName || '') + '"' +
+            ' style="left:' + tok.x + '%;top:' + tok.y + '%;' + emptyStyle + '">' +
+            '<span style="opacity:0.78;font-size:0.62rem;margin-right:3px;">' + escapeHtml(tok.pos) + '</span>' +
+            (hasPlayer ? escapeHtml(tok.playerName) : '<span style="font-style:italic;opacity:0.72;">Open</span>') +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
     let currentSessionParts = [
       {
         id: 'part_1',
@@ -4993,10 +5417,15 @@
         title: '3-Player Give & Go Combination (4-Pole Line)',
         duration: 15,
         gifUrl: 'drills/3-player-give-and-go-4-pole.gif',
+        referenceLinks: '',
         coachingPoints: '• Check shoulder before receiving\n• Firm 1-touch wall passes\n• Accelerate into pockets between poles',
         notes: '4 central poles spaced 6 yards apart with left and right passing lanes.',
         scrimmageNavy: [],
-        scrimmageWhite: []
+        scrimmageWhite: [],
+        scrimmageNavyFormation: '4-2-2',
+        scrimmageWhiteFormation: '4-2-2',
+        scrimmageNavySlots: [],
+        scrimmageWhiteSlots: []
       }
     ];
 
@@ -5012,12 +5441,30 @@
       container.innerHTML = currentSessionParts.map((part, idx) => {
         totalMins += Number(part.duration || 0);
         const resolvedGif = resolveDrillMediaUrl(part.gifUrl);
-        const isScrimmage = String(part.type || '').toLowerCase() === 'scrimmage' || /scrimmage/i.test(String(part.title || ''));
+        const typeLower = String(part.type || '').toLowerCase();
+        const isScrimmage = typeLower === 'scrimmage' || /scrimmage/i.test(String(part.title || ''));
+        const isWarmup = typeLower === 'warmup' || /warm[\s-]?up/i.test(typeLower) || /warm[\s-]?up/i.test(String(part.title || ''));
+        const showMediaBox = Boolean(resolvedGif) || (!isScrimmage && !isWarmup);
+
+        let warmupLinksHtml = '';
+        if (isWarmup) {
+          const parsedLinks = parseReferenceLinks(part.referenceLinks || '');
+          warmupLinksHtml = '<div class="warmup-links-box">' +
+            '<label class="label" style="margin-bottom:5px;">Warm-Up Reference Links (YouTube, Vimeo, or Routine URLs)</label>' +
+            '<input type="text" class="input part-warmup-links-input no-clean-preview" data-part-idx="' + idx + '" value="' + escapeHtml(part.referenceLinks || '') + '" placeholder="Paste link(s), e.g. Dynamic Rondo - https://youtube.com/... (comma or line separated)">' +
+            (parsedLinks.length > 0
+              ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' +
+                  parsedLinks.map(lk =>
+                    '<a href="' + escapeHtml(lk.url) + '" target="_blank" rel="noopener noreferrer" class="warmup-link-pill">&#128279; ' + escapeHtml(lk.label) + ' &rarr;</a>'
+                  ).join('') +
+                '</div>'
+              : '') +
+          '</div>';
+        }
 
         let scrimmagePanelHtml = '';
         if (isScrimmage) {
-          part.scrimmageNavy = (Array.isArray(part.scrimmageNavy) ? part.scrimmageNavy : []).filter(n => presentNamesSet.has(n));
-          part.scrimmageWhite = (Array.isArray(part.scrimmageWhite) ? part.scrimmageWhite : []).filter(n => presentNamesSet.has(n));
+          ensureScrimmagePartState(part, presentNamesSet);
 
           const assignedSet = new Set([...part.scrimmageNavy, ...part.scrimmageWhite]);
           const unassignedPresent = presentPlayers.filter(p => !assignedSet.has(p.name));
@@ -5025,63 +5472,88 @@
           scrimmagePanelHtml = '<div class="scrimmage-builder-panel">' +
             '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">' +
               '<div>' +
-                '<span style="font-size:0.8rem;font-weight:900;color:#0A2647;">&#9917; Scrimmage Lineup Generator (Auto-Filtered by Present Players)</span>' +
-                '<div style="font-size:0.71rem;color:#64748b;">Showing only the <strong>' + presentPlayers.length + ' Present</strong> players from today\'s attendance. Absent players are automatically excluded.</div>' +
+                '<span style="font-size:0.84rem;font-weight:900;color:#0A2647;">&#9917; Scrimmage Lineups &amp; Side-by-Side Tactical Fields</span>' +
+                '<div style="font-size:0.72rem;color:#64748b;">Drag any slot or player anywhere on a field to customize shape, drag between fields to switch teams, or drop onto the center bench to unassign.</div>' +
               '</div>' +
-              '<div style="display:flex;gap:6px;" class="no-clean-preview">' +
-                '<button type="button" class="btn btn-primary btn-sm auto-split-scrimmage-btn" data-part-idx="' + idx + '">Auto-Split Present Players</button>' +
-                '<button type="button" class="btn btn-outline btn-sm clear-scrimmage-btn" data-part-idx="' + idx + '">Clear Teams</button>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:6px;" class="no-clean-preview">' +
+                '<button type="button" class="btn btn-primary btn-sm auto-split-scrimmage-btn" data-part-idx="' + idx + '">Auto-Split &amp; Fill Fields</button>' +
+                '<button type="button" class="btn btn-outline btn-sm clear-scrimmage-btn" data-part-idx="' + idx + '">Clear Fields to Bench</button>' +
               '</div>' +
             '</div>' +
 
-            (unassignedPresent.length > 0
-              ? '<div style="margin-top:8px;padding:7px 9px;background:#ffffff;border:1px dashed #94a3b8;border-radius:9px;" class="no-clean-preview">' +
-                  '<div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:4px;">Unassigned Present Pool (' + unassignedPresent.length + ') — Click to assign:</div>' +
-                  unassignedPresent.map(p =>
-                    '<span style="display:inline-flex;align-items:center;gap:4px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:999px;padding:3px 8px;font-size:0.73rem;font-weight:800;color:#065f46;margin:2px 4px 2px 0;">' +
-                      '<span>' + escapeHtml(p.name) + ((p.positions && p.positions.length) ? ' (' + escapeHtml(p.positions[0]) + ')' : '') + '</span>' +
-                      '<button type="button" class="assign-scrim-side-btn" data-part-idx="' + idx + '" data-side="navy" data-player="' + escapeHtml(p.name) + '" style="background:#0A2647;color:#fff;border:none;border-radius:4px;padding:1px 5px;font-size:0.65rem;font-weight:800;cursor:pointer;">+Navy</button>' +
-                      '<button type="button" class="assign-scrim-side-btn" data-part-idx="' + idx + '" data-side="white" data-player="' + escapeHtml(p.name) + '" style="background:#e2e8f0;color:#0A2647;border:1px solid #0A2647;border-radius:4px;padding:0 5px;font-size:0.65rem;font-weight:800;cursor:pointer;">+White</button>' +
-                    '</span>'
-                  ).join('') +
-                '</div>'
-              : '') +
-
             '<div class="scrimmage-teams-grid">' +
-              '<div class="scrimmage-side-box" style="border-top:3px solid #0A2647;">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                  '<span style="font-size:0.78rem;font-weight:900;color:#0A2647;">NAVY BIBS (' + part.scrimmageNavy.length + ')</span>' +
-                  '<span style="font-size:0.68rem;color:#64748b;">Click player to swap/remove</span>' +
+              '<div class="scrimmage-side-box" style="border-top:4px solid #0A2647;">' +
+                '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;">' +
+                  '<span style="font-size:0.82rem;font-weight:900;color:#0A2647;">NAVY BIBS (' + part.scrimmageNavy.length + ')</span>' +
+                  '<div class="team-shape-picker no-clean-preview" style="padding:2px 7px;font-size:0.72rem;">' +
+                    'Shape: ' +
+                    '<select class="scrimmage-formation-select" data-part-idx="' + idx + '" data-side="navy" style="font-size:0.74rem;">' +
+                      SCRIMMAGE_FORMATIONS.map(f => '<option value="' + escapeHtml(f) + '"' + (part.scrimmageNavyFormation === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>').join('') +
+                    '</select>' +
+                  '</div>' +
                 '</div>' +
-                (part.scrimmageNavy.length === 0
-                  ? '<div style="font-size:0.74rem;color:#94a3b8;padding:6px 0;">No players assigned to Navy yet.</div>'
-                  : part.scrimmageNavy.map(name => {
-                      const pObj = presentPlayers.find(x => x.name === name);
-                      const posTag = (pObj && pObj.positions && pObj.positions.length) ? ' (' + pObj.positions[0] + ')' : '';
-                      return '<span class="scrimmage-player-pill navy toggle-scrim-player-btn" data-part-idx="' + idx + '" data-from="navy" data-player="' + escapeHtml(name) + '" title="Click to move to White">' +
-                        escapeHtml(name + posTag) + ' &harr;' +
-                      '</span>';
-                    }).join('')) +
+                renderScrimmageSidePitchHtml(idx, 'navy', part.scrimmageNavyFormation, part.scrimmageNavySlots) +
               '</div>' +
 
-              '<div class="scrimmage-side-box" style="border-top:3px solid #64748b;">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
-                  '<span style="font-size:0.78rem;font-weight:900;color:#0f172a;">WHITE / PINNIES (' + part.scrimmageWhite.length + ')</span>' +
-                  '<span style="font-size:0.68rem;color:#64748b;">Click player to unassign</span>' +
+              '<div class="scrimmage-center-bench" data-part-idx="' + idx + '">' +
+                '<div style="border-bottom:2px solid #cbd5e1;padding-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:4px;">' +
+                  '<span style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#0A2647;">Bench / Roster</span>' +
+                  '<span class="badge badge-emerald">' + unassignedPresent.length + ' / ' + presentPlayers.length + '</span>' +
                 '</div>' +
-                (part.scrimmageWhite.length === 0
-                  ? '<div style="font-size:0.74rem;color:#94a3b8;padding:6px 0;">No players assigned to White yet.</div>'
-                  : part.scrimmageWhite.map(name => {
-                      const pObj = presentPlayers.find(x => x.name === name);
-                      const posTag = (pObj && pObj.positions && pObj.positions.length) ? ' (' + pObj.positions[0] + ')' : '';
-                      return '<span class="scrimmage-player-pill white toggle-scrim-player-btn" data-part-idx="' + idx + '" data-from="white" data-player="' + escapeHtml(name) + '" title="Click to return to Pool">' +
-                        escapeHtml(name + posTag) + ' &times;' +
-                      '</span>';
-                    }).join('')) +
+                '<div style="font-size:0.68rem;color:#64748b;line-height:1.35;">' +
+                  'Drag players onto Navy or White field. Drop field players back here to unassign.' +
+                '</div>' +
+                '<div style="display:flex;flex-direction:column;gap:5px;flex:1;overflow-y:auto;max-height:360px;padding-right:2px;">' +
+                  (presentPlayers.length === 0
+                    ? '<div style="font-size:0.74rem;color:#94a3b8;text-align:center;padding:18px 6px;">Mark players Present in Session Attendance below to populate the bench.</div>'
+                    : (unassignedPresent.length === 0
+                        ? '<div style="font-size:0.74rem;color:#64748b;text-align:center;padding:18px 6px;border:1px dashed #cbd5e1;border-radius:8px;">All present players are on a field.<br>Drag any player back here to bench them.</div>'
+                        : unassignedPresent.map(p =>
+                            '<div class="scrimmage-bench-chip" draggable="true" data-part-idx="' + idx + '" data-player="' + escapeHtml(p.name) + '">' +
+                              '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(p.name) + '</span>' +
+                              ((p.positions && p.positions.length) ? '<span class="pos-pill">' + escapeHtml(p.positions[0]) + '</span>' : '') +
+                            '</div>'
+                          ).join('')
+                      )
+                  ) +
+                '</div>' +
+              '</div>' +
+
+              '<div class="scrimmage-side-box" style="border-top:4px solid #64748b;">' +
+                '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;">' +
+                  '<span style="font-size:0.82rem;font-weight:900;color:#0f172a;">WHITE / PINNIES (' + part.scrimmageWhite.length + ')</span>' +
+                  '<div class="team-shape-picker no-clean-preview" style="padding:2px 7px;font-size:0.72rem;">' +
+                    'Shape: ' +
+                    '<select class="scrimmage-formation-select" data-part-idx="' + idx + '" data-side="white" style="font-size:0.74rem;">' +
+                      SCRIMMAGE_FORMATIONS.map(f => '<option value="' + escapeHtml(f) + '"' + (part.scrimmageWhiteFormation === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>').join('') +
+                    '</select>' +
+                  '</div>' +
+                '</div>' +
+                renderScrimmageSidePitchHtml(idx, 'white', part.scrimmageWhiteFormation, part.scrimmageWhiteSlots) +
               '</div>' +
             '</div>' +
           '</div>';
         }
+
+        const bodyHtml = showMediaBox
+          ? '<div class="part-body">' +
+              '<div class="gif-drop-box">' +
+                (resolvedGif
+                  ? '<div class="gif-preview-wrap session-part-gif-wrap" data-part-idx="' + idx + '">' +
+                      '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
+                      '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
+                    '</div>'
+                  : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">No GIF diagram attached</div>') +
+              '</div>' +
+              '<div style="display:flex;flex-direction:column;gap:10px;">' +
+                '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
+                '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
+              '</div>' +
+            '</div>'
+          : '<div class="part-body no-media">' +
+              '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
+              '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
+            '</div>';
 
         return '<div class="session-part-card">' +
           '<div class="part-header">' +
@@ -5094,20 +5566,8 @@
               '<button type="button" class="btn btn-danger btn-sm remove-part-btn no-clean-preview" data-part-idx="' + idx + '">Remove</button>' +
             '</div>' +
           '</div>' +
-          '<div class="part-body">' +
-            '<div class="gif-drop-box">' +
-              (resolvedGif
-                ? '<div class="gif-preview-wrap session-part-gif-wrap" data-part-idx="' + idx + '">' +
-                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(part.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="Drill GIF" class="gif-preview-img">' +
-                    '<span class="gif-enlarge-hint">&#128269; Click to Enlarge</span>' +
-                  '</div>'
-                : '<div style="padding:24px;color:#64748b;font-size:0.8rem;">' + (isScrimmage ? 'Small-Sided Scrimmage / Match Play' : 'No GIF diagram attached') + '</div>') +
-            '</div>' +
-            '<div style="display:flex;flex-direction:column;gap:10px;">' +
-              '<div><label class="label">Coaching Points</label><textarea class="textarea part-cp-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.coachingPoints || '') + '</textarea></div>' +
-              '<div><label class="label">Setup &amp; Rules</label><textarea class="textarea part-notes-input" data-part-idx="' + idx + '" rows="3">' + escapeHtml(part.notes || '') + '</textarea></div>' +
-            '</div>' +
-          '</div>' +
+          bodyHtml +
+          warmupLinksHtml +
           scrimmagePanelHtml +
         '</div>';
       }).join('');
@@ -5125,6 +5585,12 @@
       container.querySelectorAll('.part-notes-input').forEach(inp => {
         inp.onchange = function() { currentSessionParts[parseInt(this.dataset.partIdx, 10)].notes = this.value; };
       });
+      container.querySelectorAll('.part-warmup-links-input').forEach(inp => {
+        inp.onchange = function() {
+          currentSessionParts[parseInt(this.dataset.partIdx, 10)].referenceLinks = this.value;
+          renderSessionParts();
+        };
+      });
       container.querySelectorAll('.remove-part-btn').forEach(btn => {
         btn.onclick = function() { currentSessionParts.splice(parseInt(this.dataset.partIdx, 10), 1); renderSessionParts(); };
       });
@@ -5135,6 +5601,272 @@
         };
       });
 
+      container.querySelectorAll('.scrimmage-formation-select').forEach(sel => {
+        sel.onchange = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const side = this.getAttribute('data-side');
+          const part = currentSessionParts[pIdx];
+          if (!part) return;
+          const newForm = this.value || '4-2-2';
+          if (side === 'navy') {
+            part.scrimmageNavyFormation = newForm;
+            part.scrimmageNavySlots = buildDefaultScrimmageSlots(newForm, 'navy', part.scrimmageNavy);
+          } else {
+            part.scrimmageWhiteFormation = newForm;
+            part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(newForm, 'white', part.scrimmageWhite);
+          }
+          renderSessionParts();
+        };
+      });
+
+      const moveScrimmagePlayerToBench = (part, playerName) => {
+        if (!part || !playerName) return;
+        part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
+        part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
+        (part.scrimmageNavySlots || []).forEach(s => { if (s.playerName === playerName) s.playerName = ''; });
+        (part.scrimmageWhiteSlots || []).forEach(s => { if (s.playerName === playerName) s.playerName = ''; });
+      };
+
+      const assignScrimmagePlayerToTarget = (part, side, playerName, targetSlotIdx) => {
+        if (!part || !playerName) return;
+        const targetSlots = side === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+        const displacedPlayer = (typeof targetSlotIdx === 'number' && targetSlots[targetSlotIdx] && targetSlots[targetSlotIdx].playerName && targetSlots[targetSlotIdx].playerName !== playerName)
+          ? targetSlots[targetSlotIdx].playerName
+          : '';
+
+        moveScrimmagePlayerToBench(part, playerName);
+
+        if (side === 'navy') part.scrimmageNavy.push(playerName);
+        else part.scrimmageWhite.push(playerName);
+
+        if (typeof targetSlotIdx === 'number' && targetSlots[targetSlotIdx]) {
+          targetSlots[targetSlotIdx].playerName = playerName;
+          if (displacedPlayer) {
+            assignPlayerToMatchingScrimmageSlot(targetSlots, displacedPlayer);
+          }
+        } else {
+          assignPlayerToMatchingScrimmageSlot(targetSlots, playerName);
+        }
+      };
+
+      container.querySelectorAll('.scrimmage-bench-chip').forEach(chip => {
+        chip.addEventListener('dragstart', (e) => {
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', chip.getAttribute('data-player') || '');
+            e.dataTransfer.setData('application/x-afc-scrim', JSON.stringify({
+              partIdx: parseInt(chip.getAttribute('data-part-idx'), 10),
+              playerName: chip.getAttribute('data-player') || '',
+              fromSide: 'bench'
+            }));
+          }
+        });
+      });
+
+      container.querySelectorAll('.scrimmage-center-bench').forEach(benchBox => {
+        const pIdx = parseInt(benchBox.getAttribute('data-part-idx'), 10);
+        const part = currentSessionParts[pIdx];
+        if (!part) return;
+
+        benchBox.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          benchBox.classList.add('drag-over-bench');
+        });
+        benchBox.addEventListener('dragleave', (e) => {
+          if (!benchBox.contains(e.relatedTarget)) {
+            benchBox.classList.remove('drag-over-bench');
+          }
+        });
+        benchBox.addEventListener('drop', (e) => {
+          e.preventDefault();
+          benchBox.classList.remove('drag-over-bench');
+          let droppedName = '';
+          try {
+            const meta = JSON.parse((e.dataTransfer && e.dataTransfer.getData('application/x-afc-scrim')) || 'null');
+            if (meta && meta.playerName) droppedName = meta.playerName;
+          } catch (err) {}
+          if (!droppedName && e.dataTransfer) {
+            droppedName = e.dataTransfer.getData('text/plain') || '';
+          }
+          if (!droppedName) return;
+          moveScrimmagePlayerToBench(part, droppedName);
+          renderSessionParts();
+          showToast('Moved ' + droppedName + ' to Bench');
+        });
+      });
+
+      container.querySelectorAll('.scrimmage-pitch').forEach(pitchEl => {
+        const pIdx = parseInt(pitchEl.getAttribute('data-part-idx'), 10);
+        const side = pitchEl.getAttribute('data-side');
+        const part = currentSessionParts[pIdx];
+        if (!part) return;
+        const slots = side === 'navy' ? part.scrimmageNavySlots : part.scrimmageWhiteSlots;
+
+        pitchEl.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          pitchEl.classList.add('drag-over-pitch');
+        });
+        pitchEl.addEventListener('dragleave', (e) => {
+          if (!pitchEl.contains(e.relatedTarget)) {
+            pitchEl.classList.remove('drag-over-pitch');
+          }
+        });
+        pitchEl.addEventListener('drop', (e) => {
+          e.preventDefault();
+          pitchEl.classList.remove('drag-over-pitch');
+          if (e.target && e.target.closest('.scrimmage-pitch-token')) return;
+
+          let meta = null;
+          let droppedName = '';
+          try {
+            meta = JSON.parse((e.dataTransfer && e.dataTransfer.getData('application/x-afc-scrim')) || 'null');
+            if (meta && meta.playerName) droppedName = meta.playerName;
+          } catch (err) {}
+          if (!droppedName && e.dataTransfer) {
+            droppedName = e.dataTransfer.getData('text/plain') || '';
+          }
+
+          const rect = pitchEl.getBoundingClientRect();
+          const dropPctX = Math.round(Math.max(8, Math.min(92, ((e.clientX - rect.left) / rect.width) * 100)) * 10) / 10;
+          const dropPctY = Math.round(Math.max(6, Math.min(94, ((e.clientY - rect.top) / rect.height) * 100)) * 10) / 10;
+
+          if (meta && meta.partIdx === pIdx && meta.fromSide === side && typeof meta.fromSlotIdx === 'number' && slots[meta.fromSlotIdx]) {
+            slots[meta.fromSlotIdx].x = dropPctX;
+            slots[meta.fromSlotIdx].y = dropPctY;
+            renderSessionParts();
+            return;
+          }
+
+          if (!droppedName) return;
+
+          const openBefore = new Set(slots.filter(s => !s.playerName).map(s => s.id));
+          assignScrimmagePlayerToTarget(part, side, droppedName, null);
+          const placedSlot = slots.find(s => s.playerName === droppedName && openBefore.has(s.id)) || slots.find(s => s.playerName === droppedName);
+          if (placedSlot) {
+            placedSlot.x = dropPctX;
+            placedSlot.y = dropPctY;
+          }
+          renderSessionParts();
+          showToast('Placed ' + droppedName + ' on ' + (side === 'navy' ? 'Navy Bibs' : 'White / Pinnies'));
+        });
+
+        pitchEl.querySelectorAll('.scrimmage-pitch-token').forEach(tokEl => {
+          const sIdx = parseInt(tokEl.getAttribute('data-slot-idx'), 10);
+          const tokenPlayerName = slots[sIdx] ? slots[sIdx].playerName : '';
+
+          tokEl.addEventListener('dragstart', (e) => {
+            if (e.dataTransfer) {
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', tokenPlayerName || '');
+              e.dataTransfer.setData('application/x-afc-scrim', JSON.stringify({
+                partIdx: pIdx,
+                playerName: tokenPlayerName || '',
+                fromSide: side,
+                fromSlotIdx: sIdx
+              }));
+            }
+          });
+
+          tokEl.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            tokEl.style.transform = 'translate(-50%, -50%) scale(1.12)';
+            tokEl.style.boxShadow = '0 0 0 3px #38bdf8, 0 5px 12px rgba(0,0,0,0.4)';
+          });
+          tokEl.addEventListener('dragleave', () => {
+            tokEl.style.transform = 'translate(-50%, -50%)';
+            tokEl.style.boxShadow = '';
+          });
+          tokEl.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            pitchEl.classList.remove('drag-over-pitch');
+            tokEl.style.transform = 'translate(-50%, -50%)';
+            tokEl.style.boxShadow = '';
+
+            let droppedName = '';
+            let meta = null;
+            try {
+              meta = JSON.parse((e.dataTransfer && e.dataTransfer.getData('application/x-afc-scrim')) || 'null');
+              if (meta && meta.playerName) droppedName = meta.playerName;
+            } catch (err) {}
+            if (!droppedName && e.dataTransfer) {
+              droppedName = e.dataTransfer.getData('text/plain') || '';
+            }
+
+            if (meta && meta.partIdx === pIdx && meta.fromSide === side && typeof meta.fromSlotIdx === 'number') {
+              if (meta.fromSlotIdx === sIdx) return;
+              const prevOccupant = slots[sIdx].playerName || '';
+              slots[sIdx].playerName = droppedName;
+              if (slots[meta.fromSlotIdx]) slots[meta.fromSlotIdx].playerName = prevOccupant;
+              renderSessionParts();
+              if (droppedName || prevOccupant) {
+                showToast('Swapped ' + slots[meta.fromSlotIdx].pos + ' and ' + slots[sIdx].pos);
+              }
+              return;
+            }
+
+            if (!droppedName) return;
+            assignScrimmagePlayerToTarget(part, side, droppedName, sIdx);
+            renderSessionParts();
+            showToast('Placed ' + droppedName + ' at ' + slots[sIdx].pos + ' (' + (side === 'navy' ? 'Navy' : 'White') + ')');
+          });
+
+          let touchDragging = false;
+          let touchMoved = false;
+          let touchStartX = 0;
+          let touchStartY = 0;
+
+          tokEl.addEventListener('touchstart', (e) => {
+            const pt = e.touches[0];
+            touchDragging = true;
+            touchMoved = false;
+            touchStartX = pt.clientX;
+            touchStartY = pt.clientY;
+            tokEl.style.zIndex = '40';
+          }, { passive: true });
+
+          tokEl.addEventListener('touchmove', (e) => {
+            if (!touchDragging) return;
+            const pt = e.touches[0];
+            if (Math.hypot(pt.clientX - touchStartX, pt.clientY - touchStartY) > 4) touchMoved = true;
+            const rect = pitchEl.getBoundingClientRect();
+            const pctX = ((pt.clientX - rect.left) / rect.width) * 100;
+            const pctY = ((pt.clientY - rect.top) / rect.height) * 100;
+            if (pctX >= 0 && pctX <= 100 && pctY >= 0 && pctY <= 100) {
+              slots[sIdx].x = Math.round(Math.max(8, Math.min(92, pctX)) * 10) / 10;
+              slots[sIdx].y = Math.round(Math.max(6, Math.min(94, pctY)) * 10) / 10;
+              tokEl.style.left = slots[sIdx].x + '%';
+              tokEl.style.top = slots[sIdx].y + '%';
+            }
+          }, { passive: true });
+
+          tokEl.addEventListener('touchend', (e) => {
+            if (!touchDragging) return;
+            touchDragging = false;
+            tokEl.style.zIndex = '10';
+            if (!touchMoved) return;
+            const pt = e.changedTouches && e.changedTouches[0];
+            if (!pt) return;
+            const elUnder = document.elementFromPoint(pt.clientX, pt.clientY);
+            const benchUnder = elUnder && elUnder.closest('.scrimmage-center-bench');
+            const pitchUnder = elUnder && elUnder.closest('.scrimmage-pitch');
+            if (benchUnder && slots[sIdx].playerName) {
+              const removed = slots[sIdx].playerName;
+              moveScrimmagePlayerToBench(part, removed);
+              renderSessionParts();
+              showToast('Moved ' + removed + ' to Bench');
+            } else if (pitchUnder && pitchUnder !== pitchEl && slots[sIdx].playerName) {
+              const targetSide = pitchUnder.getAttribute('data-side');
+              const movedName = slots[sIdx].playerName;
+              assignScrimmagePlayerToTarget(part, targetSide, movedName, null);
+              renderSessionParts();
+              showToast('Moved ' + movedName + ' to ' + (targetSide === 'navy' ? 'Navy' : 'White'));
+            }
+          });
+        });
+      });
+
       container.querySelectorAll('.auto-split-scrimmage-btn').forEach(btn => {
         btn.onclick = function() {
           const pIdx = parseInt(this.dataset.partIdx, 10);
@@ -5143,19 +5875,23 @@
           if (presentPlayers.length === 0) {
             return showToast('Mark at least 2 players Present in Session Attendance below first.');
           }
-          const sorted = [...presentPlayers].sort((a, b) =>
-            mapPositionToColumnKey(a.positions).localeCompare(mapPositionToColumnKey(b.positions))
-          );
+          const sortedByPrimaryPos = [...presentPlayers].sort((a, b) => {
+            const posA = normalizePlayerPosToken((a.positions && a.positions[0]) || '') || 'ZZ';
+            const posB = normalizePlayerPosToken((b.positions && b.positions[0]) || '') || 'ZZ';
+            return posA.localeCompare(posB);
+          });
           const navy = [];
           const white = [];
-          sorted.forEach((pl, i) => {
+          sortedByPrimaryPos.forEach((pl, i) => {
             if (i % 2 === 0) navy.push(pl.name);
             else white.push(pl.name);
           });
           part.scrimmageNavy = navy;
           part.scrimmageWhite = white;
+          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', navy);
+          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', white);
           renderSessionParts();
-          showToast('Auto-balanced ' + presentPlayers.length + ' present players into Navy (' + navy.length + ') vs White (' + white.length + ')!');
+          showToast('Auto-split & matched players to their positions on Navy (' + navy.length + ') & White (' + white.length + ')!');
         };
       });
 
@@ -5166,38 +5902,10 @@
           if (!part) return;
           part.scrimmageNavy = [];
           part.scrimmageWhite = [];
+          part.scrimmageNavySlots = buildDefaultScrimmageSlots(part.scrimmageNavyFormation || '4-2-2', 'navy', []);
+          part.scrimmageWhiteSlots = buildDefaultScrimmageSlots(part.scrimmageWhiteFormation || '4-2-2', 'white', []);
           renderSessionParts();
-        };
-      });
-
-      container.querySelectorAll('.assign-scrim-side-btn').forEach(btn => {
-        btn.onclick = function() {
-          const pIdx = parseInt(this.dataset.partIdx, 10);
-          const side = this.dataset.side;
-          const playerName = this.dataset.player;
-          const part = currentSessionParts[pIdx];
-          if (!part || !playerName) return;
-          part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
-          part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
-          if (side === 'navy') part.scrimmageNavy.push(playerName);
-          else part.scrimmageWhite.push(playerName);
-          renderSessionParts();
-        };
-      });
-
-      container.querySelectorAll('.toggle-scrim-player-btn').forEach(pill => {
-        pill.onclick = function() {
-          const pIdx = parseInt(this.dataset.partIdx, 10);
-          const fromSide = this.dataset.from;
-          const playerName = this.dataset.player;
-          const part = currentSessionParts[pIdx];
-          if (!part || !playerName) return;
-          part.scrimmageNavy = (part.scrimmageNavy || []).filter(n => n !== playerName);
-          part.scrimmageWhite = (part.scrimmageWhite || []).filter(n => n !== playerName);
-          if (fromSide === 'navy') {
-            part.scrimmageWhite.push(playerName);
-          }
-          renderSessionParts();
+          showToast('Cleared both fields back to the center bench.');
         };
       });
     }
@@ -5227,13 +5935,13 @@
         countBadge.textContent = users.length + ' User' + (users.length === 1 ? '' : 's');
       }
 
-      const ROLES_LIST = ['Assistant Coach', 'Head Coach', 'Club Admin', 'Suspended / No Access'];
+      const ROLES_LIST = ['Assistant Coach', 'Head Coach', 'Team Manager', 'Club Admin', 'Suspended / No Access'];
 
       container.innerHTML = '<div class="perm-table-wrap">' +
         '<table class="perm-table">' +
           '<thead>' +
             '<tr>' +
-              '<th>Coach / User</th>' +
+              '<th>Staff / User</th>' +
               '<th>Invite Status</th>' +
               '<th>Role</th>' +
               '<th>Team Access</th>' +
@@ -5246,6 +5954,7 @@
               const isPrimary = u.isPrimaryAdmin;
               const isAdminRow = u.role === 'Club Admin';
               const isSuspendedRow = u.role === 'Suspended / No Access';
+              const isTeamManagerRow = u.role === 'Team Manager';
 
               let inviteStatusHtml = '';
               if (isPrimary) {
@@ -5286,16 +5995,18 @@
                 ? '<span class="badge badge-emerald">Drills + Videos</span>'
                 : (isSuspendedRow
                     ? '<span style="font-size:0.72rem;color:#dc2626;font-weight:700;">Locked</span>'
-                    : '<div style="display:flex;flex-wrap:wrap;">' +
-                        '<label class="perm-mini-check' + (u.libraryAccess.drills ? ' checked' : '') + '">' +
-                          '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="drills"' + (u.libraryAccess.drills ? ' checked' : '') + '>' +
-                          '<span>Drill Library</span>' +
-                        '</label>' +
-                        '<label class="perm-mini-check' + (u.libraryAccess.videos ? ' checked' : '') + '">' +
-                          '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="videos"' + (u.libraryAccess.videos ? ' checked' : '') + '>' +
-                          '<span>Video Library</span>' +
-                        '</label>' +
-                      '</div>');
+                    : (isTeamManagerRow && !u.libraryAccess.drills && !u.libraryAccess.videos
+                        ? '<span class="badge badge-amber" title="Team Managers only access Calendar, Session Plan attendance, Game Day, and Roster">Hidden (Team Manager)</span>'
+                        : '<div style="display:flex;flex-wrap:wrap;">' +
+                            '<label class="perm-mini-check' + (u.libraryAccess.drills ? ' checked' : '') + '">' +
+                              '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="drills"' + (u.libraryAccess.drills ? ' checked' : '') + '>' +
+                              '<span>Drill Library</span>' +
+                            '</label>' +
+                            '<label class="perm-mini-check' + (u.libraryAccess.videos ? ' checked' : '') + '">' +
+                              '<input type="checkbox" class="perm-lib-cb" data-email="' + escapeHtml(u.email) + '" data-lib="videos"' + (u.libraryAccess.videos ? ' checked' : '') + '>' +
+                              '<span>Video Library</span>' +
+                            '</label>' +
+                          '</div>'));
 
               const actionsCell = isPrimary
                 ? '<span style="font-size:0.7rem;color:#64748b;">Protected</span>'
@@ -5323,15 +6034,21 @@
           const newRole = this.value;
           const currentPerms = computeUserPermissions(targetEmail);
           const uObj = users.find(x => x.email === targetEmail);
+          const nextLibAccess = newRole === 'Suspended / No Access'
+            ? { drills: false, videos: false }
+            : (newRole === 'Team Manager'
+                ? { drills: false, videos: false }
+                : (newRole === 'Club Admin'
+                    ? { drills: true, videos: true }
+                    : { drills: true, videos: true }));
+
           saveUserAccessProfile(targetEmail, {
             name: (uObj && uObj.name) || targetEmail.split('@')[0],
             role: newRole,
             teams: newRole === 'Club Admin'
               ? clubTeamsRegistry.map(t => t.name)
               : (newRole === 'Suspended / No Access' ? [] : currentPerms.teams),
-            libraryAccess: newRole === 'Suspended / No Access'
-              ? { drills: false, videos: false }
-              : (newRole === 'Club Admin' ? { drills: true, videos: true } : currentPerms.libraryAccess)
+            libraryAccess: nextLibAccess
           });
           persistCurrentTeamState();
           applyAccessControlUI();
@@ -5410,8 +6127,8 @@
       const invitesList = document.getElementById('invitedCoachesList');
       const invitesBadge = document.getElementById('invitedCoachesCountBadge');
 
-      if (nameEl) nameEl.textContent = (currentUser && currentUser.displayName) || 'Coach';
-      if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Signed-In Coach';
+      if (nameEl) nameEl.textContent = (currentUser && currentUser.displayName) || 'Staff';
+      if (emailEl) emailEl.textContent = (currentUser && currentUser.email) || 'Signed-In Staff';
       if (verBadge) { verBadge.style.display = 'inline-block'; verBadge.textContent = 'v' + APP_VERSION; }
       if (verCurr) verCurr.textContent = 'v' + APP_VERSION;
 
@@ -5426,7 +6143,7 @@
 
       if (invitesList && isClubAdmin) {
         invitesList.innerHTML = coachInvitesRegistry.length === 0
-          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Select teams and enter a coach email above to send a Direct-to-Registration invite.</div>'
+          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches or team managers invited yet. Select teams and enter an email above to send a Direct-to-Registration invite.</div>'
           : coachInvitesRegistry.map((inv, idx) => {
               const em = String(inv.email || '').trim().toLowerCase();
               const prof = userAccessRegistry[em] || {};
@@ -5523,6 +6240,10 @@
     }
 
     function switchTab(tabKey) {
+      if ((tabKey === 'drills' && !userLibraryAccess.drills && currentUserRole === 'Team Manager') ||
+          (tabKey === 'videos' && !userLibraryAccess.videos && currentUserRole === 'Team Manager')) {
+        tabKey = 'calendar';
+      }
       activeTabKey = tabKey;
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabKey);
@@ -5569,12 +6290,18 @@
       }
       const cleanEmail = String(currentUser.email || '').trim().toLowerCase();
       const existing = userAccessRegistry[cleanEmail] || { email: cleanEmail, teams: [] };
+      const seedPerms = computeUserPermissions(cleanEmail);
+      const effectiveRole = existing.role || seedPerms.role || 'Assistant Coach';
+      const isTeamManager = effectiveRole === 'Team Manager';
       const updatedTeams = Array.from(new Set([...(existing.teams || []), ...matchedTeams]));
+
       saveUserAccessProfile(cleanEmail, {
         name: currentUser.displayName || cleanEmail.split('@')[0],
-        role: existing.role || 'Assistant Coach',
+        role: effectiveRole,
         teams: updatedTeams,
-        libraryAccess: { drills: true, videos: true },
+        libraryAccess: isTeamManager
+          ? (existing.libraryAccess || { drills: false, videos: false })
+          : { drills: true, videos: true },
         acceptedAt: existing.acceptedAt || getLocalTodayIso(),
         lastSignedInAt: getLocalTodayIso()
       });
@@ -5592,7 +6319,7 @@
     }
 
     function enterWorkspaceAsCoach(userObj, isBypass) {
-      currentUser = userObj || { email: '', displayName: 'Coach' };
+      currentUser = userObj || { email: '', displayName: 'Staff' };
       isDemoUser = Boolean(isBypass);
 
       const cleanEmail = String(currentUser.email || '').trim().toLowerCase();
@@ -5716,7 +6443,6 @@
         }
       });
 
-      // Admin-Only Drill Editor Modal Save & Close Handlers
       const drillEditModal = document.getElementById('drillEditModal');
       const closeDrillEditBtn = document.getElementById('closeDrillEditModalBtn');
       const cancelDrillEditBtn = document.getElementById('cancelDrillEditModalBtn');
@@ -5760,7 +6486,6 @@
         };
       }
 
-      // Player Attendance Profile Modal Close Handlers
       const playerAttModal = document.getElementById('playerAttendanceModal');
       const closePlayerAttBtn = document.getElementById('closePlayerAttModalBtn');
       const donePlayerAttBtn = document.getElementById('donePlayerAttModalBtn');
@@ -5775,7 +6500,6 @@
         });
       }
 
-      // Pending Access Gate & Library Lock Unlock Buttons
       const pendingUnlockBtn = document.getElementById('pendingGateUnlockBtn');
       const pendingCodeInput = document.getElementById('pendingGateCodeInput');
       const pendingStatusMsg = document.getElementById('pendingGateStatusMsg');
@@ -5788,7 +6512,7 @@
             if (pendingStatusMsg) pendingStatusMsg.textContent = '';
             pendingCodeInput.value = '';
             switchTab(activeTabKey);
-            showToast('Unlocked ' + res.teams.join(', ') + ' & Libraries!');
+            showToast('Unlocked ' + res.teams.join(', ') + '!');
           }
         };
       }
@@ -5837,7 +6561,6 @@
         };
       }
 
-      // Settings: Send Invite
       const sendCoachInviteBtn = document.getElementById('sendCoachInviteBtn');
       if (sendCoachInviteBtn) {
         sendCoachInviteBtn.onclick = async () => {
@@ -5848,7 +6571,7 @@
 
           const email = (emailInput && emailInput.value || '').trim().toLowerCase();
           if (!email || !email.includes('@')) {
-            showToast('Please enter a valid coach email address.');
+            showToast('Please enter a valid email address.');
             return;
           }
 
@@ -5857,12 +6580,13 @@
             .filter(Boolean);
 
           if (selectedTeams.length === 0) {
-            showToast('Please check at least one team to assign to this coach.');
+            showToast('Please check at least one team to assign.');
             return;
           }
 
           const name = (nameInput && nameInput.value || '').trim() || email.split('@')[0];
           const role = (roleSel && roleSel.value) || 'Assistant Coach';
+          const isTeamManager = role === 'Team Manager';
 
           sendCoachInviteBtn.disabled = true;
           const origBtnLabel = sendCoachInviteBtn.innerHTML;
@@ -5888,7 +6612,7 @@
             name,
             role,
             teams: selectedTeams,
-            libraryAccess: { drills: true, videos: true }
+            libraryAccess: isTeamManager ? { drills: false, videos: false } : { drills: true, videos: true }
           });
 
           const regInviteUrl = buildSmartRegistrationInviteUrl(record);
@@ -5933,7 +6657,7 @@
                     '<p>Hi <strong>' + escapeHtml(name) + '</strong>,</p>' +
                     '<p>You have been invited as <strong>' + escapeHtml(role) + '</strong> for <strong>' + escapeHtml(teamsDisplay) + '</strong>.</p>' +
                     (assignedCodes.length ? '<p style="background:#eff6ff;border:1px solid #bfdbfe;padding:10px 14px;border-radius:8px;display:inline-block;"><strong>Team Join Code(s):</strong> <code style="font-size:1.05em;">' + escapeHtml(assignedCodes.join(', ')) + '</code></p>' : '') +
-                    '<p><a href="' + escapeHtml(regInviteUrl) + '" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:bold;">Complete Coach Registration &rarr;</a></p>' +
+                    '<p><a href="' + escapeHtml(regInviteUrl) + '" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:8px;font-weight:bold;">Complete Registration &rarr;</a></p>' +
                     '<p style="font-size:12px;color:#64748b;">Your email (' + escapeHtml(email) + ') and team join code(s) will auto-fill on the registration screen.</p>' +
                   '</div>'
                 },
@@ -5951,8 +6675,8 @@
           if (mailClientBtn) mailClientBtn.href = mailtoHref;
           if (shareBanner && shareTextEl) {
             shareTextEl.textContent = queuedInCloudMail
-              ? '✓ Invite email sent to ' + email + ' (' + teamsDisplay + ') and registration link copied!'
-              : '✓ Invite saved & registration link copied for ' + email + ' (' + teamsDisplay + ').';
+              ? '✓ Invite email sent to ' + email + ' (' + role + ' • ' + teamsDisplay + ') and registration link copied!'
+              : '✓ Invite saved & registration link copied for ' + email + ' (' + role + ' • ' + teamsDisplay + ').';
             if (shareUrlEl) shareUrlEl.textContent = regInviteUrl;
             shareBanner.style.display = 'block';
           }
@@ -5993,12 +6717,15 @@
                   const { matchedTeams } = parseAndRedeemJoinCodes(prefillCodes);
                   if (matchedTeams.length > 0 && res.user.email.toLowerCase() !== CLUB_ADMIN_EMAIL.toLowerCase()) {
                     const existingProf = userAccessRegistry[res.user.email.toLowerCase()] || {};
+                    const seedPerms = computeUserPermissions(res.user.email);
+                    const effRole = existingProf.role || seedPerms.role || 'Assistant Coach';
+                    const isTM = effRole === 'Team Manager';
                     const mergedTeams = Array.from(new Set([...(existingProf.teams || []), ...matchedTeams]));
                     saveUserAccessProfile(res.user.email, {
                       name: res.user.displayName || res.user.email.split('@')[0],
-                      role: existingProf.role || 'Assistant Coach',
+                      role: effRole,
                       teams: mergedTeams,
-                      libraryAccess: { drills: true, videos: true }
+                      libraryAccess: isTM ? { drills: false, videos: false } : { drills: true, videos: true }
                     });
                   }
                 }
@@ -6011,7 +6738,7 @@
               if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
               if (!isHostedPreviewEnvironment()) {
                 if (authStatusEl) {
-                  authStatusEl.textContent = 'Google Sign-In could not complete (' + (err && err.message ? err.message : code) + '). Please allow popups or complete registration with Coach Email & Password below.';
+                  authStatusEl.textContent = 'Google Sign-In could not complete (' + (err && err.message ? err.message : code) + '). Please allow popups or complete registration with Email & Password below.';
                 }
                 return;
               }
@@ -6021,7 +6748,7 @@
             const picker = document.getElementById('googleAccountPickerModal');
             if (picker) picker.classList.add('open');
           } else if (authStatusEl) {
-            authStatusEl.textContent = 'Google Sign-In is unavailable in this browser. Please sign in with Coach Email & Password.';
+            authStatusEl.textContent = 'Google Sign-In is unavailable in this browser. Please sign in with Email & Password.';
           }
         };
       }
@@ -6047,7 +6774,7 @@
             const emailVal = (document.getElementById('pickerCustomEmail').value || '').trim().toLowerCase();
             const nameVal = (document.getElementById('pickerCustomName').value || '').trim();
             if (!emailVal || !emailVal.includes('@')) {
-              showToast('Please enter a valid coach email address.');
+              showToast('Please enter a valid email address.');
               return;
             }
             pickerModal.classList.remove('open');
@@ -6080,7 +6807,7 @@
         if (nameFieldWrap) nameFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
         if (teamCodeFieldWrap) teamCodeFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
         if (teamCodeInput) teamCodeInput.required = isRegisterMode;
-        if (submitBtn) submitBtn.innerHTML = isRegisterMode ? 'Create Coach Account &amp; Unlock Teams &rarr;' : 'Sign In &amp; Sync Cloud Workspace &rarr;';
+        if (submitBtn) submitBtn.innerHTML = isRegisterMode ? 'Create Account &amp; Unlock Teams &rarr;' : 'Sign In &amp; Sync Cloud Workspace &rarr;';
         if (toggleModeBtn) toggleModeBtn.textContent = isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Register';
         if (authStatusEl) authStatusEl.textContent = '';
       }
@@ -6105,7 +6832,7 @@
         forgotPwdBtn.onclick = async () => {
           const emailVal = (document.getElementById('authEmailInput').value || '').trim();
           if (!emailVal || !emailVal.includes('@')) {
-            if (authStatusEl) authStatusEl.textContent = 'Enter your Coach Email above first, then click Forgot Password.';
+            if (authStatusEl) authStatusEl.textContent = 'Enter your Email above first, then click Forgot Password.';
             return;
           }
           if (auth) {
@@ -6146,7 +6873,7 @@
               if (authStatusEl) {
                 authStatusEl.textContent = invalidCodes.length > 0
                   ? 'Invalid Team Join Code: ' + invalidCodes.join(', ') + '. Please enter a valid code from your Head Coach.'
-                  : 'A valid Team Join Code is required to register a coach account.';
+                  : 'A valid Team Join Code is required to register an account.';
               }
               return;
             }
@@ -6175,12 +6902,17 @@
 
               if (isRegisterMode && finalEmail.toLowerCase() !== CLUB_ADMIN_EMAIL.toLowerCase()) {
                 const existingProf = userAccessRegistry[finalEmail.toLowerCase()] || {};
+                const seedPerms = computeUserPermissions(finalEmail);
+                const effRole = existingProf.role || seedPerms.role || 'Assistant Coach';
+                const isTM = effRole === 'Team Manager';
                 const mergedTeams = Array.from(new Set([...(existingProf.teams || []), ...validatedRegTeams]));
                 saveUserAccessProfile(finalEmail, {
                   name: nameVal || (u && u.displayName) || finalEmail.split('@')[0],
-                  role: existingProf.role || 'Assistant Coach',
+                  role: effRole,
                   teams: mergedTeams,
-                  libraryAccess: { drills: mergedTeams.length > 0, videos: mergedTeams.length > 0 }
+                  libraryAccess: isTM
+                    ? { drills: false, videos: false }
+                    : { drills: mergedTeams.length > 0, videos: mergedTeams.length > 0 }
                 });
               }
 
@@ -6205,11 +6937,14 @@
 
           if (isHostedPreviewEnvironment()) {
             if (isRegisterMode && validatedRegTeams.length > 0) {
+              const seedPerms = computeUserPermissions(emailVal);
+              const effRole = seedPerms.role || 'Assistant Coach';
+              const isTM = effRole === 'Team Manager';
               saveUserAccessProfile(emailVal, {
                 name: nameVal || emailVal.split('@')[0],
-                role: 'Assistant Coach',
+                role: effRole,
                 teams: validatedRegTeams,
-                libraryAccess: { drills: true, videos: true }
+                libraryAccess: isTM ? { drills: false, videos: false } : { drills: true, videos: true }
               });
             }
             enterWorkspaceAsCoach({ email: emailVal, displayName: nameVal || emailVal.split('@')[0] }, false);
@@ -6290,7 +7025,6 @@
         };
       }
 
-      // Game Day Toolbar & Timer Controls
       const saveGameBtn = document.getElementById('saveGameBtn');
       if (saveGameBtn) {
         saveGameBtn.onclick = () => {
@@ -6408,13 +7142,18 @@
         formSel.onchange = function() {
           const slots = FORMATIONS[this.value] || FORMATIONS['4-2-2'];
           const prevNames = (gameLineups[activeHalf] || []).map(t => t.playerName).filter(Boolean);
-          gameLineups[activeHalf] = slots.map((s, i) => ({
+          const nextSlots = slots.map((s, i) => ({
             id: 'h' + activeHalf + '_' + i,
             pos: s.pos,
             x: s.x,
             y: s.y,
-            playerName: prevNames[i] || ''
+            playerName: ''
           }));
+          if (prevNames.length > 0) {
+            const prevPlayerObjs = prevNames.map(n => gameRosterPlayers.find(p => p.name === n) || { name: n, positions: [] });
+            assignPlayersToSlotsByPosition(nextSlots, prevPlayerObjs);
+          }
+          gameLineups[activeHalf] = nextSlots;
           renderGamePitch();
         };
       }
@@ -6424,11 +7163,9 @@
         autoFillBtn.onclick = () => {
           const avail = gameRosterPlayers.filter(p => p.present);
           const slots = gameLineups[activeHalf] || [];
-          slots.forEach((slot, i) => {
-            slot.playerName = avail[i] ? avail[i].name : '';
-          });
+          assignPlayersToSlotsByPosition(slots, avail);
           renderGamePitch();
-          showToast('Auto-filled ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half positions!');
+          showToast('Auto-filled ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half matching player positions!');
         };
       }
 
@@ -6512,10 +7249,15 @@
             title: labelMap[typeVal] || 'Session Activity',
             duration: 15,
             gifUrl: '',
+            referenceLinks: '',
             coachingPoints: '',
             notes: '',
             scrimmageNavy: [],
-            scrimmageWhite: []
+            scrimmageWhite: [],
+            scrimmageNavyFormation: '4-2-2',
+            scrimmageWhiteFormation: '4-2-2',
+            scrimmageNavySlots: buildDefaultScrimmageSlots('4-2-2', 'navy', []),
+            scrimmageWhiteSlots: buildDefaultScrimmageSlots('4-2-2', 'white', [])
           });
           renderSessionParts();
         };
@@ -6700,7 +7442,6 @@
         };
       }
 
-      // Drill & Video 3-Tier Filters
       const drillSearch = document.getElementById('drillSearchInput');
       const drillCat = document.getElementById('drillCategoryFilter');
       const drillSubCat = document.getElementById('drillSubCategoryFilter');
@@ -6724,7 +7465,6 @@
       if (vidCat) vidCat.onchange = renderVideoLibrary;
       if (vidSub) vidSub.onchange = renderVideoLibrary;
 
-      // Join / Create Team & Version Notes in Settings
       const joinTeamBtn = document.getElementById('joinTeamWithCodeBtn');
       if (joinTeamBtn) {
         joinTeamBtn.onclick = () => {
@@ -6768,7 +7508,6 @@
         };
       }
 
-      // Close Modals
       const closeVidBtn = document.getElementById('closeEmbeddedVideoBtn');
       const doneVidBtn = document.getElementById('doneEmbeddedVideoBtn');
       const vidModal = document.getElementById('embeddedVideoModal');
