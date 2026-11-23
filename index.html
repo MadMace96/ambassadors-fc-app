@@ -113,6 +113,9 @@
       border-color: #ffffff;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
     }
+    .nav-tab.locked-tab {
+      opacity: 0.55;
+    }
     .tab-pill {
       background: #1e4e8c;
       color: #ffffff;
@@ -382,6 +385,7 @@
     .badge-navy { background: #dbeafe; color: #0A2647; }
     .badge-emerald { background: #d1fae5; color: #065f46; }
     .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
     .tag-chip {
       display: inline-block;
       background: #e2e8f0;
@@ -391,6 +395,18 @@
       padding: 2px 8px;
       border-radius: 999px;
       margin: 2px 4px 2px 0;
+    }
+
+    /* Locked Access Gate Panel */
+    .locked-gate-card {
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      border-radius: 18px;
+      padding: 36px 24px;
+      text-align: center;
+      max-width: 520px;
+      margin: 24px auto;
+      box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
     }
 
     /* Calendar Grid & View Switcher */
@@ -605,13 +621,14 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
+      overflow-y: auto;
     }
     .auth-card {
       background: #ffffff;
       border-radius: 20px;
-      max-width: 420px;
+      max-width: 430px;
       width: 100%;
-      padding: 32px 24px;
+      padding: 28px 24px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     }
@@ -666,16 +683,16 @@
     </div>
   </div>
 
-  <!-- Google Sign-In Gate Overlay -->
+  <!-- Sign-In & Registration Gate Overlay -->
   <div id="authGateOverlay" class="auth-overlay">
     <div class="auth-card">
-      <div style="width:82px;height:82px;background:#ffffff;border:1px solid #cbd5e1;border-radius:18px;margin:0 auto 14px;padding:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(10,38,71,0.12);">
+      <div style="width:78px;height:78px;background:#ffffff;border:1px solid #cbd5e1;border-radius:18px;margin:0 auto 12px;padding:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(10,38,71,0.12);">
         <img src="Logo-ambassadors.png" onerror="this.onerror=null;this.src='https://placehold.co/120x120/ffffff/184296?text=AFC';" alt="Ambassadors Football Logo" style="display:block;width:100%;height:100%;object-fit:contain;">
       </div>
       <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Ambassadors FC</div>
-      <h1 style="margin:4px 0 10px;font-size:1.35rem;font-weight:900;color:#0A2647;">Training App</h1>
-      <p style="margin:0 0 18px;font-size:0.82rem;color:#64748b;line-height:1.45;">
-        Sign in with Google or your Coach Email &amp; Password to access your team sessions, game day command, and shared club libraries.
+      <h1 style="margin:4px 0 8px;font-size:1.35rem;font-weight:900;color:#0A2647;">Training App</h1>
+      <p id="authSubtitleText" style="margin:0 0 16px;font-size:0.81rem;color:#64748b;line-height:1.45;">
+        Sign in with Google or your Coach Email &amp; Password to access your authorized team workspaces and libraries.
       </p>
 
       <button type="button" id="googleSignInBtn" class="btn btn-primary" style="width:100%;padding:11px;font-size:0.9rem;border-radius:11px;box-shadow:0 4px 14px rgba(10,38,71,0.22);">
@@ -683,7 +700,7 @@
         Sign in with Google
       </button>
 
-      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin:13px 0 11px;">
         <div style="flex:1;height:1px;background:#e2e8f0;"></div>
         <span style="font-size:0.7rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">or coach email &amp; password</span>
         <div style="flex:1;height:1px;background:#e2e8f0;"></div>
@@ -692,7 +709,7 @@
       <form id="emailPasswordForm" style="text-align:left;display:flex;flex-direction:column;gap:10px;">
         <div id="authNameFieldWrap" style="display:none;">
           <label class="label" for="authNameInput">Coach Full Name *</label>
-          <input type="text" id="authNameInput" class="input" placeholder="e.g. Coach Mike Maddox" />
+          <input type="text" id="authNameInput" class="input" placeholder="e.g. Coach Jordan Smith" />
         </div>
         <div>
           <label class="label" for="authEmailInput">Coach Email *</label>
@@ -703,7 +720,12 @@
             <label class="label" for="authPasswordInput" style="margin-bottom:0;">Password *</label>
             <button type="button" id="togglePasswordVisBtn" style="background:none;border:none;color:#1e4e8c;font-size:0.72rem;font-weight:700;cursor:pointer;padding:0;">Show</button>
           </div>
-          <input type="password" id="authPasswordInput" class="input" style="margin-top:4px;" placeholder="••••••••••••" />
+          <input type="password" id="authPasswordInput" class="input" style="margin-top:4px;" placeholder="••••••••••••" required />
+        </div>
+        <div id="authTeamCodeFieldWrap" style="display:none;">
+          <label class="label" for="authTeamCodeInput">Team Join Code (or Invite Code) *</label>
+          <input type="text" id="authTeamCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;" placeholder="e.g. AFC-1112 (or AFC-1112, AFC-0910)" />
+          <div style="font-size:0.69rem;color:#64748b;margin-top:3px;">Required to unlock team workspaces and Drill/Video libraries.</div>
         </div>
         <button type="submit" id="authSubmitBtn" class="btn btn-emerald" style="width:100%;padding:11px;font-size:0.88rem;border-radius:10px;margin-top:4px;">
           Sign In &amp; Sync Cloud Workspace &rarr;
@@ -726,16 +748,15 @@
     </div>
   </div>
 
-  <!-- Google Account Picker Fallback Modal -->
+  <!-- Google Account Picker Fallback Modal (Preview Environments Only) -->
   <div id="googleAccountPickerModal" class="modal-backdrop">
     <div class="modal-box" style="max-width:440px;">
       <div style="text-align:center;margin-bottom:14px;">
-        <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Google Sign-In</div>
-        <h2 style="margin:4px 0 0;font-size:1.1rem;font-weight:900;color:#0A2647;">Continue with Google Account</h2>
+        <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#1e4e8c;">Preview Google Sign-In</div>
+        <h2 style="margin:4px 0 0;font-size:1.1rem;font-weight:900;color:#0A2647;">Continue with Preview Account</h2>
       </div>
-      <div id="googleSavedAccountsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
       <div style="border-top:1px solid #e2e8f0;padding-top:12px;">
-        <label class="label" for="pickerCustomEmail">Google Account Email</label>
+        <label class="label" for="pickerCustomEmail">Coach Email</label>
         <input type="email" id="pickerCustomEmail" class="input" style="margin-bottom:8px;" placeholder="coach@ambassadorsfootball.org">
         <input type="text" id="pickerCustomName" class="input" style="margin-bottom:10px;" placeholder="Coach Name">
         <button type="button" id="pickerSubmitCustomBtn" class="btn btn-emerald" style="width:100%;padding:9px;font-size:0.84rem;">
@@ -758,7 +779,7 @@
         </div>
         <div>
           <div class="brand-title">Ambassadors FC</div>
-          <div class="brand-sub" id="topBarActiveTeamSub">11/12 AFC Boys</div>
+          <div class="brand-sub" id="topBarActiveTeamSub">No Active Team</div>
         </div>
       </div>
 
@@ -793,6 +814,23 @@
   </header>
 
   <main class="workspace-wrap">
+
+    <!-- PENDING TEAM ACCESS GATE (Shown on Calendar/Builder/GameDay/Roster if user has 0 authorized teams) -->
+    <div id="pendingTeamAccessGate" style="display:none;">
+      <div class="locked-gate-card">
+        <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
+        <span class="badge badge-amber" style="margin-bottom:8px;">Pending Team Access</span>
+        <h2 style="margin:4px 0 8px;font-size:1.2rem;font-weight:900;color:#0A2647;">Enter a Team Join Code to Unlock Your Workspace</h2>
+        <p style="margin:0 0 16px;font-size:0.83rem;color:#64748b;line-height:1.5;">
+          Your coach account is signed in, but you have not joined an Ambassadors FC team yet. Enter the Team Join Code provided by your Head Coach or Club Director to unlock your team schedule, roster, and Drill/Video libraries.
+        </p>
+        <div style="display:flex;gap:8px;max-width:360px;margin:0 auto 12px;">
+          <input type="text" id="pendingGateCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
+          <button type="button" id="pendingGateUnlockBtn" class="btn btn-emerald">Unlock</button>
+        </div>
+        <div id="pendingGateStatusMsg" style="font-size:0.76rem;font-weight:700;color:#dc2626;min-height:18px;"></div>
+      </div>
+    </div>
 
     <!-- 1. CALENDAR TAB -->
     <section id="tab-calendar" class="workspace-section active">
@@ -1063,9 +1101,24 @@
       </div>
     </section>
 
-    <!-- 4. DRILL LIBRARY TAB (100% Backend GitHub Auto-Loader, Zero Manual Drill Buttons) -->
+    <!-- 4. DRILL LIBRARY TAB (Gated by Team Code / Invite) -->
     <section id="tab-drills" class="workspace-section">
-      <div class="card" style="margin-bottom:18px;">
+      <div id="drillLibraryLockedPanel" style="display:none;">
+        <div class="locked-gate-card">
+          <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
+          <span class="badge badge-red" style="margin-bottom:8px;">Drill Library Locked</span>
+          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Team Code Required</h2>
+          <p style="margin:0 0 16px;font-size:0.82rem;color:#64748b;line-height:1.5;">
+            The Ambassadors FC Drill Library is reserved for verified club coaches. Enter a valid Team Join Code below or in Settings to unlock.
+          </p>
+          <div style="display:flex;gap:8px;max-width:340px;margin:0 auto;">
+            <input type="text" id="drillLockCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
+            <button type="button" id="drillLockUnlockBtn" class="btn btn-emerald">Unlock</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="drillLibraryContentCard" class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Drill Library</h2>
@@ -1090,9 +1143,24 @@
       </div>
     </section>
 
-    <!-- 5. VIDEO LIBRARY TAB (With Info & Tag Editor Restored) -->
+    <!-- 5. VIDEO LIBRARY TAB (Gated by Team Code / Invite) -->
     <section id="tab-videos" class="workspace-section">
-      <div class="card" style="margin-bottom:18px;">
+      <div id="videoLibraryLockedPanel" style="display:none;">
+        <div class="locked-gate-card">
+          <div style="font-size:2rem;margin-bottom:8px;">&#128274;</div>
+          <span class="badge badge-red" style="margin-bottom:8px;">Video Library Locked</span>
+          <h2 style="margin:4px 0 8px;font-size:1.15rem;font-weight:900;color:#0A2647;">Authorized Team Code Required</h2>
+          <p style="margin:0 0 16px;font-size:0.82rem;color:#64748b;line-height:1.5;">
+            The Ambassadors FC Video Library is private to verified club coaches. Enter a valid Team Join Code below or in Settings to unlock.
+          </p>
+          <div style="display:flex;gap:8px;max-width:340px;margin:0 auto;">
+            <input type="text" id="videoLockCodeInput" class="input" style="font-family:monospace;text-transform:uppercase;text-align:center;font-weight:800;" placeholder="e.g. AFC-1112" />
+            <button type="button" id="videoLockUnlockBtn" class="btn btn-emerald">Unlock</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="videoLibraryContentCard" class="card" style="margin-bottom:18px;">
         <div class="card-header">
           <div>
             <h2 style="margin:0;font-size:1.1rem;font-weight:900;color:#0A2647;">Video Library</h2>
@@ -1179,11 +1247,14 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Coach</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.5</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.6.1</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Coach</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
-              <div id="settingsRoleBadge" class="badge badge-navy">Head Coach / Admin</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                <span id="settingsRoleBadge" class="badge badge-navy">Assistant Coach</span>
+                <span id="settingsLibraryBadge" class="badge badge-emerald">Libraries Unlocked</span>
+              </div>
             </div>
 
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
@@ -1191,14 +1262,15 @@
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Teams You Have Access To</h3>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;">
                   <button type="button" class="btn btn-emerald btn-sm" id="joinTeamWithCodeBtn">+ Join with Code</button>
-                  <button type="button" class="btn btn-primary btn-sm" id="createNewTeamFromSettingsBtn">+ Create Team</button>
+                  <button type="button" class="btn btn-primary btn-sm" id="createNewTeamFromSettingsBtn" style="display:none;">+ Create Team</button>
                 </div>
               </div>
               <div id="settingsAccessibleTeamsList" style="display:flex;flex-direction:column;gap:6px;"></div>
             </div>
           </div>
 
-          <div id="adminAccessPanel" style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
+          <!-- Strictly visible ONLY to Club Admins -->
+          <div id="adminAccessPanel" style="display:none;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:18px;">
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:18px;">
               <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <div>
@@ -1243,7 +1315,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.5</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.6.1</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1416,9 +1488,11 @@
     let currentUser = null;
     let isDemoUser = false;
     let isClubAdmin = false;
+    let currentUserRole = 'Assistant Coach';
     let isRegisterMode = false;
+    let activeTabKey = 'calendar';
     const CLUB_ADMIN_EMAIL = 'mmaddox@ambassadorsfootball.org';
-    const APP_VERSION = '2.5';
+    const APP_VERSION = '2.6.1';
     const GOOGLE_SHEET_ID = '1gdpFb4qxZpsMU9gX80SfMsXdhd_doKlUPOTRy2NHe8w';
     const GITHUB_REPO_OWNER = 'maddox824';
     const GITHUB_REPO_NAME = 'training-app';
@@ -1430,16 +1504,16 @@
     } catch (e) {}
     if (!Array.isArray(versionHistoryLog) || versionHistoryLog.length === 0) {
       versionHistoryLog = [
+        { version: '2.6.1', date: '2026-11-22', note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.' },
         { version: '2.5', date: '2026-11-22', note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.' },
-        { version: '2.4', date: '2026-11-21', note: 'Fixed Google OAuth & Preview-only bypass, Sign Out, Join/Create Team, Calendar Month/Week/Day views, Game Day Timer & Save/New Game, GitHub drills auto-sync, and Video Tag editor.' },
-        { version: '2.2', date: '2026-11-21', note: 'Baseline v2.2 checkpoint.' }
+        { version: '2.4', date: '2026-11-21', note: 'Fixed Google OAuth & Preview-only bypass, Sign Out, Join/Create Team, Calendar Month/Week/Day views, Game Day Timer & Save/New Game, GitHub drills auto-sync, and Video Tag editor.' }
       ];
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-    } else if (!versionHistoryLog.some(item => item && item.version === '2.5')) {
+    } else if (!versionHistoryLog.some(item => item && item.version === '2.6.1')) {
       versionHistoryLog.unshift({
-        version: '2.5',
+        version: '2.6.1',
         date: '2026-11-22',
-        note: 'Stable checkpoint v2.5: Automatic cross-device cloud sync for rosters & coach invites, automated email invite dispatch, and clean GIF exporter.'
+        note: 'Step 1 & 2 Access Control: Strict Club Admin allowlist, role-based UI enforcement, Team Join Code gating for registration & libraries, and production OAuth security.'
       });
       try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
     }
@@ -1453,8 +1527,9 @@
       if (Array.isArray(storedTeams) && storedTeams.length > 0) clubTeamsRegistry = storedTeams;
     } catch (e) {}
 
-    let activeTeamName = clubTeamsRegistry[0].name;
-    let userTeams = clubTeamsRegistry.map(t => t.name);
+    let activeTeamName = '';
+    let userTeams = [];
+    let userLibraryAccess = { drills: false, videos: false };
 
     let savedSessions = [];
     let savedGames = [];
@@ -1471,6 +1546,199 @@
       const storedInvites = JSON.parse(localStorage.getItem('afc_coach_invites') || '[]');
       if (Array.isArray(storedInvites)) coachInvitesRegistry = storedInvites;
     } catch (e) {}
+    let userAccessRegistry = {};
+    try {
+      const storedAccess = JSON.parse(localStorage.getItem('afc_user_access_registry') || '{}');
+      if (storedAccess && typeof storedAccess === 'object') userAccessRegistry = storedAccess;
+    } catch (e) {}
+
+    function parseAndRedeemJoinCodes(rawCodeString) {
+      const codes = String(rawCodeString || '')
+        .split(/[,;\s]+/)
+        .map(c => c.trim().toUpperCase())
+        .filter(Boolean);
+      const matchedTeams = [];
+      const invalidCodes = [];
+      codes.forEach(code => {
+        const found = clubTeamsRegistry.find(t => String(t.code || '').toUpperCase() === code);
+        if (found) {
+          if (!matchedTeams.includes(found.name)) matchedTeams.push(found.name);
+        } else {
+          invalidCodes.push(code);
+        }
+      });
+      return { matchedTeams, invalidCodes };
+    }
+
+    function computeUserPermissions(email) {
+      const cleanEmail = String(email || '').trim().toLowerCase();
+      if (!cleanEmail) {
+        return { isAdmin: false, role: 'Assistant Coach', teams: [], libraryAccess: { drills: false, videos: false } };
+      }
+
+      // 1. Primary Club Admin Allowlist
+      if (cleanEmail === CLUB_ADMIN_EMAIL.toLowerCase()) {
+        return {
+          isAdmin: true,
+          role: 'Club Admin',
+          teams: clubTeamsRegistry.map(t => t.name),
+          libraryAccess: { drills: true, videos: true }
+        };
+      }
+
+      // 2. Check explicit user access profile (saved locally or synced from Firestore)
+      const profile = userAccessRegistry[cleanEmail] || null;
+      const matchingInvites = coachInvitesRegistry.filter(inv => String(inv.email || '').trim().toLowerCase() === cleanEmail);
+
+      let role = (profile && profile.role) || (matchingInvites[0] && matchingInvites[0].role) || 'Assistant Coach';
+      const isExplicitAdmin = role === 'Club Admin';
+      const isSuspended = role === 'Suspended / No Access';
+
+      if (isSuspended) {
+        return { isAdmin: false, role: 'Suspended / No Access', teams: [], libraryAccess: { drills: false, videos: false } };
+      }
+
+      if (isExplicitAdmin) {
+        return {
+          isAdmin: true,
+          role: 'Club Admin',
+          teams: clubTeamsRegistry.map(t => t.name),
+          libraryAccess: { drills: true, videos: true }
+        };
+      }
+
+      // 3. Collect authorized teams strictly from explicit profile + valid invites
+      const teamSet = new Set();
+      let hasAllTeams = false;
+
+      if (profile && Array.isArray(profile.teams)) {
+        profile.teams.forEach(tName => {
+          if (tName === 'ALL_TEAMS') hasAllTeams = true;
+          else if (clubTeamsRegistry.some(ct => ct.name === tName)) teamSet.add(tName);
+        });
+      }
+
+      matchingInvites.forEach(inv => {
+        if (inv.team === 'ALL_TEAMS') hasAllTeams = true;
+        else if (inv.team && clubTeamsRegistry.some(ct => ct.name === inv.team)) teamSet.add(inv.team);
+      });
+
+      const resolvedTeams = hasAllTeams ? clubTeamsRegistry.map(t => t.name) : Array.from(teamSet);
+      const hasValidAccess = resolvedTeams.length > 0;
+
+      const drillsUnlocked = profile && profile.libraryAccess && typeof profile.libraryAccess.drills === 'boolean'
+        ? profile.libraryAccess.drills
+        : hasValidAccess;
+      const videosUnlocked = profile && profile.libraryAccess && typeof profile.libraryAccess.videos === 'boolean'
+        ? profile.libraryAccess.videos
+        : hasValidAccess;
+
+      return {
+        isAdmin: false,
+        role,
+        teams: resolvedTeams,
+        libraryAccess: { drills: drillsUnlocked, videos: videosUnlocked }
+      };
+    }
+
+    function saveUserAccessProfile(email, updates) {
+      const cleanEmail = String(email || '').trim().toLowerCase();
+      if (!cleanEmail) return;
+      const existing = userAccessRegistry[cleanEmail] || { email: cleanEmail, teams: [] };
+      userAccessRegistry[cleanEmail] = Object.assign({}, existing, updates, { email: cleanEmail, updatedAt: Date.now() });
+      try {
+        localStorage.setItem('afc_user_access_registry', JSON.stringify(userAccessRegistry));
+      } catch (e) {}
+    }
+
+    function applyAccessControlUI() {
+      if (!currentUser) return;
+      const perms = computeUserPermissions(currentUser.email);
+      isClubAdmin = perms.isAdmin;
+      currentUserRole = perms.role;
+      userTeams = perms.teams;
+      userLibraryAccess = perms.libraryAccess;
+
+      // Update Top Bar User Badge
+      const badgeText = document.getElementById('navUserBadgeText');
+      if (badgeText) {
+        badgeText.textContent = (currentUser.displayName || 'Coach') + (isClubAdmin ? ' (Club Admin)' : ' (' + currentUserRole + ')');
+      }
+
+      // Role-Based UI Enforcement in Settings
+      const adminPanel = document.getElementById('adminAccessPanel');
+      const createTeamBtn = document.getElementById('createNewTeamFromSettingsBtn');
+      const roleBadge = document.getElementById('settingsRoleBadge');
+      const libBadge = document.getElementById('settingsLibraryBadge');
+
+      if (adminPanel) adminPanel.style.display = isClubAdmin ? 'block' : 'none';
+      if (createTeamBtn) createTeamBtn.style.display = isClubAdmin ? 'inline-flex' : 'none';
+      if (roleBadge) {
+        roleBadge.textContent = currentUserRole;
+        roleBadge.className = 'badge ' + (isClubAdmin ? 'badge-navy' : (userTeams.length > 0 ? 'badge-emerald' : 'badge-amber'));
+      }
+      if (libBadge) {
+        const bothUnlocked = userLibraryAccess.drills && userLibraryAccess.videos;
+        libBadge.textContent = bothUnlocked ? 'Libraries Unlocked' : 'Libraries Locked (Code Required)';
+        libBadge.className = 'badge ' + (bothUnlocked ? 'badge-emerald' : 'badge-red');
+      }
+
+      // Update Nav Tab Lock Indicators
+      const drillNavBtn = document.querySelector('.nav-tab[data-tab="drills"]');
+      const videoNavBtn = document.querySelector('.nav-tab[data-tab="videos"]');
+      if (drillNavBtn) drillNavBtn.classList.toggle('locked-tab', !userLibraryAccess.drills);
+      if (videoNavBtn) videoNavBtn.classList.toggle('locked-tab', !userLibraryAccess.videos);
+
+      // Gate Drill Library & Video Library Views
+      const drillLocked = document.getElementById('drillLibraryLockedPanel');
+      const drillCard = document.getElementById('drillLibraryContentCard');
+      if (drillLocked && drillCard) {
+        drillLocked.style.display = userLibraryAccess.drills ? 'none' : 'block';
+        drillCard.style.display = userLibraryAccess.drills ? 'block' : 'none';
+      }
+
+      const videoLocked = document.getElementById('videoLibraryLockedPanel');
+      const videoCard = document.getElementById('videoLibraryContentCard');
+      if (videoLocked && videoCard) {
+        videoLocked.style.display = userLibraryAccess.videos ? 'none' : 'block';
+        videoCard.style.display = userLibraryAccess.videos ? 'block' : 'none';
+      }
+
+      // Gate Team Workspaces (Calendar, Session Builder, Game Day, Roster) if user has 0 teams
+      const pendingGate = document.getElementById('pendingTeamAccessGate');
+      const teamTabs = ['calendar', 'builder', 'gameday', 'roster'];
+      const hasAnyTeam = userTeams.length > 0;
+
+      if (pendingGate) {
+        pendingGate.style.display = (!hasAnyTeam && teamTabs.includes(activeTabKey)) ? 'block' : 'none';
+      }
+
+      teamTabs.forEach(tKey => {
+        const sec = document.getElementById('tab-' + tKey);
+        if (!sec) return;
+        if (!hasAnyTeam) {
+          sec.classList.remove('active');
+        } else if (activeTabKey === tKey) {
+          sec.classList.add('active');
+        }
+      });
+
+      if (!hasAnyTeam) {
+        activeTeamName = '';
+        const subEl = document.getElementById('topBarActiveTeamSub');
+        if (subEl) subEl.textContent = 'Pending Team Access';
+        savedSessions = [];
+        savedGames = [];
+        rosterPlayers = [];
+        gameRosterPlayers = [];
+        populateTeamDropdowns();
+        updateWorkspaceBadges();
+      } else if (!activeTeamName || !userTeams.includes(activeTeamName)) {
+        loadTeamStateFromStorage(userTeams[0]);
+      } else {
+        populateTeamDropdowns();
+      }
+    }
 
     function setCloudSyncBadge(state, label) {
       const badge = document.getElementById('syncIndicatorBadge');
@@ -1514,8 +1782,8 @@
     }
 
     function getTeamDocRefs(teamName) {
-      if (!db) return [];
-      const slug = String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      if (!db || !teamName) return [];
+      const slug = String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
       return [
         db.collection('afc_teams').doc(slug),
         db.collection('artifacts').doc('ambassadors-fc').collection('public').doc('data').collection('afc_teams').doc(slug)
@@ -1532,23 +1800,30 @@
 
     async function persistCurrentTeamState() {
       const nowTs = Date.now();
-      const teamState = {
-        teamName: activeTeamName,
-        sessions: savedSessions,
-        games: savedGames,
-        roster: rosterPlayers,
-        gameRoster: gameRosterPlayers,
-        updatedAt: nowTs
-      };
-      const rosterBackupKey = 'afc_roster_backup_' + String(activeTeamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
       try {
-        localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
-        localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
         localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry));
         localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry));
+        localStorage.setItem('afc_user_access_registry', JSON.stringify(userAccessRegistry));
         localStorage.setItem('afc_videos_shared', JSON.stringify(videoLibrary));
         localStorage.setItem('afc_drills_shared', JSON.stringify(drillLibrary));
       } catch (e) {}
+
+      let teamState = null;
+      if (activeTeamName) {
+        teamState = {
+          teamName: activeTeamName,
+          sessions: savedSessions,
+          games: savedGames,
+          roster: rosterPlayers,
+          gameRoster: gameRosterPlayers,
+          updatedAt: nowTs
+        };
+        const rosterBackupKey = 'afc_roster_backup_' + String(activeTeamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        try {
+          localStorage.setItem('afc_team_state_' + activeTeamName, JSON.stringify(teamState));
+          localStorage.setItem(rosterBackupKey, JSON.stringify(rosterPlayers));
+        } catch (e) {}
+      }
 
       updateWorkspaceBadges();
 
@@ -1556,20 +1831,24 @@
       setCloudSyncBadge('syncing', 'Syncing...');
       await ensureFirebaseAuthReady();
 
-      const teamPayload = JSON.parse(JSON.stringify(teamState));
       const clubPayload = JSON.parse(JSON.stringify({
         videos: videoLibrary,
         drills: drillLibrary,
         clubTeams: clubTeamsRegistry,
         coachInvites: coachInvitesRegistry,
+        userAccessRegistry: userAccessRegistry,
         invitesUpdatedAt: nowTs
       }));
       clubPayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
       const allWrites = [
-        ...getTeamDocRefs(activeTeamName).map(ref => ref.set(teamPayload, { merge: true })),
         ...getClubDocRefs().map(ref => ref.set(clubPayload, { merge: true }))
       ];
+
+      if (teamState && activeTeamName) {
+        const teamPayload = JSON.parse(JSON.stringify(teamState));
+        allWrites.push(...getTeamDocRefs(activeTeamName).map(ref => ref.set(teamPayload, { merge: true })));
+      }
 
       const results = await Promise.allSettled(allWrites);
       const anySuccess = results.some(r => r.status === 'fulfilled');
@@ -1584,7 +1863,7 @@
     }
 
     function applyCloudTeamData(teamName, cloud) {
-      if (!cloud) return;
+      if (!cloud || !teamName) return;
       const cloudRoster = Array.isArray(cloud.roster) ? cloud.roster : [];
       const cloudSessions = Array.isArray(cloud.sessions) ? cloud.sessions : [];
       const cloudGames = Array.isArray(cloud.games) ? cloud.games : [];
@@ -1596,7 +1875,6 @@
       const localRoster = (localRaw && Array.isArray(localRaw.roster)) ? localRaw.roster : [];
       const localUpdated = (localRaw && localRaw.updatedAt) || 0;
 
-      // Always hydrate any team in localStorage if cloud has newer data OR local has 0 players
       if (cloudUpdated > localUpdated || (localRoster.length === 0 && cloudRoster.length > 0)) {
         const mergedState = {
           teamName,
@@ -1608,11 +1886,11 @@
         };
         try {
           localStorage.setItem('afc_team_state_' + teamName, JSON.stringify(mergedState));
-          const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+          const rosterBackupKey = 'afc_roster_backup_' + String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
           localStorage.setItem(rosterBackupKey, JSON.stringify(mergedState.roster));
         } catch (e) {}
 
-        if (activeTeamName === teamName) {
+        if (activeTeamName === teamName && userTeams.includes(teamName)) {
           savedSessions = mergedState.sessions;
           savedGames = mergedState.games;
           rosterPlayers = mergedState.roster;
@@ -1623,7 +1901,7 @@
           renderGamePitch();
           updateWorkspaceBadges();
         }
-      } else if (activeTeamName === teamName && rosterPlayers.length > 0 && cloudRoster.length === 0) {
+      } else if (activeTeamName === teamName && userTeams.includes(teamName) && rosterPlayers.length > 0 && cloudRoster.length === 0) {
         persistCurrentTeamState();
       }
       setCloudSyncBadge('synced', 'Cloud Synced');
@@ -1640,7 +1918,6 @@
         });
         clubTeamsRegistry = mergedTeams;
         try { localStorage.setItem('afc_club_teams', JSON.stringify(clubTeamsRegistry)); } catch (e) {}
-        populateTeamDropdowns();
       }
       if (Array.isArray(data.coachInvites)) {
         const mergedInvites = [...data.coachInvites];
@@ -1651,19 +1928,32 @@
         });
         coachInvitesRegistry = mergedInvites;
         try { localStorage.setItem('afc_coach_invites', JSON.stringify(coachInvitesRegistry)); } catch (e) {}
+      }
+      if (data.userAccessRegistry && typeof data.userAccessRegistry === 'object') {
+        Object.keys(data.userAccessRegistry).forEach(emailKey => {
+          const cloudProf = data.userAccessRegistry[emailKey];
+          const localProf = userAccessRegistry[emailKey];
+          if (!localProf || (cloudProf.updatedAt || 0) >= (localProf.updatedAt || 0)) {
+            userAccessRegistry[emailKey] = cloudProf;
+          }
+        });
+        try { localStorage.setItem('afc_user_access_registry', JSON.stringify(userAccessRegistry)); } catch (e) {}
+      }
+      if (currentUser) {
+        applyAccessControlUI();
         renderSettingsPanel();
       }
     }
 
     async function syncAllClubTeamsFromCloud() {
-      if (!db) return;
+      if (!db || !userTeams.length) return;
       await ensureFirebaseAuthReady();
-      for (const t of clubTeamsRegistry) {
-        const refs = getTeamDocRefs(t.name);
+      for (const tName of userTeams) {
+        const refs = getTeamDocRefs(tName);
         for (const ref of refs) {
           try {
             const snap = await ref.get();
-            if (snap.exists) applyCloudTeamData(t.name, snap.data());
+            if (snap.exists) applyCloudTeamData(tName, snap.data());
           } catch (e) {}
         }
       }
@@ -1674,6 +1964,7 @@
         unsubscribeTeamCloudListener();
         unsubscribeTeamCloudListener = null;
       }
+      if (!teamName || !userTeams.includes(teamName)) return;
       const refs = getTeamDocRefs(teamName);
       if (!refs.length) return;
 
@@ -1708,7 +1999,7 @@
       for (const ref of refs) {
         ref.get().then((snap) => {
           if (snap.exists) applyCloudClubData(snap.data());
-          else if (coachInvitesRegistry.length > 0) persistCurrentTeamState();
+          else if (coachInvitesRegistry.length > 0 || Object.keys(userAccessRegistry).length > 0) persistCurrentTeamState();
         }).catch(() => {});
 
         const u = ref.onSnapshot((snap) => {
@@ -1721,6 +2012,9 @@
     }
 
     function loadTeamStateFromStorage(teamName) {
+      if (!teamName || (currentUser && !userTeams.includes(teamName))) {
+        return;
+      }
       activeTeamName = teamName;
       const subEl = document.getElementById('topBarActiveTeamSub');
       const masterTitleEl = document.getElementById('masterRosterTitle');
@@ -1731,7 +2025,7 @@
       if (calTeamLbl) calTeamLbl.textContent = activeTeamName;
       if (gameRosterTitleEl) gameRosterTitleEl.textContent = activeTeamName + ' Game Day Roster';
 
-      const rosterBackupKey = 'afc_roster_backup_' + String(teamName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      const rosterBackupKey = 'afc_roster_backup_' + String(teamName).toLowerCase().replace(/[^a-z0-9]+/g, '_');
       let foundSavedState = false;
       savedSessions = [];
       savedGames = [];
@@ -1768,15 +2062,22 @@
     }
 
     function populateTeamDropdowns() {
-      userTeams = clubTeamsRegistry.map(t => t.name);
       const selects = ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect', 'inviteCoachTeamSelect'];
       selects.forEach(id => {
         const sel = document.getElementById(id);
         if (!sel) return;
-        const allOption = id === 'inviteCoachTeamSelect' ? '<option value="ALL_TEAMS">All Club Teams</option>' : '';
-        sel.innerHTML = allOption + userTeams.map(t =>
-          '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
-        ).join('');
+        if (id === 'inviteCoachTeamSelect') {
+          const adminTeams = clubTeamsRegistry.map(t => t.name);
+          sel.innerHTML = '<option value="ALL_TEAMS">All Club Teams</option>' + adminTeams.map(t =>
+            '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
+          ).join('');
+          return;
+        }
+        sel.innerHTML = userTeams.length === 0
+          ? '<option value="">No Teams Assigned</option>'
+          : userTeams.map(t =>
+              '<option value="' + escapeHtml(t) + '"' + (t === activeTeamName ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'
+            ).join('');
       });
     }
 
@@ -1788,8 +2089,8 @@
       const rosterBadge = document.getElementById('rosterCountBadge');
       if (calBadge) calBadge.textContent = String(savedSessions.length + savedGames.length);
       if (gameBadge) gameBadge.textContent = String(savedGames.length);
-      if (drillBadge) drillBadge.textContent = String(drillLibrary.length);
-      if (videoBadge) videoBadge.textContent = String(videoLibrary.length);
+      if (drillBadge) drillBadge.textContent = userLibraryAccess.drills ? String(drillLibrary.length) : '🔒';
+      if (videoBadge) videoBadge.textContent = userLibraryAccess.videos ? String(videoLibrary.length) : '🔒';
       if (rosterBadge) rosterBadge.textContent = String(rosterPlayers.length);
     }
 
@@ -1859,7 +2160,6 @@
       drillLibrary = DEFAULT_DRILLS.slice();
     }
 
-    // Ensure every built-in repository drill is always present even if an older cache existed
     (function ensureDefaultDrillsPresent() {
       const existingNorm = new Set(
         drillLibrary.map(d => String(d.gifUrl || '').toLowerCase().replace(/^https?:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/[^/]+\//i, '').replace(/^\.?\//, ''))
@@ -1905,7 +2205,6 @@
         imgEl.src = 'https://' + GITHUB_REPO_OWNER + '.github.io/' + GITHUB_REPO_NAME + '/' + encodedPath;
         return;
       }
-      // Render built-in live 60fps tactical drill canvas so the GIF window is always visible & enlargeable
       const wrap = imgEl.closest('.gif-preview-wrap');
       if (wrap) {
         imgEl.style.display = 'none';
@@ -1921,7 +2220,7 @@
       }
     }
 
-    function startEmbeddedDrillCanvasLoop(canvas, rawPath) {
+    function startEmbeddedDrillCanvasLoop(canvas) {
       if (!canvas || canvas.dataset.animRunning === '1') return;
       canvas.dataset.animRunning = '1';
       const ctx = canvas.getContext('2d');
@@ -1982,7 +2281,6 @@
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 4 Central Poles
         poles.forEach((py, i) => {
           ctx.fillStyle = '#0f172a';
           ctx.fillRect(cx - 10, py - 2, 20, 4);
@@ -2100,7 +2398,6 @@
           throw new Error('Please open in Chrome or Edge to decode multi-frame GIFs directly.');
         }
 
-        // Load gif.js encoder + same-origin Blob worker
         if (!window.GIF) {
           await new Promise((resolve, reject) => {
             const s = document.createElement('script');
@@ -2128,7 +2425,6 @@
           const fullW = frame.displayWidth;
           const fullH = frame.displayHeight;
 
-          // Crop off top header/title (~18.2%) and bottom footer banner (~6.8%) + outer frame (~6.5% sides)
           const cropX = Math.round(fullW * 0.068);
           const cropY = Math.round(fullH * 0.182);
           const cropW = Math.round(fullW * (1 - 0.136));
@@ -2180,6 +2476,11 @@
       const searchEl = document.getElementById('drillSearchInput');
       const catEl = document.getElementById('drillCategoryFilter');
       if (!grid) return;
+
+      if (!userLibraryAccess.drills) {
+        grid.innerHTML = '';
+        return;
+      }
 
       const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
       const cat = catEl ? catEl.value : 'ALL';
@@ -2248,7 +2549,6 @@
       const discoveredPaths = new Set();
       const branchesToTry = new Set(['main', 'master']);
 
-      // 0. Query repo metadata first to discover the exact default_branch
       try {
         const repoMetaResp = await fetch('https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME);
         if (repoMetaResp.ok) {
@@ -2262,7 +2562,6 @@
       const orderedBranches = Array.from(branchesToTry);
 
       for (const branch of orderedBranches) {
-        // 1. Try GitHub Recursive Trees API across the entire repo (finds drills/, Drills/, nested subfolders, etc.)
         try {
           const treeUrl = 'https://api.github.com/repos/' + GITHUB_REPO_OWNER + '/' + GITHUB_REPO_NAME + '/git/trees/' + encodeURIComponent(branch) + '?recursive=1';
           const treeResp = await fetch(treeUrl);
@@ -2281,7 +2580,6 @@
           }
         } catch (e) {}
 
-        // 2. Try GitHub Contents API on common drill folder names
         if (discoveredPaths.size === 0) {
           for (const folder of ['drills', 'Drills', 'assets/drills', 'images/drills']) {
             try {
@@ -2301,7 +2599,6 @@
           }
         }
 
-        // 3. Fallback: Parse public GitHub HTML directory page (works even if GitHub API hits 60/hr rate limit)
         if (discoveredPaths.size === 0) {
           for (const folder of ['drills', 'Drills']) {
             try {
@@ -2357,7 +2654,9 @@
           persistCurrentTeamState();
           renderDrillLibrary();
           updateWorkspaceBadges();
-          showToast('Synced ' + added + ' drill' + (added === 1 ? '' : 's') + ' from GitHub!');
+          if (userLibraryAccess.drills) {
+            showToast('Synced ' + added + ' drill' + (added === 1 ? '' : 's') + ' from GitHub!');
+          }
         }
       }
     }
@@ -2374,11 +2673,9 @@
     function normalizeVideoEmbedUrl(rawUrl) {
       const u = String(rawUrl || '').trim();
       if (!u) return '';
-      // Already a Vimeo player embed URL — preserve existing query params (such as ?h= hash for unlisted videos)
       if (/player\.vimeo\.com\/video\/\d+/i.test(u)) {
         return u;
       }
-      // Vimeo standard or unlisted URL: vimeo.com/123456789 or vimeo.com/123456789/abcdef1234
       const vimeoMatch = u.match(/vimeo\.com\/(?:manage\/videos\/|channels\/[^/]+\/|groups\/[^/]+\/videos\/|video\/)?(\d+)(?:\/([A-Za-z0-9]+))?/i);
       if (vimeoMatch) {
         const vidId = vimeoMatch[1];
@@ -2387,12 +2684,10 @@
         const hashVal = privacyHash || (existingH ? existingH[1] : '');
         return 'https://player.vimeo.com/video/' + vidId + (hashVal ? '?h=' + hashVal + '&' : '?') + 'autoplay=1&title=0&byline=0&portrait=0';
       }
-      // YouTube standard, shorts, live, or embed URLs
       const ytMatch = u.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
       if (ytMatch) {
         return 'https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1&rel=0&playsinline=1';
       }
-      // Google Drive file preview URLs
       const driveFileMatch = u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/);
       if (driveFileMatch) {
         return 'https://drive.google.com/file/d/' + driveFileMatch[1] + '/preview';
@@ -2474,7 +2769,6 @@
           return 'url:' + u.toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/\/+$/, '') + '|' + String(titleStr || '').trim().toLowerCase();
         }
 
-        // Purge legacy duplicated/generic entries from older cache if present
         const seenKeys = new Set();
         const cleanedExisting = [];
         videoLibrary.forEach(v => {
@@ -2485,7 +2779,6 @@
         });
         videoLibrary = cleanedExisting;
 
-        // Discover ALL sheet tab names and gids from published HTML, htmlview, and edit metadata
         const sheetTargets = [];
         const seenGids = new Set();
         const seenNames = new Set();
@@ -2517,7 +2810,6 @@
             if (!resp.ok) continue;
             const html = await resp.text();
 
-            // 1. Extract all tab names & GIDs from #sheet-menu / sheet-button anchors
             if (typeof DOMParser !== 'undefined') {
               try {
                 const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -2534,7 +2826,6 @@
               } catch (domParseErr) {}
             }
 
-            // 2. Pattern: items.push({name: "TabName", pageUrl: "...gid=12345..."})
             for (const m of html.matchAll(/items\.push\(\{\s*name:\s*"([^"]+)"[^}]*gid=(\d+)/g)) {
               const tabName = (m[1] || '').trim();
               const gidVal = (m[2] || '').trim();
@@ -2546,7 +2837,6 @@
               }
             }
 
-            // 3. Pattern: JSON sheet metadata inside /edit or /htmlview ([gid,0,"TabName"])
             for (const m of html.matchAll(/\[(\d{4,}),\s*\d+,\s*"([^"\\]+)"/g)) {
               const gidVal = (m[1] || '').trim();
               const tabName = (m[2] || '').trim();
@@ -2558,7 +2848,6 @@
               }
             }
 
-            // 4. Pattern: sheet-button anchors via regex fallback
             for (const m of html.matchAll(/id="sheet-button-(\d+)"[^>]*><a[^>]*>([^<]+)<\/a>/gi)) {
               const gidVal = (m[1] || '').trim();
               const tabTitle = (m[2] || '').trim();
@@ -2570,7 +2859,6 @@
               }
             }
 
-            // 5. Parse any tables already embedded directly inside pubhtml / htmlview
             if ((dUrl.endsWith('/pubhtml') || dUrl.endsWith('/htmlview')) && typeof DOMParser !== 'undefined') {
               try {
                 const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -2728,11 +3016,9 @@
           ingestMatrixRows(matrix, cleanTabCat);
         }
 
-        // 1. Fetch each of the 8 exact tab names directly via gviz CSV & JSON endpoints (with Cache-Buster & CORS-safe headers)
         for (const tabName of EXACT_SHEET_CATEGORIES) {
           let loadedThisTab = false;
 
-          // Method A: Google Visualization CSV endpoint by exact sheet name
           try {
             const csvUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID +
               '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(tabName) + '&cb=' + Date.now();
@@ -2748,7 +3034,6 @@
             }
           } catch (e) {}
 
-          // Method B: Google Visualization JSON endpoint by exact sheet name
           if (!loadedThisTab) {
             try {
               const gvizUrl = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID +
@@ -2782,7 +3067,6 @@
           }
         }
 
-        // 2. Also check any discovered GIDs from pubhtml/edit that have a known mapped tab name
         for (const target of sheetTargets) {
           const resolvedTabName = (target.tabName || (target.type === 'gid' ? tabNameByGid[target.value] : '') || '').trim();
           const cleanTabName = mapToExactTabCategory(resolvedTabName);
@@ -2817,6 +3101,11 @@
       const catSel = document.getElementById('videoCategoryFilter');
       const subSel = document.getElementById('videoSubCategoryFilter');
       if (!grid) return;
+
+      if (!userLibraryAccess.videos) {
+        grid.innerHTML = '';
+        return;
+      }
 
       const selectedCat = catSel ? catSel.value : 'ALL';
       const selectedSub = subSel ? subSel.value : 'ALL';
@@ -3356,7 +3645,6 @@
       });
     }
 
-    // Countdown Match Clock Logic
     let matchClockSeconds = 25 * 60;
     let matchClockInitialSeconds = 25 * 60;
     let matchClockInterval = null;
@@ -3430,7 +3718,7 @@
        CALENDAR (MONTH / WEEK / DAY VIEWS + ADD GAME & NEW SESSION)
        ========================================================= */
     let calendarCursorDate = new Date();
-    let calendarViewMode = 'month'; // 'month' | 'week' | 'day'
+    let calendarViewMode = 'month';
 
     function toIsoDate(d) {
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -3496,7 +3784,6 @@
           '</div>';
         }
       } else {
-        // Day view
         const iso = toIsoDate(calendarCursorDate);
         if (label) {
           label.textContent = weekdays[calendarCursorDate.getDay()] + ', ' + monthNames[month] + ' ' + calendarCursorDate.getDate() + ', ' + year;
@@ -3680,7 +3967,7 @@
         invitesBadge.textContent = coachInvitesRegistry.length + ' Coach' + (coachInvitesRegistry.length === 1 ? '' : 'es');
       }
 
-      if (invitesList) {
+      if (invitesList && isClubAdmin) {
         invitesList.innerHTML = coachInvitesRegistry.length === 0
           ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No coaches invited yet. Enter a coach email above to grant team access.</div>'
           : coachInvitesRegistry.map((inv, idx) =>
@@ -3730,12 +4017,19 @@
       }
 
       if (teamsList) {
-        teamsList.innerHTML = clubTeamsRegistry.map(t =>
-          '<div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:7px 10px;font-size:0.8rem;">' +
-            '<div><strong>' + escapeHtml(t.name) + '</strong> <span style="color:#64748b;font-family:monospace;">(Code: ' + escapeHtml(t.code) + ')</span></div>' +
-            '<button type="button" class="btn btn-outline btn-sm switch-team-btn" data-team="' + escapeHtml(t.name) + '">Switch</button>' +
-          '</div>'
-        ).join('');
+        const accessibleTeamObjs = clubTeamsRegistry.filter(t => userTeams.includes(t.name));
+        teamsList.innerHTML = accessibleTeamObjs.length === 0
+          ? '<div style="font-size:0.78rem;color:#64748b;padding:6px 2px;">No teams unlocked yet. Click <strong>+ Join with Code</strong> above and enter your Team Join Code.</div>'
+          : accessibleTeamObjs.map(t =>
+              '<div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:7px 10px;font-size:0.8rem;">' +
+                '<div><strong>' + escapeHtml(t.name) + '</strong>' +
+                  (isClubAdmin ? ' <span style="color:#64748b;font-family:monospace;">(Code: ' + escapeHtml(t.code) + ')</span>' : '') +
+                '</div>' +
+                '<button type="button" class="btn btn-outline btn-sm switch-team-btn" data-team="' + escapeHtml(t.name) + '">' +
+                  (t.name === activeTeamName ? 'Active' : 'Switch') +
+                '</button>' +
+              '</div>'
+            ).join('');
 
         teamsList.querySelectorAll('.switch-team-btn').forEach(btn => {
           btn.onclick = function() {
@@ -3750,7 +4044,7 @@
         });
       }
 
-      if (verList) {
+      if (verList && isClubAdmin) {
         verList.innerHTML = versionHistoryLog.map(v =>
           '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:0.76rem;">' +
             '<strong style="font-family:monospace;color:#0A2647;">v' + escapeHtml(v.version) + '</strong> ' +
@@ -3761,12 +4055,27 @@
     }
 
     function switchTab(tabKey) {
+      activeTabKey = tabKey;
       document.querySelectorAll('.nav-tab').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-tab') === tabKey);
       });
       document.querySelectorAll('.workspace-section').forEach(sec => {
         sec.classList.toggle('active', sec.id === 'tab-' + tabKey);
       });
+
+      const pendingGate = document.getElementById('pendingTeamAccessGate');
+      const teamTabs = ['calendar', 'builder', 'gameday', 'roster'];
+      const hasAnyTeam = userTeams.length > 0;
+
+      if (pendingGate) {
+        pendingGate.style.display = (!hasAnyTeam && teamTabs.includes(tabKey)) ? 'block' : 'none';
+      }
+      if (!hasAnyTeam && teamTabs.includes(tabKey)) {
+        const sec = document.getElementById('tab-' + tabKey);
+        if (sec) sec.classList.remove('active');
+        return;
+      }
+
       if (tabKey === 'calendar') renderCalendar();
       if (tabKey === 'gameday') { renderGameRoster(); renderGamePitch(); }
       if (tabKey === 'builder') { renderSessionParts(); renderRoster(); }
@@ -3776,31 +4085,70 @@
       if (tabKey === 'settings') renderSettingsPanel();
     }
 
+    function redeemTeamCodeForCurrentUser(rawCodeInput) {
+      if (!currentUser) return { ok: false, msg: 'Please sign in first.' };
+      const { matchedTeams, invalidCodes } = parseAndRedeemJoinCodes(rawCodeInput);
+      if (matchedTeams.length === 0) {
+        return {
+          ok: false,
+          msg: invalidCodes.length > 0
+            ? 'Invalid Team Join Code: ' + invalidCodes.join(', ') + '. Check with your Head Coach.'
+            : 'Please enter a valid Team Join Code.'
+        };
+      }
+      const cleanEmail = String(currentUser.email || '').trim().toLowerCase();
+      const existing = userAccessRegistry[cleanEmail] || { email: cleanEmail, teams: [] };
+      const updatedTeams = Array.from(new Set([...(existing.teams || []), ...matchedTeams]));
+      saveUserAccessProfile(cleanEmail, {
+        name: currentUser.displayName || cleanEmail.split('@')[0],
+        role: existing.role || 'Assistant Coach',
+        teams: updatedTeams,
+        libraryAccess: { drills: true, videos: true }
+      });
+      persistCurrentTeamState();
+      applyAccessControlUI();
+      if (!activeTeamName || !userTeams.includes(activeTeamName)) {
+        loadTeamStateFromStorage(matchedTeams[0]);
+      }
+      renderDrillLibrary();
+      renderVideoLibrary();
+      renderSettingsPanel();
+      updateWorkspaceBadges();
+      return { ok: true, teams: matchedTeams };
+    }
+
     function enterWorkspaceAsCoach(userObj, isBypass) {
-      currentUser = userObj || { email: CLUB_ADMIN_EMAIL, displayName: 'Coach Admin' };
+      currentUser = userObj || { email: '', displayName: 'Coach' };
       isDemoUser = Boolean(isBypass);
-      isClubAdmin = String(currentUser.email || '').toLowerCase() === CLUB_ADMIN_EMAIL.toLowerCase();
 
       const overlay = document.getElementById('authGateOverlay');
       if (overlay) overlay.style.display = 'none';
 
       const indicator = document.getElementById('navSignedInIndicator');
-      const badgeText = document.getElementById('navUserBadgeText');
       if (indicator) indicator.style.display = 'inline-flex';
-      if (badgeText) badgeText.textContent = (currentUser.displayName || 'Coach') + (isClubAdmin ? ' (Admin)' : '');
 
       try {
         localStorage.setItem('afc_last_signed_in_coach', JSON.stringify(currentUser));
       } catch (e) {}
 
+      applyAccessControlUI();
       attachFirestoreClubSync();
-      loadTeamStateFromStorage(activeTeamName);
+      if (userTeams.length > 0) {
+        loadTeamStateFromStorage(userTeams[0]);
+      }
+      renderDrillLibrary();
+      renderVideoLibrary();
       renderSettingsPanel();
+      switchTab(activeTabKey);
     }
 
     function signOutCoach() {
       currentUser = null;
       isDemoUser = false;
+      isClubAdmin = false;
+      userTeams = [];
+      activeTeamName = '';
+      userLibraryAccess = { drills: false, videos: false };
       try { localStorage.removeItem('afc_last_signed_in_coach'); } catch (e) {}
       if (auth) {
         try { auth.signOut(); } catch (e) {}
@@ -3844,21 +4192,62 @@
       if (sessDateEl && !sessDateEl.value) sessDateEl.value = todayIso;
       if (gameDateEl && !gameDateEl.value) gameDateEl.value = todayIso;
 
-      // Initial render & background sync
-      populateTeamDropdowns();
-      loadTeamStateFromStorage(activeTeamName);
+      // Initial background sync
       renderSessionParts();
       renderGamePitch();
       renderSubLogList();
-      renderDrillLibrary();
-      renderVideoLibrary();
       syncDrillsFromGitHubRepo();
       syncVideosFromGoogleSheet();
 
-      // Settings: Invite Coach by Email (Silent Automated Dispatch — Zero Extra Steps)
+      // Pending Access Gate & Library Lock Unlock Buttons
+      const pendingUnlockBtn = document.getElementById('pendingGateUnlockBtn');
+      const pendingCodeInput = document.getElementById('pendingGateCodeInput');
+      const pendingStatusMsg = document.getElementById('pendingGateStatusMsg');
+      if (pendingUnlockBtn && pendingCodeInput) {
+        pendingUnlockBtn.onclick = () => {
+          const res = redeemTeamCodeForCurrentUser(pendingCodeInput.value);
+          if (!res.ok) {
+            if (pendingStatusMsg) pendingStatusMsg.textContent = res.msg;
+          } else {
+            if (pendingStatusMsg) pendingStatusMsg.textContent = '';
+            pendingCodeInput.value = '';
+            switchTab(activeTabKey);
+            showToast('Unlocked ' + res.teams.join(', ') + ' & Libraries!');
+          }
+        };
+      }
+
+      const drillLockUnlockBtn = document.getElementById('drillLockUnlockBtn');
+      const drillLockCodeInput = document.getElementById('drillLockCodeInput');
+      if (drillLockUnlockBtn && drillLockCodeInput) {
+        drillLockUnlockBtn.onclick = () => {
+          const res = redeemTeamCodeForCurrentUser(drillLockCodeInput.value);
+          if (!res.ok) showToast(res.msg);
+          else {
+            drillLockCodeInput.value = '';
+            showToast('Unlocked Drill & Video Libraries!');
+          }
+        };
+      }
+
+      const videoLockUnlockBtn = document.getElementById('videoLockUnlockBtn');
+      const videoLockCodeInput = document.getElementById('videoLockCodeInput');
+      if (videoLockUnlockBtn && videoLockCodeInput) {
+        videoLockUnlockBtn.onclick = () => {
+          const res = redeemTeamCodeForCurrentUser(videoLockCodeInput.value);
+          if (!res.ok) showToast(res.msg);
+          else {
+            videoLockCodeInput.value = '';
+            showToast('Unlocked Drill & Video Libraries!');
+          }
+        };
+      }
+
+      // Settings: Invite Coach by Email (Club Admin Only)
       const sendCoachInviteBtn = document.getElementById('sendCoachInviteBtn');
       if (sendCoachInviteBtn) {
         sendCoachInviteBtn.onclick = async () => {
+          if (!isClubAdmin) return showToast('Only Club Admins can invite coaches.');
           const emailInput = document.getElementById('inviteCoachEmailInput');
           const nameInput = document.getElementById('inviteCoachNameInput');
           const teamSel = document.getElementById('inviteCoachTeamSelect');
@@ -3870,7 +4259,7 @@
             return;
           }
           const name = (nameInput && nameInput.value || '').trim() || email.split('@')[0];
-          const team = (teamSel && teamSel.value) || activeTeamName;
+          const team = (teamSel && teamSel.value) || activeTeamName || (clubTeamsRegistry[0] && clubTeamsRegistry[0].name);
           const role = (roleSel && roleSel.value) || 'Assistant Coach';
 
           sendCoachInviteBtn.disabled = true;
@@ -3906,7 +4295,6 @@
             (teamObj ? 'Team Join Code: ' + teamObj.code + '\n\n' : '\n') +
             'Sign in using your email (' + email + ') at:\n' + appUrl;
 
-          // Queue automatic email delivery in Firestore (Firebase Trigger Email / Cloud Function / Apps Script relay)
           if (db) {
             try {
               await db.collection('mail').add({
@@ -3929,42 +4317,29 @@
             } catch (e) {}
           }
 
-          // Also dispatch via optional configured Google Apps Script Gmail endpoint if present
-          const appsScriptWebhook = localStorage.getItem('afc_gmail_webhook_url') || '';
-          if (appsScriptWebhook) {
-            try {
-              await fetch(appsScriptWebhook, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ to: email, subject, text: inviteText, name, team: teamDisplay, role })
-              });
-            } catch (e) {}
-          }
-
           const shareBanner = document.getElementById('latestInviteShareBanner');
           const shareTextEl = document.getElementById('latestInviteShareText');
           if (shareBanner && shareTextEl) {
-            shareTextEl.textContent = '✓ Invite email sent automatically to ' + email + ' (' + teamDisplay + ') — no further steps needed.';
+            shareTextEl.textContent = '✓ Invite saved & queued for ' + email + ' (' + teamDisplay + ').';
             shareBanner.style.display = 'block';
           }
 
           sendCoachInviteBtn.disabled = false;
           sendCoachInviteBtn.innerHTML = origBtnLabel;
-          showToast('Invite sent to ' + email + '!');
+          showToast('Invite created for ' + email + '!');
         };
       }
 
-      // Firebase Auth State Listener (for real Google OAuth & Email/Password login)
+      // Firebase Auth State Listener (ignores anonymous background auth users)
       if (auth) {
         auth.onAuthStateChanged((user) => {
-          if (user && user.email) {
+          if (user && !user.isAnonymous && user.email) {
             enterWorkspaceAsCoach({ email: user.email, displayName: user.displayName || user.email.split('@')[0] }, false);
           }
         });
       }
 
-      // Google Sign-In Button
+      // Google Sign-In Button (Strict OAuth on Production; Fallback Picker ONLY in Hosted Preview)
       const googleBtn = document.getElementById('googleSignInBtn');
       const authStatusEl = document.getElementById('authStatusText');
       if (googleBtn) {
@@ -3975,582 +4350,332 @@
               const provider = new firebase.auth.GoogleAuthProvider();
               provider.setCustomParameters({ prompt: 'select_account' });
               const res = await auth.signInWithPopup(provider);
-              if (res && res.user) {
+              if (res && res.user && res.user.email) {
                 enterWorkspaceAsCoach({ email: res.user.email, displayName: res.user.displayName || res.user.email.split('@')[0] }, false);
+                showToast('Signed in with Google!');
                 return;
               }
             } catch (err) {
-              // If popup is blocked by iframe sandbox or browser settings, open the fallback account modal
-              const modal = document.getElementById('googleAccountPickerModal');
-              if (modal) modal.classList.add('open');
-              if (authStatusEl) authStatusEl.textContent = 'Popup blocked by browser/preview frame — select or enter your Google email above.';
-              return;
+              const code = (err && err.code) || '';
+              if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
+              if (!isHostedPreviewEnvironment()) {
+                if (authStatusEl) {
+                  authStatusEl.textContent = 'Google Sign-In could not complete (' + (err && err.message ? err.message : code) + '). Please allow popups or sign in with your Coach Email & Password below.';
+                }
+                return;
+              }
             }
           }
-          const modal = document.getElementById('googleAccountPickerModal');
-          if (modal) modal.classList.add('open');
-        };
-      }
-
-      const pickerRetryPopupBtn = document.getElementById('pickerRetryPopupBtn');
-      if (pickerRetryPopupBtn) {
-        pickerRetryPopupBtn.onclick = async () => {
-          if (!auth || typeof firebase === 'undefined') return;
-          try {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            await auth.signInWithRedirect(provider);
-          } catch (err) {
-            showToast('Unable to launch OAuth redirect in this iframe.');
+          if (isHostedPreviewEnvironment()) {
+            const picker = document.getElementById('googleAccountPickerModal');
+            if (picker) picker.classList.add('open');
+          } else if (authStatusEl) {
+            authStatusEl.textContent = 'Google Sign-In is unavailable in this browser. Please sign in with Coach Email & Password.';
           }
         };
       }
 
-      const pickerSubmitBtn = document.getElementById('pickerSubmitCustomBtn');
-      if (pickerSubmitBtn) {
-        pickerSubmitBtn.onclick = () => {
-          const em = (document.getElementById('pickerCustomEmail').value || '').trim();
-          const nm = (document.getElementById('pickerCustomName').value || '').trim() || (em.split('@')[0] || 'Coach');
-          if (!em) return showToast('Please enter your Google email address.');
-          document.getElementById('googleAccountPickerModal').classList.remove('open');
-          enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
-        };
+      // Google Account Picker Fallback Modal Controls (Preview Only)
+      const pickerModal = document.getElementById('googleAccountPickerModal');
+      if (pickerModal) {
+        const closeBtn = document.getElementById('pickerCloseBtn');
+        const retryBtn = document.getElementById('pickerRetryPopupBtn');
+        const customBtn = document.getElementById('pickerSubmitCustomBtn');
+        if (closeBtn) closeBtn.onclick = () => pickerModal.classList.remove('open');
+        if (retryBtn) {
+          retryBtn.onclick = () => {
+            pickerModal.classList.remove('open');
+            if (googleBtn) googleBtn.click();
+          };
+        }
+        if (customBtn) {
+          customBtn.onclick = () => {
+            if (!isHostedPreviewEnvironment()) {
+              pickerModal.classList.remove('open');
+              return;
+            }
+            const emailVal = (document.getElementById('pickerCustomEmail').value || '').trim().toLowerCase();
+            const nameVal = (document.getElementById('pickerCustomName').value || '').trim();
+            if (!emailVal || !emailVal.includes('@')) {
+              showToast('Please enter a valid coach email address.');
+              return;
+            }
+            pickerModal.classList.remove('open');
+            enterWorkspaceAsCoach({ email: emailVal, displayName: nameVal || emailVal.split('@')[0] }, false);
+            showToast('Signed in as ' + emailVal);
+          };
+        }
       }
-      const pickerCloseBtn = document.getElementById('pickerCloseBtn');
-      if (pickerCloseBtn) pickerCloseBtn.onclick = () => document.getElementById('googleAccountPickerModal').classList.remove('open');
 
-      // Email & Password Sign-In / Registration
-      const toggleAuthModeBtn = document.getElementById('toggleAuthModeBtn');
-      const authNameWrap = document.getElementById('authNameFieldWrap');
-      const authSubmitBtn = document.getElementById('authSubmitBtn');
-      if (toggleAuthModeBtn) {
-        toggleAuthModeBtn.onclick = () => {
-          isRegisterMode = !isRegisterMode;
-          if (authNameWrap) authNameWrap.style.display = isRegisterMode ? 'block' : 'none';
-          if (authSubmitBtn) authSubmitBtn.textContent = isRegisterMode ? 'Create Coach Account →' : 'Sign In & Sync Cloud Workspace →';
-          toggleAuthModeBtn.textContent = isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Register';
-        };
-      }
-
+      // Email / Password Form + Registration Team Join Code Validation
       const emailForm = document.getElementById('emailPasswordForm');
+      const toggleModeBtn = document.getElementById('toggleAuthModeBtn');
+      const nameFieldWrap = document.getElementById('authNameFieldWrap');
+      const teamCodeFieldWrap = document.getElementById('authTeamCodeFieldWrap');
+      const teamCodeInput = document.getElementById('authTeamCodeInput');
+      const submitBtn = document.getElementById('authSubmitBtn');
+      const togglePwdBtn = document.getElementById('togglePasswordVisBtn');
+      const pwdInput = document.getElementById('authPasswordInput');
+      const forgotPwdBtn = document.getElementById('forgotPasswordBtn');
+
+      if (togglePwdBtn && pwdInput) {
+        togglePwdBtn.onclick = () => {
+          const isPwd = pwdInput.type === 'password';
+          pwdInput.type = isPwd ? 'text' : 'password';
+          togglePwdBtn.textContent = isPwd ? 'Hide' : 'Show';
+        };
+      }
+
+      function setRegistrationMode(enableReg) {
+        isRegisterMode = Boolean(enableReg);
+        if (nameFieldWrap) nameFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
+        if (teamCodeFieldWrap) teamCodeFieldWrap.style.display = isRegisterMode ? 'block' : 'none';
+        if (teamCodeInput) teamCodeInput.required = isRegisterMode;
+        if (submitBtn) submitBtn.innerHTML = isRegisterMode ? 'Create Coach Account &rarr;' : 'Sign In &amp; Sync Cloud Workspace &rarr;';
+        if (toggleModeBtn) toggleModeBtn.textContent = isRegisterMode ? 'Already have an account? Sign In' : 'Need an account? Register';
+        if (authStatusEl) authStatusEl.textContent = '';
+      }
+
+      if (toggleModeBtn) {
+        toggleModeBtn.onclick = () => setRegistrationMode(!isRegisterMode);
+      }
+
+      if (forgotPwdBtn) {
+        forgotPwdBtn.onclick = async () => {
+          const emailVal = (document.getElementById('authEmailInput').value || '').trim();
+          if (!emailVal || !emailVal.includes('@')) {
+            if (authStatusEl) authStatusEl.textContent = 'Enter your Coach Email above first, then click Forgot Password.';
+            return;
+          }
+          if (auth) {
+            try {
+              await auth.sendPasswordResetEmail(emailVal);
+              if (authStatusEl) {
+                authStatusEl.style.color = '#059669';
+                authStatusEl.textContent = 'Password reset link sent to ' + emailVal + '!';
+              }
+            } catch (err) {
+              if (authStatusEl) {
+                authStatusEl.style.color = '#dc2626';
+                authStatusEl.textContent = err && err.message ? err.message : 'Unable to send reset email.';
+              }
+            }
+          }
+        };
+      }
+
       if (emailForm) {
         emailForm.onsubmit = async (e) => {
           e.preventDefault();
-          const em = (document.getElementById('authEmailInput').value || '').trim();
-          const pw = (document.getElementById('authPasswordInput').value || '').trim();
-          const nm = (document.getElementById('authNameInput').value || '').trim() || em.split('@')[0];
-          if (!em) return;
-          if (auth && pw) {
+          if (authStatusEl) { authStatusEl.style.color = '#dc2626'; authStatusEl.textContent = ''; }
+          const emailVal = (document.getElementById('authEmailInput').value || '').trim().toLowerCase();
+          const pwdVal = (document.getElementById('authPasswordInput').value || '').trim();
+          const nameVal = (document.getElementById('authNameInput').value || '').trim();
+          const rawCodeVal = (teamCodeInput ? teamCodeInput.value : '').trim();
+
+          if (!emailVal || !pwdVal) return;
+
+          // Step 2: Validate Team Join Code (or pre-existing Club Admin / Invited status) on Registration
+          let validatedRegTeams = [];
+          if (isRegisterMode) {
+            const isPrimaryAdmin = emailVal === CLUB_ADMIN_EMAIL.toLowerCase();
+            const preInvited = coachInvitesRegistry.filter(inv => String(inv.email || '').trim().toLowerCase() === emailVal);
+            const { matchedTeams, invalidCodes } = parseAndRedeemJoinCodes(rawCodeVal);
+
+            if (!isPrimaryAdmin && matchedTeams.length === 0 && preInvited.length === 0) {
+              if (authStatusEl) {
+                authStatusEl.textContent = invalidCodes.length > 0
+                  ? 'Invalid Team Join Code: ' + invalidCodes.join(', ') + '. Please enter a valid code from your Head Coach.'
+                  : 'A valid Team Join Code is required to register a coach account.';
+              }
+              return;
+            }
+            if (invalidCodes.length > 0 && matchedTeams.length > 0) {
+              if (authStatusEl) {
+                authStatusEl.textContent = 'Unrecognized code(s): ' + invalidCodes.join(', ') + '. Remove invalid codes to continue.';
+              }
+              return;
+            }
+            validatedRegTeams = matchedTeams;
+          }
+
+          if (auth) {
             try {
+              let cred;
               if (isRegisterMode) {
-                const cred = await auth.createUserWithEmailAndPassword(em, pw);
-                if (cred.user && nm) await cred.user.updateProfile({ displayName: nm });
-                enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
+                cred = await auth.createUserWithEmailAndPassword(emailVal, pwdVal);
+                if (cred && cred.user && nameVal) {
+                  await cred.user.updateProfile({ displayName: nameVal });
+                }
               } else {
-                const cred = await auth.signInWithEmailAndPassword(em, pw);
-                enterWorkspaceAsCoach({ email: em, displayName: (cred.user && cred.user.displayName) || nm }, false);
+                cred = await auth.signInWithEmailAndPassword(emailVal, pwdVal);
+              }
+              const u = cred && cred.user;
+              const finalEmail = (u && u.email) || emailVal;
+
+              if (isRegisterMode && finalEmail.toLowerCase() !== CLUB_ADMIN_EMAIL.toLowerCase()) {
+                const existingProf = userAccessRegistry[finalEmail.toLowerCase()] || {};
+                const mergedTeams = Array.from(new Set([...(existingProf.teams || []), ...validatedRegTeams]));
+                saveUserAccessProfile(finalEmail, {
+                  name: nameVal || (u && u.displayName) || finalEmail.split('@')[0],
+                  role: existingProf.role || 'Assistant Coach',
+                  teams: mergedTeams,
+                  libraryAccess: { drills: mergedTeams.length > 0, videos: mergedTeams.length > 0 }
+                });
+              }
+
+              enterWorkspaceAsCoach({ email: finalEmail, displayName: (u && u.displayName) || nameVal || finalEmail.split('@')[0] }, false);
+              if (isRegisterMode && validatedRegTeams.length > 0) {
+                persistCurrentTeamState();
+                showToast('Registered & unlocked ' + validatedRegTeams.join(', ') + '!');
+              } else {
+                showToast(isRegisterMode ? 'Account created & signed in!' : 'Signed in!');
               }
               return;
             } catch (err) {
-              if (authStatusEl) authStatusEl.textContent = err.message || 'Authentication failed.';
+              if (authStatusEl) {
+                authStatusEl.textContent = (err && err.message) ? err.message.replace(/^Firebase:\s*/i, '') : 'Authentication failed.';
+              }
               return;
             }
           }
-          enterWorkspaceAsCoach({ email: em, displayName: nm }, false);
-        };
-      }
 
-      // Sign Out Button
-      const signOutBtn = document.getElementById('settingsSignOutBtn');
-      if (signOutBtn) signOutBtn.onclick = signOutCoach;
-
-      // Automatic Background Cloud Sync (on app resume/focus + periodic heartbeat)
-      async function runAutoCloudSync() {
-        if (!currentUser || !db) return;
-        await ensureFirebaseAuthReady();
-        await attachFirestoreClubSync();
-        await attachFirestoreTeamSync(activeTeamName);
-      }
-
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && currentUser) {
-          runAutoCloudSync();
-        }
-      });
-      window.addEventListener('focus', () => {
-        if (currentUser) runAutoCloudSync();
-      });
-      setInterval(() => {
-        if (document.visibilityState === 'visible' && currentUser) {
-          syncAllClubTeamsFromCloud();
-        }
-      }, 25000);
-
-      // Roster Tab Add Player, Bulk Copy/Paste, and Sync Controls
-      const masterAddBtn = document.getElementById('masterAddPlayerBtn');
-      const masterNameInput = document.getElementById('masterNewPlayerNameInput');
-      if (masterAddBtn && masterNameInput) {
-        masterAddBtn.onclick = () => {
-          const parsed = parseSingleRosterEntry(masterNameInput.value);
-          if (!parsed) return showToast('Enter a player name (e.g. Lucas Miller (GK)).');
-          rosterPlayers.push(parsed);
-          masterNameInput.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-          showToast('Added ' + parsed.name + ' to ' + activeTeamName);
-        };
-      }
-
-      const addPlayerBtn = document.getElementById('addPlayerBtn');
-      const newPlayerInput = document.getElementById('newPlayerNameInput');
-      if (addPlayerBtn && newPlayerInput) {
-        addPlayerBtn.onclick = () => {
-          const parsed = parseSingleRosterEntry(newPlayerInput.value);
-          if (!parsed) return;
-          rosterPlayers.push(parsed);
-          newPlayerInput.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-        };
-      }
-
-      const toggleBulkBtn = document.getElementById('toggleBulkRosterPasteBtn');
-      const bulkDrawer = document.getElementById('bulkRosterPasteDrawer');
-      if (toggleBulkBtn && bulkDrawer) {
-        toggleBulkBtn.onclick = () => {
-          bulkDrawer.style.display = bulkDrawer.style.display === 'none' ? 'block' : 'none';
-        };
-      }
-
-      const bulkAppendBtn = document.getElementById('bulkAppendRosterBtn');
-      const bulkReplaceBtn = document.getElementById('bulkReplaceRosterBtn');
-      const bulkClearBtn = document.getElementById('bulkClearTextareaBtn');
-      const bulkTextarea = document.getElementById('bulkRosterPasteTextarea');
-
-      if (bulkAppendBtn && bulkTextarea) {
-        bulkAppendBtn.onclick = () => {
-          const rawLines = bulkTextarea.value.split(/\r?\n|;/).map(s => s.trim()).filter(Boolean);
-          const imported = rawLines.map(parseSingleRosterEntry).filter(Boolean);
-          if (!imported.length) return showToast('Paste at least one player line first.');
-          rosterPlayers.push(...imported);
-          bulkTextarea.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-          showToast('Imported ' + imported.length + ' player(s) to ' + activeTeamName + '!');
-        };
-      }
-
-      if (bulkReplaceBtn && bulkTextarea) {
-        bulkReplaceBtn.onclick = () => {
-          const rawLines = bulkTextarea.value.split(/\r?\n|;/).map(s => s.trim()).filter(Boolean);
-          const imported = rawLines.map(parseSingleRosterEntry).filter(Boolean);
-          if (!imported.length) return showToast('Paste at least one player line first.');
-          rosterPlayers = imported;
-          bulkTextarea.value = '';
-          persistCurrentTeamState();
-          renderRoster();
-          showToast('Replaced roster with ' + imported.length + ' player(s)!');
-        };
-      }
-
-      if (bulkClearBtn && bulkTextarea) {
-        bulkClearBtn.onclick = () => { bulkTextarea.value = ''; };
-      }
-
-      const syncMasterToGameBtn = document.getElementById('syncMasterRosterToGameBtn');
-      if (syncMasterToGameBtn) {
-        syncMasterToGameBtn.onclick = () => {
-          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
-          persistCurrentTeamState();
-          renderGameRoster();
-          renderGamePitch();
-          showToast('Synced ' + gameRosterPlayers.length + ' players to Game Day Squad!');
-        };
-      }
-
-      const masterMarkAllBtn = document.getElementById('masterMarkAllPresentBtn');
-      if (masterMarkAllBtn) {
-        masterMarkAllBtn.onclick = () => {
-          rosterPlayers.forEach(p => { p.present = true; });
-          persistCurrentTeamState();
-          renderRoster();
-        };
-      }
-
-      const markAllBtn = document.getElementById('markAllPresentBtn');
-      if (markAllBtn) {
-        markAllBtn.onclick = () => {
-          rosterPlayers.forEach(p => { p.present = true; });
-          persistCurrentTeamState();
-          renderRoster();
-        };
-      }
-
-      // Settings: Join Team with Code & Create New Team
-      const joinTeamBtn = document.getElementById('joinTeamWithCodeBtn');
-      if (joinTeamBtn) {
-        joinTeamBtn.onclick = () => {
-          openCustomPromptModal('Join Team with Code', 'Enter the Team Join Code (e.g. AFC-1112):', '', (rawCode) => {
-            const code = String(rawCode || '').trim().toUpperCase();
-            if (!code) return;
-            const found = clubTeamsRegistry.find(t => String(t.code || '').toUpperCase() === code);
-            if (found) {
-              persistCurrentTeamState();
-              loadTeamStateFromStorage(found.name);
-              renderSettingsPanel();
-              showToast('Joined and switched to ' + found.name + '!');
-            } else {
-              const newName = 'Team ' + code;
-              clubTeamsRegistry.push({ name: newName, code, ageGroup: 'Club', gender: 'Coed' });
-              persistCurrentTeamState();
-              loadTeamStateFromStorage(newName);
-              renderSettingsPanel();
-              showToast('Added and switched to ' + newName + '!');
+          if (isHostedPreviewEnvironment()) {
+            if (isRegisterMode && validatedRegTeams.length > 0) {
+              saveUserAccessProfile(emailVal, {
+                name: nameVal || emailVal.split('@')[0],
+                role: 'Assistant Coach',
+                teams: validatedRegTeams,
+                libraryAccess: { drills: true, videos: true }
+              });
             }
-          });
+            enterWorkspaceAsCoach({ email: emailVal, displayName: nameVal || emailVal.split('@')[0] }, false);
+          }
         };
       }
 
-      const createTeamBtn = document.getElementById('createNewTeamFromSettingsBtn');
-      if (createTeamBtn) {
-        createTeamBtn.onclick = () => {
-          openCustomPromptModal('Create New Team Workspace', 'Enter the new Team Name (e.g. 2013 Boys Navy):', '', (rawName) => {
-            const name = String(rawName || '').trim();
-            if (!name) return;
-            if (clubTeamsRegistry.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-              showToast('That team already exists.');
-              return;
-            }
-            const code = 'AFC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-            clubTeamsRegistry.push({ name, code, ageGroup: 'Youth', gender: 'Club' });
-            persistCurrentTeamState();
-            loadTeamStateFromStorage(name);
-            renderSettingsPanel();
-            showToast('Created ' + name + ' (Join Code: ' + code + ')!');
-          });
-        };
+      // Sign Out button in Settings
+      const settingsSignOutBtn = document.getElementById('settingsSignOutBtn');
+      if (settingsSignOutBtn) {
+        settingsSignOutBtn.onclick = () => signOutCoach();
       }
 
-      const addVersionNoteBtn = document.getElementById('addVersionNoteBtn');
-      const versionNoteInput = document.getElementById('adminVersionNoteInput');
-      if (addVersionNoteBtn && versionNoteInput) {
-        addVersionNoteBtn.onclick = () => {
-          const note = versionNoteInput.value.trim();
-          if (!note) return;
-          versionHistoryLog.unshift({ version: APP_VERSION, date: getLocalTodayIso(), note });
-          try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
-          versionNoteInput.value = '';
-          renderSettingsPanel();
-          showToast('Logged version note.');
-        };
-      }
-
-      // Navigation Tabs
+      // Tab buttons
       document.querySelectorAll('.nav-tab').forEach(btn => {
-        btn.onclick = () => {
-          const tab = btn.getAttribute('data-tab');
-          if (tab) switchTab(tab);
-        };
+        btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
       });
 
-      // Team Selectors (Session Builder, Game Day, Master Roster)
-      ['sessionTeamSelect', 'gameTeamSelect', 'rosterTeamSelect'].forEach(selId => {
-        const sel = document.getElementById(selId);
-        if (sel) {
-          sel.onchange = () => {
-            const nextTeam = sel.value;
-            if (nextTeam && nextTeam !== activeTeamName) {
-              persistCurrentTeamState();
-              loadTeamStateFromStorage(nextTeam);
-              renderSettingsPanel();
-              showToast('Switched to ' + nextTeam);
-            }
-          };
+      // Team Selectors (Session Builder, Game Day & Master Roster)
+      const handleTeamChange = (newTeam) => {
+        if (newTeam && newTeam !== activeTeamName && userTeams.includes(newTeam)) {
+          persistCurrentTeamState();
+          loadTeamStateFromStorage(newTeam);
+          showToast('Switched active team to ' + newTeam);
         }
-      });
+      };
+      const sessTeamSel = document.getElementById('sessionTeamSelect');
+      const gameTeamSel = document.getElementById('gameTeamSelect');
+      const rosterTeamSel = document.getElementById('rosterTeamSelect');
+      if (sessTeamSel) sessTeamSel.onchange = function() { handleTeamChange(this.value); };
+      if (gameTeamSel) gameTeamSel.onchange = function() { handleTeamChange(this.value); };
+      if (rosterTeamSel) rosterTeamSel.onchange = function() { handleTeamChange(this.value); };
 
-      // Calendar Navigation & View Switcher
+      // Calendar View Switchers & Navigation
       document.querySelectorAll('.cal-view-btn').forEach(btn => {
-        btn.onclick = () => {
-          calendarViewMode = btn.getAttribute('data-cal-view') || 'month';
+        btn.onclick = function() {
+          calendarViewMode = this.getAttribute('data-cal-view') || 'month';
           renderCalendar();
         };
       });
-
-      const prevMonthBtn = document.getElementById('prevMonthBtn');
-      const nextMonthBtn = document.getElementById('nextMonthBtn');
-      const todayCalendarBtn = document.getElementById('todayCalendarBtn');
-      if (prevMonthBtn) {
-        prevMonthBtn.onclick = () => {
+      const prevCalBtn = document.getElementById('prevMonthBtn');
+      const nextCalBtn = document.getElementById('nextMonthBtn');
+      const todayCalBtn = document.getElementById('todayCalendarBtn');
+      if (prevCalBtn) {
+        prevCalBtn.onclick = () => {
           if (calendarViewMode === 'month') calendarCursorDate.setMonth(calendarCursorDate.getMonth() - 1);
           else if (calendarViewMode === 'week') calendarCursorDate.setDate(calendarCursorDate.getDate() - 7);
           else calendarCursorDate.setDate(calendarCursorDate.getDate() - 1);
           renderCalendar();
         };
       }
-      if (nextMonthBtn) {
-        nextMonthBtn.onclick = () => {
+      if (nextCalBtn) {
+        nextCalBtn.onclick = () => {
           if (calendarViewMode === 'month') calendarCursorDate.setMonth(calendarCursorDate.getMonth() + 1);
           else if (calendarViewMode === 'week') calendarCursorDate.setDate(calendarCursorDate.getDate() + 7);
           else calendarCursorDate.setDate(calendarCursorDate.getDate() + 1);
           renderCalendar();
         };
       }
-      if (todayCalendarBtn) {
-        todayCalendarBtn.onclick = () => {
+      if (todayCalBtn) {
+        todayCalBtn.onclick = () => {
           calendarCursorDate = new Date();
           renderCalendar();
         };
       }
 
-      const newSessionFromCalendarBtn = document.getElementById('newSessionFromCalendarBtn');
-      if (newSessionFromCalendarBtn) {
-        newSessionFromCalendarBtn.onclick = () => {
+      const newSessCalBtn = document.getElementById('newSessionFromCalendarBtn');
+      if (newSessCalBtn) {
+        newSessCalBtn.onclick = () => {
           currentEditingSessionId = null;
-          document.getElementById('sessionTitleInput').value = '';
-          document.getElementById('sessionDateInput').value = getLocalTodayIso();
-          currentSessionParts = [];
-          renderSessionParts();
+          document.getElementById('sessionDateInput').value = toIsoDate(calendarCursorDate);
           switchTab('builder');
         };
       }
-
-      const newGameFromCalendarBtn = document.getElementById('newGameFromCalendarBtn');
-      if (newGameFromCalendarBtn) {
-        newGameFromCalendarBtn.onclick = () => {
+      const newGameCalBtn = document.getElementById('newGameFromCalendarBtn');
+      if (newGameCalBtn) {
+        newGameCalBtn.onclick = () => {
           resetGamePlannerToBlank();
+          document.getElementById('gameDateInput').value = toIsoDate(calendarCursorDate);
           switchTab('gameday');
+          showToast('Started new Game Day plan!');
         };
       }
 
-      // Session Builder Controls
-      const saveSessionBtn = document.getElementById('saveSessionBtn');
-      if (saveSessionBtn) {
-        saveSessionBtn.onclick = () => {
-          const title = (document.getElementById('sessionTitleInput').value || '').trim() || 'Training Session';
-          const date = document.getElementById('sessionDateInput').value || getLocalTodayIso();
-          const coach = (document.getElementById('sessionCoachInput').value || '').trim() || 'Ambassadors FC Staff';
-          const sessionObj = {
-            id: currentEditingSessionId || ('sess_' + Date.now()),
-            team: activeTeamName,
-            title,
-            date,
-            coach,
-            parts: JSON.parse(JSON.stringify(currentSessionParts))
-          };
-          const idx = savedSessions.findIndex(s => s.id === sessionObj.id);
-          if (idx >= 0) savedSessions[idx] = sessionObj;
-          else savedSessions.push(sessionObj);
-          currentEditingSessionId = sessionObj.id;
-          persistCurrentTeamState();
-          renderCalendar();
-          showToast('Saved "' + title + '" to Calendar!');
-        };
-      }
-
-      const newBlankSessionBtn = document.getElementById('newBlankSessionBtn');
-      if (newBlankSessionBtn) {
-        newBlankSessionBtn.onclick = () => {
-          currentEditingSessionId = null;
-          document.getElementById('sessionTitleInput').value = '';
-          document.getElementById('sessionDateInput').value = getLocalTodayIso();
-          currentSessionParts = [];
-          renderSessionParts();
-          showToast('Started blank session.');
-        };
-      }
-
-      const addSessionPartBtn = document.getElementById('addSessionPartBtn');
-      if (addSessionPartBtn) {
-        addSessionPartBtn.onclick = () => {
-          const typeSel = document.getElementById('newPartTypeSelect');
-          const typeVal = (typeSel && typeSel.value) || 'technical';
-          const labelMap = {
-            warmup: 'Dynamic Warm-Up',
-            technical: 'Technical Activity',
-            tactical: 'Tactical Phase',
-            scrimmage: 'Small-Sided Scrimmage',
-            devotional: 'Team Devotional',
-            fitness: 'Conditioning & Speed'
-          };
-          currentSessionParts.push({
-            id: 'part_' + Date.now(),
-            type: typeVal,
-            title: labelMap[typeVal] || 'Training Activity',
-            duration: 15,
-            gifUrl: '',
-            coachingPoints: '',
-            notes: ''
-          });
-          renderSessionParts();
-        };
-      }
-
-      const toggleCleanPreviewBtn = document.getElementById('toggleCleanPreviewBtn');
-      const exitCleanPreviewBtn = document.getElementById('exitCleanPreviewBtn');
-      if (toggleCleanPreviewBtn) {
-        toggleCleanPreviewBtn.onclick = () => document.body.classList.add('clean-preview-mode');
-      }
-      if (exitCleanPreviewBtn) {
-        exitCleanPreviewBtn.onclick = () => document.body.classList.remove('clean-preview-mode');
-      }
-
-      // Game Day Controls & Match Timer
+      // Game Day Toolbar & Timer Controls
       const saveGameBtn = document.getElementById('saveGameBtn');
       if (saveGameBtn) {
         saveGameBtn.onclick = () => {
-          const opponent = (document.getElementById('gameOpponentInput').value || '').trim() || 'Opponent FC';
-          const date = document.getElementById('gameDateInput').value || getLocalTodayIso();
-          const time = (document.getElementById('gameTimeInput').value || '').trim() || '10:00 AM';
-          const location = (document.getElementById('gameLocationInput').value || '').trim() || 'Field 1';
-          const goalsFor = parseInt(document.getElementById('gameGoalsForInput').value, 10) || 0;
-          const goalsAgainst = parseInt(document.getElementById('gameGoalsAgainstInput').value, 10) || 0;
-          const halftimeTalk = (document.getElementById('halftimeTalkInput').value || '').trim();
-          const formation = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
-
-          const gameObj = {
+          if (!activeTeamName) return showToast('Join a team first to save games.');
+          const gameRecord = {
             id: currentEditingGameId || ('game_' + Date.now()),
             team: activeTeamName,
-            opponent,
-            date,
-            time,
-            location,
-            goalsFor,
-            goalsAgainst,
-            halftimeTalk,
-            formation,
+            opponent: (document.getElementById('gameOpponentInput').value || 'Opponent FC').trim(),
+            date: document.getElementById('gameDateInput').value || getLocalTodayIso(),
+            time: document.getElementById('gameTimeInput').value || '10:00 AM',
+            location: document.getElementById('gameLocationInput').value || 'Field 1',
+            goalsFor: parseInt(document.getElementById('gameGoalsForInput').value, 10) || 0,
+            goalsAgainst: parseInt(document.getElementById('gameGoalsAgainstInput').value, 10) || 0,
+            formation: document.getElementById('gameFormationSelect').value,
             lineups: JSON.parse(JSON.stringify(gameLineups)),
-            subLogs: JSON.parse(JSON.stringify(gameSubLogs))
+            subLogs: JSON.parse(JSON.stringify(gameSubLogs)),
+            halftimeTalk: document.getElementById('halftimeTalkInput').value || ''
           };
-          const idx = savedGames.findIndex(g => g.id === gameObj.id);
-          if (idx >= 0) savedGames[idx] = gameObj;
-          else savedGames.push(gameObj);
-          currentEditingGameId = gameObj.id;
+          const existingIdx = savedGames.findIndex(g => g.id === gameRecord.id);
+          if (existingIdx >= 0) savedGames[existingIdx] = gameRecord;
+          else savedGames.push(gameRecord);
+          currentEditingGameId = gameRecord.id;
           persistCurrentTeamState();
           renderCalendar();
-          showToast('Saved match vs ' + opponent + ' to Calendar!');
+          showToast('Game vs ' + gameRecord.opponent + ' saved to Calendar!');
         };
       }
-
       const newBlankGameBtn = document.getElementById('newBlankGameBtn');
       if (newBlankGameBtn) {
         newBlankGameBtn.onclick = () => {
           resetGamePlannerToBlank();
-          showToast('Started new blank game sheet.');
+          showToast('New blank Game Day sheet ready!');
         };
       }
 
-      const selectHalf1Btn = document.getElementById('selectHalf1Btn');
-      const selectHalf2Btn = document.getElementById('selectHalf2Btn');
-      if (selectHalf1Btn && selectHalf2Btn) {
-        selectHalf1Btn.onclick = () => {
-          activeHalf = 1;
-          selectHalf1Btn.className = 'btn btn-primary btn-sm';
-          selectHalf2Btn.className = 'btn btn-outline btn-sm';
-          renderGamePitch();
-        };
-        selectHalf2Btn.onclick = () => {
-          activeHalf = 2;
-          selectHalf2Btn.className = 'btn btn-primary btn-sm';
-          selectHalf1Btn.className = 'btn btn-outline btn-sm';
-          renderGamePitch();
-        };
-      }
-
-      const gameFormationSelect = document.getElementById('gameFormationSelect');
-      if (gameFormationSelect) {
-        gameFormationSelect.onchange = () => {
-          const slots = FORMATIONS[gameFormationSelect.value] || FORMATIONS['4-2-2'];
-          const prevNames = (gameLineups[activeHalf] || []).map(t => t.playerName || '');
-          gameLineups[activeHalf] = slots.map((s, i) => ({
-            id: 'h' + activeHalf + '_' + i,
-            pos: s.pos,
-            x: s.x,
-            y: s.y,
-            playerName: prevNames[i] || ''
-          }));
-          renderGamePitch();
-        };
-      }
-
-      const autoFillGameHalfBtn = document.getElementById('autoFillGameHalfBtn');
-      if (autoFillGameHalfBtn) {
-        autoFillGameHalfBtn.onclick = () => {
-          const avail = gameRosterPlayers.filter(p => p.present);
-          const tokens = gameLineups[activeHalf] || [];
-          tokens.forEach((tok, idx) => {
-            tok.playerName = avail[idx] ? avail[idx].name : '';
-          });
-          renderGamePitch();
-          showToast('Auto-filled ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half lineup!');
-        };
-      }
-
-      const copyHalf1ToHalf2Btn = document.getElementById('copyHalf1ToHalf2Btn');
-      if (copyHalf1ToHalf2Btn) {
-        copyHalf1ToHalf2Btn.onclick = () => {
-          gameLineups[2] = JSON.parse(JSON.stringify(gameLineups[1]));
-          showToast('Copied 1st Half lineup to 2nd Half!');
-        };
-      }
-
-      const clearGamePlaceholdersBtn = document.getElementById('clearGamePlaceholdersBtn');
-      if (clearGamePlaceholdersBtn) {
-        clearGamePlaceholdersBtn.onclick = () => {
-          (gameLineups[activeHalf] || []).forEach(t => { t.playerName = ''; });
-          renderGamePitch();
-        };
-      }
-
-      const logSubBtn = document.getElementById('logSubBtn');
-      if (logSubBtn) {
-        logSubBtn.onclick = () => {
-          const minVal = (document.getElementById('subMinuteInput').value || '').trim() || "15'";
-          const offName = (document.getElementById('subOffSelect') || {}).value || '';
-          const onName = (document.getElementById('subOnSelect') || {}).value || '';
-          if (!offName || !onName) return showToast('Select both Player OFF and Player ON.');
-          const tokens = gameLineups[activeHalf] || [];
-          const targetTok = tokens.find(t => t.playerName === offName);
-          if (targetTok) targetTok.playerName = onName;
-          gameSubLogs.unshift({ minute: minVal, off: offName, on: onName });
-          renderSubLogList();
-          renderGamePitch();
-          showToast('Subbed ' + onName + ' ON for ' + offName);
-        };
-      }
-
-      const copyTrainingRosterToGameBtn = document.getElementById('copyTrainingRosterToGameBtn');
-      if (copyTrainingRosterToGameBtn) {
-        copyTrainingRosterToGameBtn.onclick = () => {
-          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
-          persistCurrentTeamState();
-          renderGameRoster();
-          renderGamePitch();
-          showToast('Copied Training Roster to Game Day Squad!');
-        };
-      }
-
-      const addGamePlayerBtn = document.getElementById('addGamePlayerBtn');
-      const newGamePlayerNameInput = document.getElementById('newGamePlayerNameInput');
-      if (addGamePlayerBtn && newGamePlayerNameInput) {
-        addGamePlayerBtn.onclick = () => {
-          const parsed = parseSingleRosterEntry(newGamePlayerNameInput.value);
-          if (!parsed) return;
-          gameRosterPlayers.push(parsed);
-          newGamePlayerNameInput.value = '';
-          persistCurrentTeamState();
-          renderGameRoster();
-          renderGamePitch();
-        };
-      }
-
-      // Match Countdown Clock Controls
+      const matchClockInput = document.getElementById('matchClockInput');
       const toggleMatchClockBtn = document.getElementById('toggleMatchClockBtn');
       const resetMatchClockBtn = document.getElementById('resetMatchClockBtn');
-      const matchClockInput = document.getElementById('matchClockInput');
       if (matchClockInput) {
         matchClockInput.onchange = () => {
-          matchClockSeconds = parseClockInputToSeconds(matchClockInput.value);
-          matchClockInitialSeconds = matchClockSeconds;
+          stopMatchClock();
+          const parsed = parseClockInputToSeconds(matchClockInput.value);
+          matchClockSeconds = parsed;
+          matchClockInitialSeconds = parsed;
           updateMatchClockDisplay();
         };
       }
@@ -4559,8 +4684,10 @@
           if (matchClockInterval) {
             stopMatchClock();
           } else {
-            matchClockSeconds = parseClockInputToSeconds(matchClockInput ? matchClockInput.value : '25:00');
-            if (matchClockSeconds <= 0) matchClockSeconds = matchClockInitialSeconds || 25 * 60;
+            if (matchClockSeconds <= 0) {
+              matchClockSeconds = parseClockInputToSeconds(matchClockInput ? matchClockInput.value : '25:00');
+              matchClockInitialSeconds = matchClockSeconds;
+            }
             toggleMatchClockBtn.textContent = 'Pause';
             matchClockInterval = setInterval(() => {
               if (matchClockSeconds > 0) {
@@ -4568,7 +4695,7 @@
                 updateMatchClockDisplay();
               } else {
                 stopMatchClock();
-                showToast('Half timer reached 00:00!');
+                showToast('Half / Match Timer finished!');
               }
             }, 1000);
           }
@@ -4582,48 +4709,383 @@
         };
       }
       document.querySelectorAll('.set-preset-clock-btn').forEach(btn => {
-        btn.onclick = () => {
+        btn.onclick = function() {
           stopMatchClock();
-          const mins = parseInt(btn.getAttribute('data-preset'), 10) || 25;
+          const mins = parseInt(this.getAttribute('data-preset'), 10) || 25;
+          matchClockSeconds = mins * 60;
           matchClockInitialSeconds = mins * 60;
-          matchClockSeconds = matchClockInitialSeconds;
           updateMatchClockDisplay();
         };
       });
 
-      // Drill & Video Library Search / Filter Listeners
-      const drillSearchInput = document.getElementById('drillSearchInput');
-      const drillCategoryFilter = document.getElementById('drillCategoryFilter');
-      if (drillSearchInput) drillSearchInput.oninput = renderDrillLibrary;
-      if (drillCategoryFilter) drillCategoryFilter.onchange = renderDrillLibrary;
+      // Game Day Lineup & Subs Controls
+      const h1Btn = document.getElementById('selectHalf1Btn');
+      const h2Btn = document.getElementById('selectHalf2Btn');
+      if (h1Btn && h2Btn) {
+        h1Btn.onclick = () => {
+          activeHalf = 1;
+          h1Btn.className = 'btn btn-primary btn-sm';
+          h2Btn.className = 'btn btn-outline btn-sm';
+          renderGamePitch();
+        };
+        h2Btn.onclick = () => {
+          activeHalf = 2;
+          h2Btn.className = 'btn btn-primary btn-sm';
+          h1Btn.className = 'btn btn-outline btn-sm';
+          renderGamePitch();
+        };
+      }
 
-      const videoSearchInput = document.getElementById('videoSearchInput');
-      const videoCategoryFilter = document.getElementById('videoCategoryFilter');
-      const videoSubCategoryFilter = document.getElementById('videoSubCategoryFilter');
-      if (videoSearchInput) videoSearchInput.oninput = renderVideoLibrary;
-      if (videoCategoryFilter) videoCategoryFilter.onchange = renderVideoLibrary;
-      if (videoSubCategoryFilter) videoSubCategoryFilter.onchange = renderVideoLibrary;
+      const formSel = document.getElementById('gameFormationSelect');
+      if (formSel) {
+        formSel.onchange = function() {
+          const slots = FORMATIONS[this.value] || FORMATIONS['4-2-2'];
+          const prevNames = (gameLineups[activeHalf] || []).map(t => t.playerName).filter(Boolean);
+          gameLineups[activeHalf] = slots.map((s, i) => ({
+            id: 'h' + activeHalf + '_' + i,
+            pos: s.pos,
+            x: s.x,
+            y: s.y,
+            playerName: prevNames[i] || ''
+          }));
+          renderGamePitch();
+        };
+      }
 
-      // Embedded Video Player & Enlarged Diagram Modals Close Handlers
-      const closeEmbeddedVideo = () => {
-        const modal = document.getElementById('embeddedVideoModal');
+      const autoFillBtn = document.getElementById('autoFillGameHalfBtn');
+      if (autoFillBtn) {
+        autoFillBtn.onclick = () => {
+          const avail = gameRosterPlayers.filter(p => p.present);
+          const slots = gameLineups[activeHalf] || [];
+          slots.forEach((slot, i) => {
+            slot.playerName = avail[i] ? avail[i].name : '';
+          });
+          renderGamePitch();
+          showToast('Auto-filled ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half positions!');
+        };
+      }
+
+      const copyH1H2Btn = document.getElementById('copyHalf1ToHalf2Btn');
+      if (copyH1H2Btn) {
+        copyH1H2Btn.onclick = () => {
+          gameLineups[2] = JSON.parse(JSON.stringify(gameLineups[1]));
+          activeHalf = 2;
+          if (h2Btn) h2Btn.click();
+          showToast('Copied 1st Half lineup to 2nd Half!');
+        };
+      }
+
+      const clearPlaceholdersBtn = document.getElementById('clearGamePlaceholdersBtn');
+      if (clearPlaceholdersBtn) {
+        clearPlaceholdersBtn.onclick = () => {
+          const formVal = (document.getElementById('gameFormationSelect') || {}).value || '4-2-2';
+          const slots = FORMATIONS[formVal] || FORMATIONS['4-2-2'];
+          gameLineups[activeHalf] = slots.map((s, i) => ({ id: 'h' + activeHalf + '_' + i, pos: s.pos, x: s.x, y: s.y, playerName: '' }));
+          renderGamePitch();
+          showToast('Reset ' + activeHalf + (activeHalf === 1 ? 'st' : 'nd') + ' Half to clean position placeholders!');
+        };
+      }
+
+      const logSubBtn = document.getElementById('logSubBtn');
+      if (logSubBtn) {
+        logSubBtn.onclick = () => {
+          const min = (document.getElementById('subMinuteInput').value || '').trim() || "15'";
+          const offName = document.getElementById('subOffSelect').value;
+          const onName = document.getElementById('subOnSelect').value;
+          if (!offName || !onName) return showToast('Select both Player OFF and Player ON.');
+          const tokens = gameLineups[activeHalf] || [];
+          const targetSlot = tokens.find(t => t.playerName === offName);
+          if (targetSlot) targetSlot.playerName = onName;
+          gameSubLogs.unshift({ minute: min, off: offName, on: onName, half: activeHalf });
+          renderSubLogList();
+          renderGamePitch();
+          showToast('Subbed ' + onName + ' ON for ' + offName + ' (' + min + ')');
+        };
+      }
+
+      const copyRosterBtn = document.getElementById('copyTrainingRosterToGameBtn');
+      if (copyRosterBtn) {
+        copyRosterBtn.onclick = () => {
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          renderGameRoster();
+          renderGamePitch();
+          showToast('Copied training roster to Game Day!');
+        };
+      }
+
+      const addGamePlayerBtn = document.getElementById('addGamePlayerBtn');
+      const newGamePlayerInput = document.getElementById('newGamePlayerNameInput');
+      if (addGamePlayerBtn && newGamePlayerInput) {
+        addGamePlayerBtn.onclick = () => {
+          const parsed = parseSingleRosterEntry(newGamePlayerInput.value);
+          if (!parsed) return;
+          gameRosterPlayers.push(parsed);
+          newGamePlayerInput.value = '';
+          renderGameRoster();
+          renderGamePitch();
+        };
+      }
+
+      // Session Builder Controls
+      const addPartBtn = document.getElementById('addSessionPartBtn');
+      if (addPartBtn) {
+        addPartBtn.onclick = () => {
+          const typeVal = document.getElementById('newPartTypeSelect').value || 'technical';
+          const labelMap = {
+            warmup: 'Warm-Up Activity',
+            technical: 'Technical Practice',
+            tactical: 'Tactical Game Shape',
+            scrimmage: 'Small-Sided Scrimmage',
+            devotional: 'Team Devotional',
+            fitness: 'Fitness & Conditioning'
+          };
+          currentSessionParts.push({
+            id: 'part_' + Date.now(),
+            type: typeVal,
+            title: labelMap[typeVal] || 'Session Activity',
+            duration: 15,
+            gifUrl: '',
+            coachingPoints: '',
+            notes: ''
+          });
+          renderSessionParts();
+        };
+      }
+
+      const saveSessionBtn = document.getElementById('saveSessionBtn');
+      if (saveSessionBtn) {
+        saveSessionBtn.onclick = () => {
+          if (!activeTeamName) return showToast('Join a team first to save sessions.');
+          const sessRecord = {
+            id: currentEditingSessionId || ('sess_' + Date.now()),
+            team: activeTeamName,
+            title: (document.getElementById('sessionTitleInput').value || 'Training Session').trim(),
+            date: document.getElementById('sessionDateInput').value || getLocalTodayIso(),
+            coach: document.getElementById('sessionCoachInput').value || 'Ambassadors FC Staff',
+            parts: JSON.parse(JSON.stringify(currentSessionParts))
+          };
+          const idx = savedSessions.findIndex(s => s.id === sessRecord.id);
+          if (idx >= 0) savedSessions[idx] = sessRecord;
+          else savedSessions.push(sessRecord);
+          currentEditingSessionId = sessRecord.id;
+          persistCurrentTeamState();
+          renderCalendar();
+          showToast('Saved "' + sessRecord.title + '" to Calendar!');
+        };
+      }
+
+      const newBlankSessBtn = document.getElementById('newBlankSessionBtn');
+      if (newBlankSessBtn) {
+        newBlankSessBtn.onclick = () => {
+          currentEditingSessionId = null;
+          document.getElementById('sessionTitleInput').value = 'New Training Session';
+          currentSessionParts = [];
+          renderSessionParts();
+          showToast('Started blank session plan!');
+        };
+      }
+
+      const toggleCleanBtn = document.getElementById('toggleCleanPreviewBtn');
+      const exitCleanBtn = document.getElementById('exitCleanPreviewBtn');
+      if (toggleCleanBtn) toggleCleanBtn.onclick = () => document.body.classList.add('clean-preview-mode');
+      if (exitCleanBtn) exitCleanBtn.onclick = () => document.body.classList.remove('clean-preview-mode');
+
+      // Roster Add & Bulk Copy/Paste
+      const addPlayerBtn = document.getElementById('addPlayerBtn');
+      const newPlayerInput = document.getElementById('newPlayerNameInput');
+      if (addPlayerBtn && newPlayerInput) {
+        addPlayerBtn.onclick = () => {
+          const parsed = parseSingleRosterEntry(newPlayerInput.value);
+          if (!parsed) return;
+          rosterPlayers.push(parsed);
+          newPlayerInput.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+        };
+      }
+      const markAllBtn = document.getElementById('markAllPresentBtn');
+      if (markAllBtn) {
+        markAllBtn.onclick = () => {
+          rosterPlayers.forEach(p => p.present = true);
+          persistCurrentTeamState();
+          renderRoster();
+        };
+      }
+
+      const masterAddBtn = document.getElementById('masterAddPlayerBtn');
+      const masterInput = document.getElementById('masterNewPlayerNameInput');
+      if (masterAddBtn && masterInput) {
+        const handleMasterAdd = () => {
+          const parsed = parseSingleRosterEntry(masterInput.value);
+          if (!parsed) return;
+          rosterPlayers.push(parsed);
+          masterInput.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+          showToast('Added ' + parsed.name + ' to ' + activeTeamName + ' roster!');
+        };
+        masterAddBtn.onclick = handleMasterAdd;
+        masterInput.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); handleMasterAdd(); } };
+      }
+
+      const masterAllPresentBtn = document.getElementById('masterMarkAllPresentBtn');
+      if (masterAllPresentBtn) {
+        masterAllPresentBtn.onclick = () => {
+          rosterPlayers.forEach(p => p.present = true);
+          persistCurrentTeamState();
+          renderRoster();
+          showToast('Marked all players present!');
+        };
+      }
+
+      const syncMasterToGameBtn = document.getElementById('syncMasterRosterToGameBtn');
+      if (syncMasterToGameBtn) {
+        syncMasterToGameBtn.onclick = () => {
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          persistCurrentTeamState();
+          renderGameRoster();
+          renderGamePitch();
+          switchTab('gameday');
+          showToast('Synced ' + rosterPlayers.length + ' players to Game Day!');
+        };
+      }
+
+      const toggleBulkDrawerBtn = document.getElementById('toggleBulkRosterPasteBtn');
+      const bulkDrawer = document.getElementById('bulkRosterPasteDrawer');
+      const bulkTextarea = document.getElementById('bulkRosterPasteTextarea');
+      const bulkAppendBtn = document.getElementById('bulkAppendRosterBtn');
+      const bulkReplaceBtn = document.getElementById('bulkReplaceRosterBtn');
+      const bulkClearBtn = document.getElementById('bulkClearTextareaBtn');
+
+      if (toggleBulkDrawerBtn && bulkDrawer) {
+        toggleBulkDrawerBtn.onclick = () => {
+          const isOpen = bulkDrawer.style.display === 'block';
+          bulkDrawer.style.display = isOpen ? 'none' : 'block';
+          if (!isOpen && bulkTextarea) bulkTextarea.focus();
+        };
+      }
+      if (bulkClearBtn && bulkTextarea) {
+        bulkClearBtn.onclick = () => { bulkTextarea.value = ''; bulkTextarea.focus(); };
+      }
+      const parseBulkRosterLines = (rawText) => {
+        return String(rawText || '')
+          .split(/[\r\n;]+/)
+          .map(line => parseSingleRosterEntry(line))
+          .filter(Boolean);
+      };
+      if (bulkAppendBtn && bulkTextarea) {
+        bulkAppendBtn.onclick = () => {
+          const parsedList = parseBulkRosterLines(bulkTextarea.value);
+          if (!parsedList.length) return showToast('Paste at least one player name & position first.');
+          rosterPlayers.push(...parsedList);
+          bulkTextarea.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+          showToast('Added ' + parsedList.length + ' players to ' + activeTeamName + '!');
+        };
+      }
+      if (bulkReplaceBtn && bulkTextarea) {
+        bulkReplaceBtn.onclick = () => {
+          const parsedList = parseBulkRosterLines(bulkTextarea.value);
+          if (!parsedList.length) return showToast('Paste at least one player name & position first.');
+          rosterPlayers = parsedList;
+          gameRosterPlayers = JSON.parse(JSON.stringify(rosterPlayers));
+          bulkTextarea.value = '';
+          persistCurrentTeamState();
+          renderRoster();
+          renderGameRoster();
+          showToast('Replaced roster with ' + parsedList.length + ' players!');
+        };
+      }
+
+      // Drill & Video Filters
+      const drillSearch = document.getElementById('drillSearchInput');
+      const drillCat = document.getElementById('drillCategoryFilter');
+      if (drillSearch) drillSearch.oninput = renderDrillLibrary;
+      if (drillCat) drillCat.onchange = renderDrillLibrary;
+
+      const vidSearch = document.getElementById('videoSearchInput');
+      const vidCat = document.getElementById('videoCategoryFilter');
+      const vidSub = document.getElementById('videoSubCategoryFilter');
+      if (vidSearch) vidSearch.oninput = renderVideoLibrary;
+      if (vidCat) vidCat.onchange = renderVideoLibrary;
+      if (vidSub) vidSub.onchange = renderVideoLibrary;
+
+      // Join / Create Team & Version Notes in Settings
+      const joinTeamBtn = document.getElementById('joinTeamWithCodeBtn');
+      if (joinTeamBtn) {
+        joinTeamBtn.onclick = () => {
+          openCustomPromptModal('Join Team with Code', 'Enter Team Join Code(s) (e.g. AFC-1112 or AFC-1112, AFC-0910):', '', (code) => {
+            const res = redeemTeamCodeForCurrentUser(code);
+            if (!res.ok) showToast(res.msg);
+            else showToast('Joined ' + res.teams.join(', ') + '!');
+          });
+        };
+      }
+      const createTeamBtn = document.getElementById('createNewTeamFromSettingsBtn');
+      if (createTeamBtn) {
+        createTeamBtn.onclick = () => {
+          if (!isClubAdmin) return showToast('Only Club Admins can create new teams.');
+          openCustomPromptModal('Create New Team Workspace', 'Enter new team name (e.g. 13/14 AFC Boys):', '', (name) => {
+            const clean = (name || '').trim();
+            if (!clean) return;
+            const code = 'AFC-' + Math.floor(1000 + Math.random() * 9000);
+            clubTeamsRegistry.push({ name: clean, code, ageGroup: 'Youth', gender: 'Coed' });
+            persistCurrentTeamState();
+            applyAccessControlUI();
+            loadTeamStateFromStorage(clean);
+            renderSettingsPanel();
+            showToast('Created ' + clean + ' (Join Code: ' + code + ')');
+          });
+        };
+      }
+
+      const addVerNoteBtn = document.getElementById('addVersionNoteBtn');
+      const verNoteInput = document.getElementById('adminVersionNoteInput');
+      if (addVerNoteBtn && verNoteInput) {
+        addVerNoteBtn.onclick = () => {
+          if (!isClubAdmin) return;
+          const note = verNoteInput.value.trim();
+          if (!note) return;
+          versionHistoryLog.unshift({ version: APP_VERSION, date: getLocalTodayIso(), note });
+          try { localStorage.setItem('afc_admin_version_log', JSON.stringify(versionHistoryLog)); } catch (e) {}
+          verNoteInput.value = '';
+          renderSettingsPanel();
+          showToast('Version checkpoint logged!');
+        };
+      }
+
+      // Close Modals
+      const closeVidBtn = document.getElementById('closeEmbeddedVideoBtn');
+      const doneVidBtn = document.getElementById('doneEmbeddedVideoBtn');
+      const vidModal = document.getElementById('embeddedVideoModal');
+      const closeVideoPlayer = () => {
         const stage = document.getElementById('embeddedVideoStage');
         if (stage) stage.innerHTML = '';
-        if (modal) modal.classList.remove('open');
+        if (vidModal) vidModal.classList.remove('open');
       };
-      const closeEmbeddedVideoBtn = document.getElementById('closeEmbeddedVideoBtn');
-      const doneEmbeddedVideoBtn = document.getElementById('doneEmbeddedVideoBtn');
-      if (closeEmbeddedVideoBtn) closeEmbeddedVideoBtn.onclick = closeEmbeddedVideo;
-      if (doneEmbeddedVideoBtn) doneEmbeddedVideoBtn.onclick = closeEmbeddedVideo;
+      if (closeVidBtn) closeVidBtn.onclick = closeVideoPlayer;
+      if (doneVidBtn) doneVidBtn.onclick = closeVideoPlayer;
 
-      const closeEnlargedDiagram = () => {
-        const modal = document.getElementById('enlargedDiagramModal');
-        if (modal) modal.classList.remove('open');
+      const closeDiagBtn = document.getElementById('closeEnlargedDiagramBtn');
+      const doneDiagBtn = document.getElementById('doneEnlargedDiagramBtn');
+      const diagModal = document.getElementById('enlargedDiagramModal');
+      const closeDiagramLightbox = () => {
+        if (diagModal) diagModal.classList.remove('open');
       };
-      const closeEnlargedDiagramBtn = document.getElementById('closeEnlargedDiagramBtn');
-      const doneEnlargedDiagramBtn = document.getElementById('doneEnlargedDiagramBtn');
-      if (closeEnlargedDiagramBtn) closeEnlargedDiagramBtn.onclick = closeEnlargedDiagram;
-      if (doneEnlargedDiagramBtn) doneEnlargedDiagramBtn.onclick = closeEnlargedDiagram;
+      if (closeDiagBtn) closeDiagBtn.onclick = closeDiagramLightbox;
+      if (doneDiagBtn) doneDiagBtn.onclick = closeDiagramLightbox;
+      if (diagModal) {
+        diagModal.addEventListener('click', (e) => {
+          if (e.target === diagModal) closeDiagramLightbox();
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (diagModal && diagModal.classList.contains('open')) closeDiagramLightbox();
+          if (vidModal && vidModal.classList.contains('open')) closeVideoPlayer();
+        }
+      });
     });
   </script>
 </body>
