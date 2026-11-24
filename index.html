@@ -1568,6 +1568,17 @@
 
     <!-- 3. SESSION BUILDER TAB -->
     <section id="tab-builder" class="workspace-section">
+      <div id="editingSessionStatusBanner" class="no-clean-preview" style="display:none;background:#eff6ff;border:1.5px solid #3b82f6;border-radius:12px;padding:10px 14px;margin-bottom:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="badge badge-navy" style="background:#1d4ed8;color:#ffffff;">&#9998; Editing Saved Session</span>
+          <span id="editingSessionBannerText" style="font-size:0.82rem;font-weight:800;color:#0A2647;">Changes will update this existing Calendar session while preserving attendance &amp; lineups.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline btn-sm" id="saveAsNewSessionCopyBtn" title="Save current plan as a separate new session instead of overwriting">Save as New Copy</button>
+          <button type="button" class="btn btn-outline btn-sm" id="exitEditingSessionModeBtn">Start Fresh Plan</button>
+        </div>
+      </div>
+
       <div class="builder-toolbar no-clean-preview">
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
           <button type="button" class="btn btn-emerald" id="saveSessionBtn">Save to Calendar</button>
@@ -1575,6 +1586,7 @@
           <button type="button" class="btn btn-outline" id="newBlankSessionBtn">New Blank Session</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+          <button type="button" class="btn btn-outline" id="openInBuilderVideoModalToolbarBtn" style="border-color:#0A2647;color:#0A2647;">&#127916; + Team Talk Film</button>
           <button type="button" class="btn btn-outline" id="toggleCleanPreviewBtn">Clean Preview</button>
           <button type="button" class="btn btn-primary" onclick="window.print()">Print / PDF</button>
         </div>
@@ -1616,7 +1628,10 @@
       <div class="no-clean-preview" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;background:#ffffff;border:1px solid #cbd5e1;border-radius:14px;padding:14px 16px;">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
           <span style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#0A2647;">Add Activity Part (Tap to Add or Pick from Library):</span>
-          <button type="button" class="btn btn-emerald btn-sm" id="openInBuilderDrillDrawerBtn">&#128218; + Add From Drill Library</button>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <button type="button" class="btn btn-outline btn-sm" id="openInBuilderVideoModalQuickBtn" style="border-color:#0A2647;color:#0A2647;">&#127916; + Add Team Talk Film Video</button>
+            <button type="button" class="btn btn-emerald btn-sm" id="openInBuilderDrillDrawerBtn">&#128218; + Pick from Drill Library</button>
+          </div>
         </div>
         <div id="quickAddActivityButtons" style="display:flex;flex-wrap:wrap;gap:8px;">
           <button type="button" class="btn btn-outline quick-add-part-btn" data-part-type="warmup">+ Warm-Up</button>
@@ -1803,7 +1818,7 @@
             <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
                 <h3 style="margin:0;font-size:0.88rem;font-weight:800;color:#0A2647;">Signed-In Account</h3>
-                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.8.0-ux2</span>
+                <span id="appVersionBadge" class="badge badge-navy" style="font-family:monospace;font-size:0.74rem;padding:3px 9px;">v2.8.0</span>
               </div>
               <div style="font-size:0.9rem;font-weight:800;color:#0f172a;" id="settingsCoachNameText">Staff</div>
               <div style="font-size:0.78rem;color:#64748b;margin-bottom:10px;" id="settingsCoachEmailText">email@domain.com</div>
@@ -1898,7 +1913,7 @@
 
             <div style="margin-bottom:14px;">
               <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:900;color:#0A2647;">App Build Version &amp; Reversion Log</h3>
-              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.8.0-ux2</strong></p>
+              <p style="margin:0;font-size:0.78rem;color:#64748b;">Active Build: <strong id="adminVersionCurrentText" style="color:#0A2647;font-family:monospace;">v2.8.0</strong></p>
             </div>
             <div style="display:flex;gap:6px;margin-bottom:10px;">
               <input type="text" id="adminVersionNoteInput" class="input" style="max-width:340px;padding:6px 10px;font-size:0.78rem;" placeholder="Log version checkpoint or reversion note..." />
@@ -1926,31 +1941,101 @@
     </div>
   </div>
 
-  <!-- Instant In-Builder Drill Picker Slide-Over Drawer -->
-  <div id="inBuilderDrillDrawerBackdrop" class="drawer-backdrop">
-    <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Add Drills from Library">
-      <div class="drawer-header">
+  <!-- In-Builder Drill Library Pop-Up Modal (v2.8.0) -->
+  <div id="inBuilderDrillDrawerBackdrop" class="modal-backdrop">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Pick Drill from Library" style="max-width:860px;width:96%;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+      <div class="drawer-header" style="padding:16px 20px;">
         <div>
-          <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#7dd3fc;">Session Builder Quick-Pick</div>
-          <h3 style="margin:2px 0 0;font-size:1.05rem;font-weight:900;">Add Drills From Library</h3>
+          <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#7dd3fc;">Session Builder • Drill Library Picker</div>
+          <h3 id="inBuilderDrillModalTitle" style="margin:2px 0 0;font-size:1.08rem;font-weight:900;">Pick &amp; Insert Drill From Library</h3>
         </div>
         <button type="button" id="closeInBuilderDrillDrawerBtn" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.28);border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#ffffff;cursor:pointer;line-height:1;">&times;</button>
       </div>
-      <div class="drawer-filters">
-        <input type="text" id="drawerDrillSearchInput" class="input" placeholder="Search drills by title, #tag, or coaching point...">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+
+      <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;align-items:center;">
+          <div>
+            <label class="label" style="margin-bottom:3px;">Insertion Mode</label>
+            <select id="drawerInsertTargetSelect" class="select" style="font-weight:700;">
+              <option value="NEW">Add as New Activity Block</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" style="margin-bottom:3px;">Station Title Prefix (Optional)</label>
+            <select id="drawerStationLabelSelect" class="select">
+              <option value="">No Station Prefix (Standard Title)</option>
+              <option value="Station 1">Station 1 — [Drill Title]</option>
+              <option value="Station 2">Station 2 — [Drill Title]</option>
+              <option value="Station 3">Station 3 — [Drill Title]</option>
+              <option value="Station 1 / Station 2">Station 1 / Station 2 — [Drill Title]</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;">
+          <input type="text" id="drawerDrillSearchInput" class="input" placeholder="Search drills by title, coaching point, or #tag...">
           <select id="drawerDrillCategoryFilter" class="select">
             <option value="ALL">All Categories</option>
+          </select>
+          <select id="drawerDrillSubCategoryFilter" class="select">
+            <option value="ALL">All Subcategories</option>
           </select>
           <select id="drawerDrillTagFilter" class="select">
             <option value="ALL">All #Tags</option>
           </select>
         </div>
       </div>
-      <div id="drawerDrillListBody" class="drawer-body"></div>
-      <div class="drawer-footer">
-        <span id="drawerAddedCountBadge" style="font-size:0.76rem;font-weight:800;color:#0A2647;">Tap "+ Add" to insert drills</span>
+
+      <div id="drawerDrillListBody" style="padding:16px 20px;overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;background:#f1f5f9;"></div>
+
+      <div class="drawer-footer" style="padding:12px 20px;">
+        <span id="drawerAddedCountBadge" style="font-size:0.78rem;font-weight:800;color:#0A2647;">Select a drill to insert into your session plan</span>
         <button type="button" class="btn btn-primary btn-sm" id="doneInBuilderDrillDrawerBtn">Done &amp; Return to Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-Builder Video Library Pop-Up Modal for Warm-Up / Team Talk Film Time (v2.8.0) -->
+  <div id="inBuilderVideoPickerModal" class="modal-backdrop">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Add Team Talk Film Video" style="max-width:840px;width:96%;max-height:90vh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+      <div class="drawer-header" style="padding:16px 20px;">
+        <div>
+          <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#7dd3fc;">Warm-Up &amp; Team Talk Film Time</div>
+          <h3 style="margin:2px 0 0;font-size:1.08rem;font-weight:900;">Pick Video From Library</h3>
+        </div>
+        <button type="button" id="closeInBuilderVideoModalBtn" style="background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.28);border-radius:8px;padding:4px 10px;font-size:1.2rem;font-weight:900;color:#ffffff;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;">
+          <div>
+            <label class="label" style="margin-bottom:3px;">Target Warm-Up / Session Block</label>
+            <select id="inBuilderVideoTargetSelect" class="select" style="font-weight:700;">
+              <option value="WARMUP_AUTO">Attach to Warm-Up Block (Create if None)</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" style="margin-bottom:3px;">Optional Team Talk Cue / Question</label>
+            <input type="text" id="inBuilderVideoCueInput" class="input" placeholder="e.g. Watch #6 body shape before receiving">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;">
+          <input type="text" id="inBuilderVideoSearchInput" class="input" placeholder="Search tactical &amp; technical videos by title or #tag...">
+          <select id="inBuilderVideoCategoryFilter" class="select">
+            <option value="ALL">All Video Categories</option>
+          </select>
+          <select id="inBuilderVideoSubCategoryFilter" class="select">
+            <option value="ALL">All Sub-Categories</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="inBuilderVideoListBody" style="padding:16px 20px;overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;background:#f1f5f9;"></div>
+
+      <div class="drawer-footer" style="padding:12px 20px;">
+        <span id="inBuilderVideoStatusBadge" style="font-size:0.78rem;font-weight:800;color:#0A2647;">Preview or insert clips straight into Warm-Up Film Time</span>
+        <button type="button" class="btn btn-primary btn-sm" id="doneInBuilderVideoModalBtn">Done &amp; Return to Plan</button>
       </div>
     </div>
   </div>
@@ -2307,8 +2392,32 @@
     let hasUnsavedSessionChanges = false;
     let hasUnsavedGameChanges = false;
 
+    function updateEditingSessionUI() {
+      const banner = document.getElementById('editingSessionStatusBanner');
+      const bannerText = document.getElementById('editingSessionBannerText');
+      const saveBtn = document.getElementById('saveSessionBtn');
+      const stickySaveBtn = document.getElementById('stickyPrimarySaveBtn');
+      const isEditingExisting = Boolean(currentEditingSessionId && savedSessions.some(s => s.id === currentEditingSessionId));
+
+      if (banner) {
+        banner.style.display = isEditingExisting ? 'flex' : 'none';
+      }
+      if (isEditingExisting && bannerText) {
+        const existing = savedSessions.find(s => s.id === currentEditingSessionId);
+        const origDate = existing && existing.date ? (' (' + existing.date + ')') : '';
+        bannerText.textContent = 'Editing "' + (existing && existing.title ? existing.title : 'Saved Session') + '"' + origDate + ' — saving updates this Calendar entry in place.';
+      }
+      if (saveBtn) {
+        saveBtn.textContent = isEditingExisting ? 'Save Changes to Session' : 'Save to Calendar';
+      }
+      if (stickySaveBtn && activeTabKey === 'builder') {
+        stickySaveBtn.textContent = isEditingExisting ? 'Save Changes' : 'Save Session';
+      }
+    }
+
     function markSessionDirty(isDirty) {
       hasUnsavedSessionChanges = Boolean(isDirty);
+      updateEditingSessionUI();
       updateStickyActionBar();
     }
 
@@ -2330,9 +2439,12 @@
       if (!showBar) return;
 
       if (activeTabKey === 'builder') {
+        const isEditingExisting = Boolean(currentEditingSessionId && savedSessions.some(s => s.id === currentEditingSessionId));
         pill.classList.toggle('dirty', hasUnsavedSessionChanges);
-        statusText.textContent = hasUnsavedSessionChanges ? 'Unsaved session changes' : 'Session saved to Calendar';
-        primaryBtn.textContent = 'Save Session';
+        statusText.textContent = hasUnsavedSessionChanges
+          ? (isEditingExisting ? 'Unsaved edits to saved session' : 'Unsaved session changes')
+          : 'Session saved to Calendar';
+        primaryBtn.textContent = isEditingExisting ? 'Save Changes' : 'Save Session';
         secondaryBtn.style.display = userLibraryAccess.drills ? 'inline-flex' : 'none';
         secondaryBtn.innerHTML = '&#128218; + Drills';
         primaryBtn.onclick = () => {
@@ -3543,25 +3655,39 @@
       });
     })();
 
-    function appendDrillToCurrentSession(d) {
+    function appendDrillToCurrentSession(d, options = {}) {
       if (!d) return false;
-      currentSessionParts.push({
-        id: 'part_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
-        type: (d.category || 'technical').toLowerCase(),
-        title: d.title,
-        duration: d.duration || 15,
-        gifUrl: d.gifUrl || '',
-        referenceLinks: '',
-        coachingPoints: d.coachingPoints || '',
-        notes: d.notes || '',
-        scrimmageGuests: [],
-        scrimmageNavy: [],
-        scrimmageWhite: [],
-        scrimmageNavyFormation: '4-2-2',
-        scrimmageWhiteFormation: '4-2-2',
-        scrimmageNavySlots: [],
-        scrimmageWhiteSlots: []
-      });
+      const stationPrefix = String(options.stationPrefix || '').trim();
+      const formattedTitle = stationPrefix ? (stationPrefix + ' — ' + d.title) : d.title;
+      const targetPartIdx = typeof options.targetPartIdx === 'number' ? options.targetPartIdx : -1;
+
+      if (targetPartIdx >= 0 && currentSessionParts[targetPartIdx]) {
+        const existing = currentSessionParts[targetPartIdx];
+        existing.type = (d.category || existing.type || 'technical').toLowerCase();
+        existing.title = formattedTitle;
+        existing.duration = d.duration || existing.duration || 15;
+        existing.gifUrl = d.gifUrl || '';
+        existing.coachingPoints = d.coachingPoints || '';
+        existing.notes = d.notes || '';
+      } else {
+        currentSessionParts.push({
+          id: 'part_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+          type: (d.category || 'technical').toLowerCase(),
+          title: formattedTitle,
+          duration: d.duration || 15,
+          gifUrl: d.gifUrl || '',
+          referenceLinks: '',
+          coachingPoints: d.coachingPoints || '',
+          notes: d.notes || '',
+          scrimmageGuests: [],
+          scrimmageNavy: [],
+          scrimmageWhite: [],
+          scrimmageNavyFormation: '4-2-2',
+          scrimmageWhiteFormation: '4-2-2',
+          scrimmageNavySlots: [],
+          scrimmageWhiteSlots: []
+        });
+      }
       markSessionDirty(true);
       renderSessionParts();
       return true;
@@ -3569,16 +3695,59 @@
 
     let drawerSessionAddedCount = 0;
 
-    function openInBuilderDrillDrawer() {
+    function populateDrillPickerTargetOptions(preferredPartIdx = -1) {
+      const targetSel = document.getElementById('drawerInsertTargetSelect');
+      if (!targetSel) return;
+      const opts = ['<option value="NEW">+ Add as New Activity Block</option>'];
+      currentSessionParts.forEach((p, idx) => {
+        const label = 'Replace Part ' + (idx + 1) + ': ' + (p.title || p.type || 'Activity');
+        opts.push('<option value="' + idx + '"' + (idx === preferredPartIdx ? ' selected' : '') + '>' + escapeHtml(label) + '</option>');
+      });
+      targetSel.innerHTML = opts.join('');
+    }
+
+    function openInBuilderDrillDrawer(opts = {}) {
       if (!userLibraryAccess.drills) {
         return showToast('Drill Library is locked for your account.');
       }
       const backdrop = document.getElementById('inBuilderDrillDrawerBackdrop');
       const countBadge = document.getElementById('drawerAddedCountBadge');
+      const catEl = document.getElementById('drawerDrillCategoryFilter');
+      const subCatEl = document.getElementById('drawerDrillSubCategoryFilter');
+      const tagEl = document.getElementById('drawerDrillTagFilter');
+      const stationEl = document.getElementById('drawerStationLabelSelect');
+      const modalTitle = document.getElementById('inBuilderDrillModalTitle');
       if (!backdrop) return;
+
       drawerSessionAddedCount = 0;
-      if (countBadge) countBadge.textContent = 'Tap "+ Add" to insert drills into plan';
+      const targetPartIdx = typeof opts.targetPartIdx === 'number' ? opts.targetPartIdx : -1;
+      populateDrillPickerTargetOptions(targetPartIdx);
+
+      if (modalTitle) {
+        modalTitle.textContent = targetPartIdx >= 0
+          ? ('Pick Drill for Part ' + (targetPartIdx + 1) + ' (' + (currentSessionParts[targetPartIdx]?.type || 'Activity') + ')')
+          : 'Pick & Insert Drill From Library';
+      }
+      if (stationEl) stationEl.value = '';
+      if (subCatEl) subCatEl.value = 'ALL';
+      if (tagEl) tagEl.value = 'ALL';
+
       renderInBuilderDrillDrawerList();
+
+      if (catEl && opts.presetCategory) {
+        const wanted = String(opts.presetCategory).toLowerCase();
+        const matchingOpt = Array.from(catEl.options).find(o => o.value.toLowerCase() === wanted);
+        if (matchingOpt) {
+          catEl.value = matchingOpt.value;
+          renderInBuilderDrillDrawerList();
+        }
+      }
+
+      if (countBadge) {
+        countBadge.textContent = targetPartIdx >= 0
+          ? 'Click "Replace Block With Drill" to fill Part ' + (targetPartIdx + 1)
+          : 'Click "+ Insert Into Session" to add to your session plan';
+      }
       backdrop.classList.add('open');
       const searchInp = document.getElementById('drawerDrillSearchInput');
       if (searchInp) setTimeout(() => searchInp.focus(), 40);
@@ -3593,12 +3762,16 @@
       const listBody = document.getElementById('drawerDrillListBody');
       const searchEl = document.getElementById('drawerDrillSearchInput');
       const catEl = document.getElementById('drawerDrillCategoryFilter');
+      const subCatEl = document.getElementById('drawerDrillSubCategoryFilter');
       const tagEl = document.getElementById('drawerDrillTagFilter');
       const countBadge = document.getElementById('drawerAddedCountBadge');
+      const targetSel = document.getElementById('drawerInsertTargetSelect');
+      const stationSel = document.getElementById('drawerStationLabelSelect');
       if (!listBody) return;
 
-      const validDrills = drillLibrary.filter(d => d && d.gifUrl && String(d.gifUrl).trim() !== '');
+      const validDrills = drillLibrary.filter(d => d && (d.gifUrl || d.title));
       const selectedCat = catEl ? catEl.value : 'ALL';
+      const selectedSubCat = subCatEl ? subCatEl.value : 'ALL';
       const selectedTag = tagEl ? tagEl.value : 'ALL';
 
       if (catEl) {
@@ -3611,9 +3784,19 @@
         ? validDrills
         : validDrills.filter(d => (d.category || '').toLowerCase() === selectedCat.toLowerCase());
 
+      if (subCatEl) {
+        const subCats = Array.from(new Set(scopedByCat.map(d => d.subCategory).filter(Boolean))).sort();
+        subCatEl.innerHTML = '<option value="ALL">All Subcategories</option>' +
+          subCats.map(sc => '<option value="' + escapeHtml(sc) + '"' + (sc === selectedSubCat ? ' selected' : '') + '>' + escapeHtml(sc) + '</option>').join('');
+      }
+
+      const scopedBySub = selectedSubCat === 'ALL'
+        ? scopedByCat
+        : scopedByCat.filter(d => (d.subCategory || '').toLowerCase() === selectedSubCat.toLowerCase());
+
       if (tagEl) {
         const allTags = Array.from(new Set(
-          scopedByCat.flatMap(d => Array.isArray(d.tags) ? d.tags : []).filter(Boolean)
+          scopedBySub.flatMap(d => Array.isArray(d.tags) ? d.tags : []).filter(Boolean)
         )).sort();
         tagEl.innerHTML = '<option value="ALL">All #Tags</option>' +
           allTags.map(t => '<option value="' + escapeHtml(t) + '"' + (t === selectedTag ? ' selected' : '') + '>#' + escapeHtml(t) + '</option>').join('');
@@ -3621,10 +3804,12 @@
 
       const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
       const cat = catEl ? catEl.value : 'ALL';
+      const subCat = subCatEl ? subCatEl.value : 'ALL';
       const tagVal = tagEl ? tagEl.value : 'ALL';
 
       const filtered = validDrills.filter(d => {
         if (cat !== 'ALL' && (d.category || '').toLowerCase() !== cat.toLowerCase()) return false;
+        if (subCat !== 'ALL' && (d.subCategory || '').toLowerCase() !== subCat.toLowerCase()) return false;
         if (tagVal !== 'ALL') {
           const dTags = Array.isArray(d.tags) ? d.tags.map(t => t.toLowerCase()) : [];
           if (!dTags.includes(tagVal.toLowerCase())) return false;
@@ -3634,46 +3819,61 @@
       });
 
       const titlesInSession = new Set(currentSessionParts.map(p => String(p.title || '').trim().toLowerCase()));
+      const isReplacing = targetSel && targetSel.value !== 'NEW';
 
       listBody.innerHTML = filtered.length === 0
-        ? '<div style="text-align:center;padding:28px 12px;color:#64748b;font-size:0.84rem;">No drills match your search or filter.</div>'
+        ? '<div style="grid-column:1/-1;text-align:center;padding:32px 12px;color:#64748b;font-size:0.86rem;">No drills match your search or filter.</div>'
         : filtered.map((d, idx) => {
             const resolvedGif = resolveDrillMediaUrl(d.gifUrl);
             const alreadyInPlan = titlesInSession.has(String(d.title || '').trim().toLowerCase());
             const tagsHtml = (Array.isArray(d.tags) ? d.tags : [])
               .map(t => '<span class="tag-chip" style="font-size:0.65rem;">#' + escapeHtml(t) + '</span>').join('');
-            return '<div class="drawer-drill-card">' +
-              '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">' +
-                '<div>' +
-                  '<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">' +
-                    '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
-                    '<span style="font-size:0.71rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
-                    (alreadyInPlan ? '<span class="badge badge-emerald">&#10003; In Plan</span>' : '') +
+            return '<div class="drawer-drill-card" style="background:#ffffff;justify-content:space-between;">' +
+              '<div>' +
+                '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;">' +
+                  '<div>' +
+                    '<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">' +
+                      '<span class="badge badge-navy">' + escapeHtml(d.category || 'Technical') + '</span>' +
+                      (d.subCategory ? '<span class="badge badge-amber">' + escapeHtml(d.subCategory) + '</span>' : '') +
+                      '<span style="font-size:0.71rem;font-weight:800;color:#64748b;">' + (d.duration || 15) + ' min</span>' +
+                      (alreadyInPlan ? '<span class="badge badge-emerald">&#10003; In Plan</span>' : '') +
+                    '</div>' +
+                    '<div style="font-size:0.9rem;font-weight:900;color:#0A2647;line-height:1.25;">' + escapeHtml(d.title) + '</div>' +
                   '</div>' +
-                  '<div style="font-size:0.88rem;font-weight:900;color:#0A2647;line-height:1.25;">' + escapeHtml(d.title) + '</div>' +
                 '</div>' +
-                '<button type="button" class="btn btn-emerald btn-sm drawer-add-drill-btn" data-didx="' + idx + '" style="flex-shrink:0;">+ Add</button>' +
+                (resolvedGif
+                  ? '<div class="gif-preview-wrap drawer-enlarge-gif-btn" data-didx="' + idx + '" style="margin-bottom:8px;" title="Click to preview full GIF">' +
+                      '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img" style="max-height:145px;">' +
+                      '<span class="gif-enlarge-hint">&#128269; Preview</span>' +
+                    '</div>'
+                  : '') +
+                (tagsHtml ? '<div style="margin-bottom:8px;">' + tagsHtml + '</div>' : '') +
               '</div>' +
-              (resolvedGif
-                ? '<div class="gif-preview-wrap drawer-enlarge-gif-btn" data-didx="' + idx + '" style="margin-bottom:0;" title="Click to preview full GIF">' +
-                    '<img src="' + escapeHtml(resolvedGif) + '" data-raw-path="' + escapeHtml(d.gifUrl || '') + '" data-fallback-step="0" onerror="handleDrillGifError(this, this.getAttribute(\'data-raw-path\'))" alt="' + escapeHtml(d.title) + '" class="gif-preview-img" style="max-height:145px;">' +
-                    '<span class="gif-enlarge-hint">&#128269; Preview</span>' +
-                  '</div>'
-                : '') +
-              (tagsHtml ? '<div>' + tagsHtml + '</div>' : '') +
+              '<button type="button" class="btn btn-emerald btn-sm drawer-add-drill-btn" data-didx="' + idx + '" style="width:100%;justify-content:center;">' +
+                (isReplacing ? '&#8644; Replace Block With Drill' : '+ Insert Into Session') +
+              '</button>' +
             '</div>';
           }).join('');
 
       listBody.querySelectorAll('.drawer-add-drill-btn').forEach(btn => {
         btn.onclick = function() {
           const d = filtered[parseInt(this.getAttribute('data-didx'), 10)];
-          if (appendDrillToCurrentSession(d)) {
+          const rawTarget = targetSel ? targetSel.value : 'NEW';
+          const targetPartIdx = rawTarget === 'NEW' ? -1 : parseInt(rawTarget, 10);
+          const stationPrefix = stationSel ? stationSel.value : '';
+          if (appendDrillToCurrentSession(d, { targetPartIdx, stationPrefix })) {
             drawerSessionAddedCount++;
-            if (countBadge) {
-              countBadge.textContent = '✓ ' + drawerSessionAddedCount + ' drill' + (drawerSessionAddedCount === 1 ? '' : 's') + ' added to session';
+            if (targetPartIdx >= 0) {
+              showToast('Updated Part ' + (targetPartIdx + 1) + ' with "' + d.title + '"!');
+              closeInBuilderDrillDrawer();
+            } else {
+              if (countBadge) {
+                countBadge.textContent = '✓ ' + drawerSessionAddedCount + ' drill' + (drawerSessionAddedCount === 1 ? '' : 's') + ' inserted into session';
+              }
+              showToast('Inserted "' + d.title + '" into Session Plan!');
+              populateDrillPickerTargetOptions(-1);
+              renderInBuilderDrillDrawerList();
             }
-            showToast('Added "' + d.title + '" to Session Plan!');
-            renderInBuilderDrillDrawerList();
           }
         };
       });
@@ -3686,6 +3886,203 @@
       });
     }
 
+    /* =========================================================
+       IN-BUILDER VIDEO LIBRARY PICKER MODAL (WARM-UP FILM TIME)
+       ========================================================= */
+    function openVideoItemInModal(item) {
+      const modal = document.getElementById('embeddedVideoModal');
+      const stage = document.getElementById('embeddedVideoStage');
+      const titleEl = document.getElementById('embeddedVideoTitle');
+      const badgesEl = document.getElementById('embeddedVideoBadges');
+      const tagsEl = document.getElementById('embeddedVideoTags');
+      if (!item || !modal || !stage) return;
+
+      if (titleEl) titleEl.textContent = item.title || 'Training Video';
+      if (badgesEl) {
+        badgesEl.innerHTML = '<span class="badge badge-navy">' + escapeHtml(item.category || 'Film Clip') + '</span>' +
+          (item.subCategory ? '<span class="badge badge-amber">' + escapeHtml(item.subCategory) + '</span>' : '');
+      }
+      if (tagsEl) {
+        tagsEl.innerHTML = (Array.isArray(item.tags) ? item.tags : []).map(t => '<span class="tag-chip">#' + escapeHtml(t) + '</span>').join('');
+      }
+      const rawUrl = String(item.url || '').trim();
+      if (isDirectVideoFile(rawUrl)) {
+        stage.innerHTML = '<video src="' + escapeHtml(rawUrl) + '" controls controlsList="nodownload" oncontextmenu="return false;" autoplay playsinline style="width:100%;height:100%;background:#000;"></video>';
+      } else if (isEmbeddableVideoSource(rawUrl)) {
+        const embedSrc = normalizeVideoEmbedUrl(rawUrl);
+        stage.innerHTML = '<iframe src="' + escapeHtml(embedSrc) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:100%;border:0;display:block;"></iframe>';
+      } else {
+        stage.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#ffffff;padding:24px;text-align:center;">' +
+          '<div style="font-size:0.95rem;font-weight:800;margin-bottom:8px;">External Video Link</div>' +
+          '<a href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener noreferrer" class="btn btn-emerald btn-sm">Open Video in New Tab &rarr;</a>' +
+        '</div>';
+      }
+      modal.classList.add('open');
+    }
+
+    function openInBuilderVideoPickerModal(preferredPartIdx = -1) {
+      if (!userLibraryAccess.videos) {
+        return showToast('Video Library is locked for your account.');
+      }
+      const modal = document.getElementById('inBuilderVideoPickerModal');
+      const targetSel = document.getElementById('inBuilderVideoTargetSelect');
+      const cueInp = document.getElementById('inBuilderVideoCueInput');
+      const statusBadge = document.getElementById('inBuilderVideoStatusBadge');
+      if (!modal) return;
+
+      if (targetSel) {
+        const options = ['<option value="WARMUP_AUTO">Attach to Warm-Up Block (Auto-Create Warm-Up if Needed)</option>'];
+        currentSessionParts.forEach((p, idx) => {
+          options.push('<option value="' + idx + '"' + (idx === preferredPartIdx ? ' selected' : '') + '>Part ' + (idx + 1) + ': ' + escapeHtml(p.title || p.type || 'Activity') + '</option>');
+        });
+        targetSel.innerHTML = options.join('');
+      }
+      if (cueInp) cueInp.value = '';
+      if (statusBadge) statusBadge.textContent = 'Preview or insert clips straight into Warm-Up Film Time';
+
+      renderInBuilderVideoPickerList();
+      modal.classList.add('open');
+      const searchInp = document.getElementById('inBuilderVideoSearchInput');
+      if (searchInp) setTimeout(() => searchInp.focus(), 40);
+    }
+
+    function closeInBuilderVideoPickerModal() {
+      const modal = document.getElementById('inBuilderVideoPickerModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function insertVideoClipIntoSession(videoItem, targetVal, cueText) {
+      if (!videoItem) return false;
+      let targetIdx = -1;
+      if (targetVal === 'WARMUP_AUTO') {
+        targetIdx = currentSessionParts.findIndex(p => {
+          const t = String(p.type || '').toLowerCase();
+          return t === 'warmup' || /warm[\s-]?up/i.test(t) || /warm[\s-]?up/i.test(String(p.title || ''));
+        });
+        if (targetIdx === -1) {
+          currentSessionParts.unshift({
+            id: 'part_' + Date.now() + '_wu',
+            type: 'warmup',
+            title: 'Warm-Up & Team Talk Film',
+            duration: 15,
+            gifUrl: '',
+            referenceLinks: '',
+            warmupVideos: [],
+            coachingPoints: '',
+            notes: '',
+            scrimmageGuests: [],
+            scrimmageNavy: [],
+            scrimmageWhite: [],
+            scrimmageNavyFormation: '4-2-2',
+            scrimmageWhiteFormation: '4-2-2',
+            scrimmageNavySlots: [],
+            scrimmageWhiteSlots: []
+          });
+          targetIdx = 0;
+        }
+      } else {
+        targetIdx = parseInt(targetVal, 10);
+      }
+
+      const part = currentSessionParts[targetIdx];
+      if (!part) return false;
+      if (!Array.isArray(part.warmupVideos)) part.warmupVideos = [];
+
+      part.warmupVideos.push({
+        id: 'wvid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+        title: videoItem.title || 'Film Clip',
+        category: videoItem.category || 'Video Library',
+        subCategory: videoItem.subCategory || '',
+        url: videoItem.url || '',
+        cue: String(cueText || '').trim(),
+        tags: Array.isArray(videoItem.tags) ? videoItem.tags.slice() : []
+      });
+
+      if (cueText && String(cueText).trim()) {
+        const line = '• [Film: ' + (videoItem.title || 'Clip') + '] ' + String(cueText).trim();
+        part.coachingPoints = part.coachingPoints ? (part.coachingPoints + '\n' + line) : line;
+      }
+
+      markSessionDirty(true);
+      renderSessionParts();
+      return true;
+    }
+
+    function renderInBuilderVideoPickerList() {
+      const listBody = document.getElementById('inBuilderVideoListBody');
+      const searchEl = document.getElementById('inBuilderVideoSearchInput');
+      const catEl = document.getElementById('inBuilderVideoCategoryFilter');
+      const subEl = document.getElementById('inBuilderVideoSubCategoryFilter');
+      const targetSel = document.getElementById('inBuilderVideoTargetSelect');
+      const cueInp = document.getElementById('inBuilderVideoCueInput');
+      const statusBadge = document.getElementById('inBuilderVideoStatusBadge');
+      if (!listBody) return;
+
+      const selectedCat = catEl ? catEl.value : 'ALL';
+      const selectedSub = subEl ? subEl.value : 'ALL';
+      const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
+
+      if (catEl) {
+        const cats = Array.from(new Set(videoLibrary.map(v => v.category).filter(Boolean))).sort();
+        catEl.innerHTML = '<option value="ALL">All Categories (' + videoLibrary.length + ')</option>' +
+          cats.map(c => '<option value="' + escapeHtml(c) + '"' + (c === selectedCat ? ' selected' : '') + '>' + escapeHtml(c) + '</option>').join('');
+      }
+      if (subEl) {
+        const scoped = selectedCat === 'ALL'
+          ? videoLibrary
+          : videoLibrary.filter(v => (v.category || '').toLowerCase() === selectedCat.toLowerCase());
+        const subs = Array.from(new Set(scoped.map(v => v.subCategory).filter(Boolean))).sort();
+        subEl.innerHTML = '<option value="ALL">All Sub-Categories</option>' +
+          subs.map(s => '<option value="' + escapeHtml(s) + '"' + (s === selectedSub ? ' selected' : '') + '>' + escapeHtml(s) + '</option>').join('');
+      }
+
+      const filtered = videoLibrary.filter(v => {
+        if (selectedCat !== 'ALL' && (v.category || '').toLowerCase() !== selectedCat.toLowerCase()) return false;
+        if (selectedSub !== 'ALL' && (v.subCategory || '') !== selectedSub) return false;
+        if (!query) return true;
+        return [v.title, v.category, v.subCategory, ...(Array.isArray(v.tags) ? v.tags : [])].join(' ').toLowerCase().includes(query);
+      });
+
+      listBody.innerHTML = filtered.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:32px 12px;color:#64748b;font-size:0.86rem;">No videos match your search or filter.</div>'
+        : filtered.map((vid, idx) => {
+            const tagsHtml = (Array.isArray(vid.tags) ? vid.tags : []).map(t => '<span class="tag-chip" style="font-size:0.65rem;">#' + escapeHtml(t) + '</span>').join('');
+            return '<div class="drawer-drill-card" style="background:#ffffff;justify-content:space-between;">' +
+              '<div>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">' +
+                  '<span class="badge badge-navy">' + escapeHtml(vid.category || 'Film') + '</span>' +
+                  (vid.subCategory ? '<span class="badge badge-amber">' + escapeHtml(vid.subCategory) + '</span>' : '') +
+                '</div>' +
+                '<div style="font-size:0.9rem;font-weight:900;color:#0A2647;line-height:1.25;margin-bottom:6px;">' + escapeHtml(vid.title || 'Training Video') + '</div>' +
+                (tagsHtml ? '<div style="margin-bottom:8px;">' + tagsHtml + '</div>' : '') +
+              '</div>' +
+              '<div style="display:flex;gap:6px;">' +
+                '<button type="button" class="btn btn-outline btn-sm inbuilder-preview-vid-btn" data-vidx="' + idx + '" style="flex:1;justify-content:center;">&#9654; Preview</button>' +
+                '<button type="button" class="btn btn-emerald btn-sm inbuilder-insert-vid-btn" data-vidx="' + idx + '" style="flex:1;justify-content:center;">+ Add to Warm-Up</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+      listBody.querySelectorAll('.inbuilder-preview-vid-btn').forEach(btn => {
+        btn.onclick = function() {
+          const vid = filtered[parseInt(this.getAttribute('data-vidx'), 10)];
+          if (vid) openVideoItemInModal(vid);
+        };
+      });
+
+      listBody.querySelectorAll('.inbuilder-insert-vid-btn').forEach(btn => {
+        btn.onclick = function() {
+          const vid = filtered[parseInt(this.getAttribute('data-vidx'), 10)];
+          const targetVal = targetSel ? targetSel.value : 'WARMUP_AUTO';
+          const cueText = cueInp ? cueInp.value : '';
+          if (insertVideoClipIntoSession(vid, targetVal, cueText)) {
+            if (cueInp) cueInp.value = '';
+            if (statusBadge) statusBadge.textContent = '✓ Added "' + (vid.title || 'Film Clip') + '" to Warm-Up Film Time';
+            showToast('Attached "' + (vid.title || 'Film Clip') + '" to Warm-Up!');
+          }
+        };
+      });
+    }
     function extractGoogleDriveFileId(rawUrl) {
       const u = String(rawUrl || '').trim();
       if (!u) return '';
@@ -6322,8 +6719,30 @@
         let warmupLinksHtml = '';
         if (isWarmup) {
           const parsedLinks = parseReferenceLinks(part.referenceLinks || '');
+          const attachedVideos = Array.isArray(part.warmupVideos) ? part.warmupVideos : [];
           warmupLinksHtml = '<div class="warmup-links-box">' +
-            '<label class="label no-clean-preview" style="margin-bottom:5px;">Warm-Up Reference Links (YouTube, Vimeo, or Routine URLs)</label>' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
+              '<span style="font-size:0.74rem;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#0A2647;">&#127916; Team Talk Film Clips &amp; Warm-Up References</span>' +
+              '<button type="button" class="btn btn-primary btn-sm open-warmup-video-picker-btn no-clean-preview" data-part-idx="' + idx + '">&#127916; + Add Team Talk Film Video</button>' +
+            '</div>' +
+            (attachedVideos.length > 0
+              ? '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">' +
+                  attachedVideos.map((vItem, vIdx) =>
+                    '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#ffffff;border:1px solid #bfdbfe;border-radius:9px;padding:7px 10px;">' +
+                      '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;">' +
+                        '<span class="badge badge-navy">' + escapeHtml(vItem.category || 'Film') + '</span>' +
+                        '<strong style="font-size:0.82rem;color:#0A2647;">' + escapeHtml(vItem.title || 'Film Clip') + '</strong>' +
+                        (vItem.cue ? '<span style="font-size:0.75rem;color:#475569;font-style:italic;">— "' + escapeHtml(vItem.cue) + '"</span>' : '') +
+                      '</div>' +
+                      '<div style="display:flex;align-items:center;gap:6px;">' +
+                        '<button type="button" class="btn btn-emerald btn-sm play-warmup-attached-video-btn" data-part-idx="' + idx + '" data-vid-idx="' + vIdx + '">&#9654; Watch Film Clip</button>' +
+                        '<button type="button" class="btn btn-outline btn-sm remove-warmup-attached-video-btn no-clean-preview" data-part-idx="' + idx + '" data-vid-idx="' + vIdx + '" style="padding:3px 7px;color:#dc2626;border-color:#fecaca;">&times;</button>' +
+                      '</div>' +
+                    '</div>'
+                  ).join('') +
+                '</div>'
+              : '') +
+            '<label class="label no-clean-preview" style="margin-bottom:5px;">Additional Reference Links (YouTube, Vimeo, or Routine URLs)</label>' +
             '<input type="text" class="input part-warmup-links-input no-clean-preview" data-part-idx="' + idx + '" value="' + escapeHtml(part.referenceLinks || '') + '" placeholder="Paste link(s), e.g. Dynamic Rondo - https://youtube.com/... (comma or line separated)">' +
             (parsedLinks.length > 0
               ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' +
@@ -6456,6 +6875,9 @@
               '<input type="text" class="part-title-input" data-part-idx="' + idx + '" value="' + escapeHtml(part.title || '') + '">' +
             '</div>' +
             '<div class="part-header-right">' +
+              (!isScrimmage
+                ? '<button type="button" class="btn btn-outline btn-sm pick-drill-for-part-btn no-clean-preview" data-part-idx="' + idx + '" style="font-size:0.74rem;padding:4px 9px;">&#128218; Pick Drill</button>'
+                : '') +
               '<span class="duration-pill"><input type="number" class="part-dur-input" data-part-idx="' + idx + '" value="' + (part.duration || 15) + '" min="1" max="120"> min</span>' +
               '<button type="button" class="btn btn-danger btn-sm remove-part-btn no-clean-preview" data-part-idx="' + idx + '">&times;</button>' +
             '</div>' +
@@ -6499,6 +6921,41 @@
           currentSessionParts[parseInt(this.dataset.partIdx, 10)].referenceLinks = this.value;
           markSessionDirty(true);
           renderSessionParts();
+        };
+      });
+      container.querySelectorAll('.pick-drill-for-part-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const partObj = currentSessionParts[pIdx];
+          const pType = partObj ? String(partObj.type || '') : '';
+          openInBuilderDrillDrawer({ targetPartIdx: pIdx, presetCategory: pType });
+        };
+      });
+      container.querySelectorAll('.open-warmup-video-picker-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          openInBuilderVideoPickerModal(pIdx);
+        };
+      });
+      container.querySelectorAll('.play-warmup-attached-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const vIdx = parseInt(this.getAttribute('data-vid-idx'), 10);
+          const partObj = currentSessionParts[pIdx];
+          const vItem = partObj && Array.isArray(partObj.warmupVideos) ? partObj.warmupVideos[vIdx] : null;
+          if (vItem) openVideoItemInModal(vItem);
+        };
+      });
+      container.querySelectorAll('.remove-warmup-attached-video-btn').forEach(btn => {
+        btn.onclick = function() {
+          const pIdx = parseInt(this.getAttribute('data-part-idx'), 10);
+          const vIdx = parseInt(this.getAttribute('data-vid-idx'), 10);
+          const partObj = currentSessionParts[pIdx];
+          if (partObj && Array.isArray(partObj.warmupVideos)) {
+            partObj.warmupVideos.splice(vIdx, 1);
+            markSessionDirty(true);
+            renderSessionParts();
+          }
         };
       });
       container.querySelectorAll('.remove-part-btn').forEach(btn => {
@@ -7600,9 +8057,11 @@
       const drawerBackdrop = document.getElementById('inBuilderDrillDrawerBackdrop');
       const drawerSearchInp = document.getElementById('drawerDrillSearchInput');
       const drawerCatSel = document.getElementById('drawerDrillCategoryFilter');
+      const drawerSubCatSel = document.getElementById('drawerDrillSubCategoryFilter');
       const drawerTagSel = document.getElementById('drawerDrillTagFilter');
+      const drawerTargetSel = document.getElementById('drawerInsertTargetSelect');
 
-      if (openDrawerBtn) openDrawerBtn.onclick = openInBuilderDrillDrawer;
+      if (openDrawerBtn) openDrawerBtn.onclick = () => openInBuilderDrillDrawer({ targetPartIdx: -1 });
       if (closeDrawerBtn) closeDrawerBtn.onclick = closeInBuilderDrillDrawer;
       if (doneDrawerBtn) doneDrawerBtn.onclick = closeInBuilderDrillDrawer;
       if (drawerBackdrop) {
@@ -7612,10 +8071,42 @@
       }
       if (drawerSearchInp) drawerSearchInp.oninput = renderInBuilderDrillDrawerList;
       if (drawerCatSel) drawerCatSel.onchange = () => {
+        if (drawerSubCatSel) drawerSubCatSel.value = 'ALL';
+        if (drawerTagSel) drawerTagSel.value = 'ALL';
+        renderInBuilderDrillDrawerList();
+      };
+      if (drawerSubCatSel) drawerSubCatSel.onchange = () => {
         if (drawerTagSel) drawerTagSel.value = 'ALL';
         renderInBuilderDrillDrawerList();
       };
       if (drawerTagSel) drawerTagSel.onchange = renderInBuilderDrillDrawerList;
+      if (drawerTargetSel) drawerTargetSel.onchange = renderInBuilderDrillDrawerList;
+
+      // In-Builder Video Library Picker Wiring
+      const openVideoToolbarBtn = document.getElementById('openInBuilderVideoModalToolbarBtn');
+      const openVideoQuickBtn = document.getElementById('openInBuilderVideoModalQuickBtn');
+      const closeVideoModalBtn = document.getElementById('closeInBuilderVideoModalBtn');
+      const doneVideoModalBtn = document.getElementById('doneInBuilderVideoModalBtn');
+      const videoPickerBackdrop = document.getElementById('inBuilderVideoPickerModal');
+      const videoSearchInp = document.getElementById('inBuilderVideoSearchInput');
+      const videoCatSel = document.getElementById('inBuilderVideoCategoryFilter');
+      const videoSubSel = document.getElementById('inBuilderVideoSubCategoryFilter');
+
+      if (openVideoToolbarBtn) openVideoToolbarBtn.onclick = () => openInBuilderVideoPickerModal(-1);
+      if (openVideoQuickBtn) openVideoQuickBtn.onclick = () => openInBuilderVideoPickerModal(-1);
+      if (closeVideoModalBtn) closeVideoModalBtn.onclick = closeInBuilderVideoPickerModal;
+      if (doneVideoModalBtn) doneVideoModalBtn.onclick = closeInBuilderVideoPickerModal;
+      if (videoPickerBackdrop) {
+        videoPickerBackdrop.addEventListener('click', (e) => {
+          if (e.target === videoPickerBackdrop) closeInBuilderVideoPickerModal();
+        });
+      }
+      if (videoSearchInp) videoSearchInp.oninput = renderInBuilderVideoPickerList;
+      if (videoCatSel) videoCatSel.onchange = () => {
+        if (videoSubSel) videoSubSel.value = 'ALL';
+        renderInBuilderVideoPickerList();
+      };
+      if (videoSubSel) videoSubSel.onchange = renderInBuilderVideoPickerList;
 
       const drillEditModal = document.getElementById('drillEditModal');
       const closeDrillEditBtn = document.getElementById('closeDrillEditModalBtn');
@@ -8573,6 +9064,30 @@
           renderCalendar();
           renderRoster();
           showToast('Saved "' + sessRecord.title + '" & attendance log to Calendar!');
+        };
+      }
+
+      const saveAsNewSessionCopyBtn = document.getElementById('saveAsNewSessionCopyBtn');
+      if (saveAsNewSessionCopyBtn) {
+        saveAsNewSessionCopyBtn.onclick = () => {
+          currentEditingSessionId = null;
+          const titleInp = document.getElementById('sessionTitleInput');
+          if (titleInp && titleInp.value && !/\(Copy\)/i.test(titleInp.value)) {
+            titleInp.value = titleInp.value.trim() + ' (Copy)';
+          }
+          if (saveSessionBtn) saveSessionBtn.click();
+        };
+      }
+
+      const exitEditingSessionModeBtn = document.getElementById('exitEditingSessionModeBtn');
+      if (exitEditingSessionModeBtn) {
+        exitEditingSessionModeBtn.onclick = () => {
+          currentEditingSessionId = null;
+          document.getElementById('sessionTitleInput').value = 'New Training Session';
+          currentSessionParts = [];
+          markSessionDirty(false);
+          renderSessionParts();
+          showToast('Started fresh session plan!');
         };
       }
 
